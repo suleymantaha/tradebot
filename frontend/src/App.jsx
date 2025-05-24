@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { useEffect } from 'react'
 import MainLayout from './components/Layout/MainLayout'
 import PrivateRoute from './components/Auth/PrivateRoute'
 import LoginPage from './pages/Auth/LoginPage'
@@ -16,7 +17,12 @@ import { ThemeProvider } from './contexts/ThemeContext'
 import useAuthStore from './store/authStore'
 
 function App() {
-    const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+    const { isAuthenticated, initializeFromStorage } = useAuthStore()
+
+    // Store'u localStorage'dan initialize et
+    useEffect(() => {
+        initializeFromStorage()
+    }, [initializeFromStorage])
 
     return (
         <ThemeProvider>

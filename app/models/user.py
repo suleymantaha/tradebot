@@ -16,3 +16,4 @@ class User(Base):
     api_keys = relationship("ApiKey", back_populates="owner", cascade="all, delete-orphan")
     bot_configs = relationship("BotConfig", back_populates="owner", cascade="all, delete-orphan")
     trades = relationship("Trade", back_populates="user", cascade="all, delete-orphan")
+    backtests = relationship("Backtest", back_populates="owner", cascade="all, delete-orphan")

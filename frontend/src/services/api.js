@@ -9,6 +9,13 @@ class ApiService {
         this.baseURL = API_BASE_URL
     }
 
+    getToken() {
+        // Try store first, then localStorage as fallback
+        const storeToken = useAuthStore.getState().token
+        const localToken = localStorage.getItem('token')
+        return storeToken || localToken
+    }
+
     async request(endpoint, options = {}) {
         const url = `${this.baseURL}${endpoint}`
 
@@ -18,9 +25,11 @@ class ApiService {
         }
 
         // Add auth token if available
-        const token = localStorage.getItem('token')
+        const token = this.getToken()
         console.log('🔑 Auth Debug:', {
-            hasToken: !!token,
+            hasStoreToken: !!useAuthStore.getState().token,
+            hasLocalToken: !!localStorage.getItem('token'),
+            tokenUsed: !!token,
             tokenLength: token?.length,
             endpoint,
             url
@@ -28,6 +37,8 @@ class ApiService {
 
         if (token) {
             defaultHeaders['Authorization'] = `Bearer ${token}`
+        } else {
+            console.warn('⚠️ No authentication token found!')
         }
 
         const config = {
@@ -46,6 +57,14 @@ class ApiService {
             if (!response.ok) {
                 const errorText = await response.text()
                 console.error('❌ Request failed:', { status: response.status, errorText })
+
+                // Handle 401 errors
+                if (response.status === 401) {
+                    console.warn('🚪 401 Unauthorized - logging out')
+                    useAuthStore.getState().logout()
+                    window.location.href = '/login'
+                }
+
                 throw new Error(`HTTP ${response.status}: ${errorText}`)
             }
 

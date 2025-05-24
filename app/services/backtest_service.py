@@ -2,19 +2,23 @@ import os
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from binance.client import Client as BinanceClient
 from ta.trend import SMAIndicator, EMAIndicator, MACD
 from ta.momentum import RSIIndicator
 from ta.volatility import BollingerBands
+from ta.utils import dropna
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 import requests
 import time
+from fastapi import HTTPException
+from sqlalchemy import desc
 
 from app.core.cache import DataCache
 from app.models.api_key import ApiKey
 from app.core.crypto import decrypt_value
+from app.models.backtest import Backtest
 
 class BacktestService:
     def __init__(self, user_id: Optional[int] = None, db_session: Optional[AsyncSession] = None):
@@ -573,3 +577,133 @@ class BacktestService:
         except Exception as e:
             print(f"❌ Backtest error: {e}")
             raise
+
+    async def save_backtest_result(self, results: Dict[str, Any]) -> int:
+        """Save backtest results to database"""
+        if not self.user_id or not self.db_session:
+            print("⚠️ Cannot save backtest - no user or database session")
+            return None
+
+        try:
+            backtest = Backtest(
+                user_id=self.user_id,
+                symbol=results['symbol'],
+                interval=results['interval'],
+                start_date=results['start_date'],
+                end_date=results['end_date'],
+                parameters=results['parameters'],
+                initial_capital=results['initial_capital'],
+                final_capital=results['final_capital'],
+                total_return=results['total_return'],
+                total_trades=results['total_trades'],
+                winning_trades=results['winning_trades'],
+                losing_trades=results['losing_trades'],
+                win_rate=results['win_rate'],
+                total_fees=results['total_fees'],
+                avg_profit=results['avg_profit'],
+                daily_results=results.get('daily_results'),
+                monthly_results=results.get('monthly_results'),
+                test_mode=str(results['test_mode']).lower()
+            )
+
+            self.db_session.add(backtest)
+            await self.db_session.commit()
+            await self.db_session.refresh(backtest)
+
+            print(f"✅ Backtest saved with ID: {backtest.id}")
+            return backtest.id
+
+        except Exception as e:
+            print(f"❌ Error saving backtest: {e}")
+            await self.db_session.rollback()
+            return None
+
+    async def get_backtest_list(self, user_id: int, db_session: AsyncSession) -> List[Dict]:
+        """Get list of user's backtests"""
+        try:
+            result = await db_session.execute(
+                select(Backtest)
+                .where(Backtest.user_id == user_id)
+                .order_by(desc(Backtest.created_at))
+                .limit(50)
+            )
+            backtests = result.scalars().all()
+
+            return [
+                {
+                    "id": bt.id,
+                    "symbol": bt.symbol,
+                    "interval": bt.interval,
+                    "start_date": bt.start_date,
+                    "end_date": bt.end_date,
+                    "total_return": round(bt.total_return, 2),
+                    "win_rate": round(bt.win_rate, 2),
+                    "total_trades": bt.total_trades,
+                    "test_mode": bt.test_mode,
+                    "created_at": bt.created_at
+                } for bt in backtests
+            ]
+
+        except Exception as e:
+            print(f"❌ Error getting backtest list: {e}")
+            return []
+
+    async def get_backtest_detail(self, backtest_id: int, user_id: int, db_session: AsyncSession) -> Dict:
+        """Get detailed backtest results"""
+        try:
+            result = await db_session.execute(
+                select(Backtest)
+                .where(Backtest.id == backtest_id, Backtest.user_id == user_id)
+            )
+            backtest = result.scalars().first()
+
+            if not backtest:
+                raise HTTPException(status_code=404, detail="Backtest not found")
+
+            return {
+                "id": backtest.id,
+                "symbol": backtest.symbol,
+                "interval": backtest.interval,
+                "start_date": backtest.start_date,
+                "end_date": backtest.end_date,
+                "parameters": backtest.parameters,
+                "initial_capital": backtest.initial_capital,
+                "final_capital": backtest.final_capital,
+                "total_return": round(backtest.total_return, 2),
+                "total_trades": backtest.total_trades,
+                "winning_trades": backtest.winning_trades,
+                "losing_trades": backtest.losing_trades,
+                "win_rate": round(backtest.win_rate, 2),
+                "total_fees": backtest.total_fees,
+                "avg_profit": backtest.avg_profit,
+                "daily_results": backtest.daily_results,
+                "monthly_results": backtest.monthly_results,
+                "test_mode": backtest.test_mode,
+                "created_at": backtest.created_at
+            }
+
+        except Exception as e:
+            print(f"❌ Error getting backtest detail: {e}")
+            raise HTTPException(status_code=500, detail=f"Failed to get backtest: {str(e)}")
+
+    async def delete_backtest(self, backtest_id: int, user_id: int, db_session: AsyncSession):
+        """Delete a backtest"""
+        try:
+            result = await db_session.execute(
+                select(Backtest)
+                .where(Backtest.id == backtest_id, Backtest.user_id == user_id)
+            )
+            backtest = result.scalars().first()
+
+            if not backtest:
+                raise HTTPException(status_code=404, detail="Backtest not found")
+
+            await db_session.delete(backtest)
+            await db_session.commit()
+
+            print(f"✅ Backtest {backtest_id} deleted")
+
+        except Exception as e:
+            print(f"❌ Error deleting backtest: {e}")
+            await db_session.rollback()
+            raise HTTPException(status_code=500, detail=f"Failed to delete backtest: {str(e)}")
