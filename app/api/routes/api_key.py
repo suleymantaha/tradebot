@@ -8,6 +8,8 @@ from app.core.crypto import encrypt_value, decrypt_value
 from app.dependencies.auth import get_db, get_current_active_user
 from app.models.user import User
 from app.core.binance_client import BinanceClientWrapper
+from typing import Dict
+import logging
 
 router = APIRouter(prefix="/api/v1/api-keys", tags=["api-keys"])
 
@@ -19,26 +21,22 @@ async def create_api_key(api_key_in: ApiKeyCreate, db: AsyncSession = Depends(ge
     if existing_api_key:
         raise HTTPException(status_code=400, detail="Zaten kayıtlı bir API anahtarınız var. Önce mevcut anahtarı silmelisiniz.")
 
-    # TODO: Development aşamasında API doğrulaması devre dışı bırakıldı
-    # Kullanıcılar demo amaçlı fake API key'ler girebilirler
-    # Production'da bu bloğun açılması gerekir
+    # Binance API kimlik bilgilerini doğrula (GERÇEK TRADING İÇİN AKTİF)
+    try:
+        binance_client = BinanceClientWrapper(api_key_in.api_key, api_key_in.secret_key, testnet=False)
+        validation_result = binance_client.validate_api_credentials()
 
-    # # Binance API kimlik bilgilerini doğrula (TESTNET kullanıyoruz)
-    # try:
-    #     binance_client = BinanceClientWrapper(api_key_in.api_key, api_key_in.secret_key, testnet=True)
-    #     validation_result = binance_client.validate_api_credentials()
-    #
-    #     if not validation_result["valid"]:
-    #         error_message = f"TESTNET API anahtarları geçersiz: {validation_result['error']}. "
-    #         error_message += "Lütfen Binance TESTNET API anahtarlarınızı kullandığınızdan emin olun. "
-    #         error_message += "Testnet API anahtarları: https://testnet.binance.vision/ adresinden alınmalıdır."
-    #         raise HTTPException(status_code=400, detail=error_message)
-    # except HTTPException:
-    #     raise  # HTTPException'ları olduğu gibi iletiyoruz
-    # except Exception as e:
-    #     error_message = f"API anahtarları doğrulanamadı: {str(e)}. "
-    #     error_message += "Lütfen TESTNET API anahtarlarınızı kontrol edin."
-    #     raise HTTPException(status_code=400, detail=error_message)
+        if not validation_result["valid"]:
+            error_message = f"API anahtarları geçersiz: {validation_result['error']}. "
+            error_message += "Lütfen geçerli Binance API anahtarlarınızı kullandığınızdan emin olun. "
+            error_message += "Mainnet API anahtarları için: https://www.binance.com/en/my/settings/api-management"
+            raise HTTPException(status_code=400, detail=error_message)
+    except HTTPException:
+        raise  # HTTPException'ları olduğu gibi iletiyoruz
+    except Exception as e:
+        error_message = f"API anahtarları doğrulanamadı: {str(e)}. "
+        error_message += "Lütfen API anahtarlarınızı kontrol edin."
+        raise HTTPException(status_code=400, detail=error_message)
 
     # API anahtarlarını şifrele ve kaydet
     encrypted_api_key = encrypt_value(api_key_in.api_key)
@@ -84,3 +82,59 @@ async def delete_my_api_key(db: AsyncSession = Depends(get_db), current_user: Us
     await db.delete(api_key)
     await db.commit()
     return None
+
+@router.get("/balance")
+async def get_balance(db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    """Kullanıcının Binance bakiyesini döndürür"""
+    logger = logging.getLogger(__name__)
+
+    # API key'i kontrol et
+    result = await db.execute(select(ApiKey).where(ApiKey.user_id == current_user.id))
+    api_key = result.scalars().first()
+
+    if not api_key:
+        raise HTTPException(status_code=404, detail="API anahtarı bulunamadı")
+
+    try:
+        logger.info(f"Balance çekiliyor kullanıcı için: {current_user.id}")
+
+        # API anahtarlarını çöz
+        api_key_plain = decrypt_value(api_key.encrypted_api_key)
+        secret_key_plain = decrypt_value(api_key.encrypted_secret_key)
+
+        logger.info(f"API anahtarları başarıyla çözüldü")
+
+        # Binance client oluştur
+        binance_client = BinanceClientWrapper(api_key_plain, secret_key_plain, testnet=False)
+        logger.info("Binance client oluşturuldu")
+
+        # Spot ve Futures bakiyelerini al
+        logger.info("Spot bakiye çekiliyor...")
+        spot_balance = binance_client.get_balance("USDT")
+        logger.info(f"Spot bakiye sonucu: {spot_balance}")
+
+        logger.info("Futures bakiye çekiliyor...")
+        futures_balance = binance_client.get_futures_balance("USDT")
+        logger.info(f"Futures bakiye sonucu: {futures_balance}")
+
+        # None değerlerini 0.0 yap
+        spot_balance = spot_balance or 0.0
+        futures_balance = futures_balance or 0.0
+
+        result = {
+            "spot_balance": spot_balance,
+            "futures_balance": futures_balance,
+            "total_balance": spot_balance + futures_balance,
+            "currency": "USDT"
+        }
+
+        logger.info(f"Balance endpoint başarılı sonuç: {result}")
+        return result
+
+    except Exception as e:
+        logger.error(f"Balance endpoint hatası: {str(e)}", exc_info=True)
+        # Gerçek API hatası durumunda hata fırlat (demo mode kapalı)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Bakiye bilgisi alınamadı: {str(e)}. API anahtarlarınızı kontrol edin."
+        )

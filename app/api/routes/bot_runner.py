@@ -15,13 +15,21 @@ async def start_bot(bot_config_id: int, db: AsyncSession = Depends(get_db), curr
     bot_config = result.scalars().first()
     if not bot_config:
         raise HTTPException(status_code=404, detail="Bot config not found")
+
+    # BotConfig'in is_active field'ını güncelle
+    bot_config.is_active = True
+
     # BotState oluşturulmamışsa oluştur
     result = await db.execute(select(BotState).where(BotState.id == bot_config_id))
     bot_state = result.scalars().first()
     if not bot_state:
         bot_state = BotState(id=bot_config_id, status="pending")
         db.add(bot_state)
-        await db.commit()
+    else:
+        bot_state.status = "pending"
+
+    await db.commit()
+
     # Celery task'ını başlat
     run_bot_task.delay(bot_config_id)
     return {"message": "Bot started", "bot_config_id": bot_config_id}
@@ -32,10 +40,15 @@ async def stop_bot(bot_config_id: int, db: AsyncSession = Depends(get_db), curre
     bot_config = result.scalars().first()
     if not bot_config:
         raise HTTPException(status_code=404, detail="Bot config not found")
+
+    # BotConfig'in is_active field'ını güncelle
+    bot_config.is_active = False
+
     # BotState'i güncelle
     result = await db.execute(select(BotState).where(BotState.id == bot_config_id))
     bot_state = result.scalars().first()
     if bot_state:
         bot_state.status = "stopped"
-        await db.commit()
+
+    await db.commit()
     return {"message": "Bot stopped", "bot_config_id": bot_config_id}

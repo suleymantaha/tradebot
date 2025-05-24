@@ -47,9 +47,11 @@ export const authAPI = {
 
 // API Key API fonksiyonları
 export const apiKeyAPI = {
-    create: (apiKeyData) => api.post('/api/v1/api-keys/', apiKeyData),
+    create: (data) => api.post('/api/v1/api-keys/', data),
     getMe: () => api.get('/api/v1/api-keys/me'),
+    delete: () => api.delete('/api/v1/api-keys/me'),
     deleteMe: () => api.delete('/api/v1/api-keys/me'),
+    getBalance: () => api.get('/api/v1/api-keys/balance'),
 }
 
 // Bot Config API fonksiyonları
@@ -69,8 +71,8 @@ export const botStateAPI = {
 
 // Bot Runner API fonksiyonları
 export const botRunnerAPI = {
-    start: (id) => api.post(`/api/v1/bot-runner/${id}/start`),
-    stop: (id) => api.post(`/api/v1/bot-runner/${id}/stop`),
+    start: (id) => api.post(`/api/v1/bots/${id}/start`),
+    stop: (id) => api.post(`/api/v1/bots/${id}/stop`),
 }
 
 // Symbols API fonksiyonları

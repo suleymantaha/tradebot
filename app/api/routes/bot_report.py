@@ -55,16 +55,14 @@ async def get_bot_trades(
     if not bot_config:
         raise HTTPException(status_code=404, detail="Bot config not found")
     # Filtreli trade sorgusu
-    query = select(Trade).where(Trade.bot_id == bot_config_id)
+    query = select(Trade).where(Trade.bot_config_id == bot_config_id)
     if side:
         query = query.where(Trade.side == side)
-    if status:
-        query = query.where(Trade.status == status)
     if start_date:
-        query = query.where(Trade.executed_at >= start_date)
+        query = query.where(Trade.timestamp >= start_date)
     if end_date:
-        query = query.where(Trade.executed_at <= end_date)
-    query = query.order_by(Trade.executed_at.desc()).offset(offset).limit(limit)
+        query = query.where(Trade.timestamp <= end_date)
+    query = query.order_by(Trade.timestamp.desc()).offset(offset).limit(limit)
     result = await db.execute(query)
     trades = result.scalars().all()
     return [
@@ -72,10 +70,12 @@ async def get_bot_trades(
             "id": t.id,
             "symbol": t.symbol,
             "side": t.side,
+            "order_type": t.order_type,
             "price": t.price,
-            "quantity": t.quantity,
-            "status": t.status,
-            "executed_at": t.executed_at
+            "quantity_filled": t.quantity_filled,
+            "quote_quantity_filled": t.quote_quantity_filled,
+            "realized_pnl": t.realized_pnl,
+            "timestamp": t.timestamp
         } for t in trades
     ]
 

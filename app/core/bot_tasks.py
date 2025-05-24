@@ -10,6 +10,7 @@ from app.models.api_key import ApiKey
 from app.core.binance_client import BinanceClientWrapper
 from app.models.trade import Trade
 from datetime import datetime
+from datetime import date
 
 # Sync database connection for Celery tasks
 SYNC_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://tradebot_user:baba046532@localhost/tradebot_db")
@@ -19,7 +20,7 @@ SyncSessionLocal = sessionmaker(bind=sync_engine)
 # Binance client helper
 
 def get_binance_client(api_key: str, api_secret: str) -> BinanceClientWrapper:
-    return BinanceClientWrapper(api_key, api_secret, testnet=True)
+    return BinanceClientWrapper(api_key, api_secret, testnet=False)
 
 def _handle_fund_transfer(client: BinanceClientWrapper, bot_config: BotConfig):
     """Pozisyon türüne göre fon transferi yapar"""
@@ -84,14 +85,26 @@ def _run_bot(bot_config_id: int):
             return "API key not found"
 
         # Şifreleri çöz
-        api_key_plain = decrypt_value(api_key.encrypted_api_key)
-        secret_key_plain = decrypt_value(api_key.encrypted_secret_key)
+        try:
+            api_key_plain = decrypt_value(api_key.encrypted_api_key)
+            secret_key_plain = decrypt_value(api_key.encrypted_secret_key)
+        except Exception as e:
+            # Şifre çözme hatası - demo mode'da çalış
+            print(f"API key şifre çözme hatası, demo mode aktif: {e}")
+            demo_mode = True
+            client = None
+            api_key_plain = None
+            secret_key_plain = None
 
         # Binance client başlat
-        try:
-            client = get_binance_client(api_key_plain, secret_key_plain)
-            demo_mode = False
-        except Exception as e:
+        if api_key_plain and secret_key_plain:
+            try:
+                client = get_binance_client(api_key_plain, secret_key_plain)
+                demo_mode = False
+            except Exception as e:
+                demo_mode = True
+                client = None
+        else:
             demo_mode = True
             client = None
 
@@ -122,7 +135,7 @@ def _run_bot(bot_config_id: int):
             bot_state = session.query(BotState).filter(BotState.id == bot_config_id).first()
             if bot_state:
                 bot_state.status = "running (demo mode)"
-                bot_state.updated_at = datetime.utcnow()
+                bot_state.last_updated_at = datetime.utcnow()
                 session.commit()
             # Demo mode için işlem devam etsin
 
@@ -160,7 +173,27 @@ def _run_bot(bot_config_id: int):
                 bot_state = session.query(BotState).filter(BotState.id == bot_config_id).first()
                 if bot_state:
                     bot_state.status = "running"
-                    bot_state.updated_at = datetime.utcnow()
+                    bot_state.last_updated_at = datetime.utcnow()
+
+                    # Daily PnL hesapla - bugünkü tüm trade'lerin realized_pnl'sini topla
+                    today_trades = session.query(Trade).filter(
+                        Trade.bot_config_id == bot_config_id,
+                        Trade.realized_pnl.isnot(None)
+                    ).all()
+
+                    daily_pnl = 0.0
+                    for t in today_trades:
+                        if t.realized_pnl:
+                            daily_pnl += float(t.realized_pnl)
+
+                    bot_state.daily_pnl = daily_pnl
+
+                    # Trade sayısını güncelle - bugünkü tüm trade'leri say
+                    today = date.today()
+                    today_trades_count = session.query(Trade).filter(
+                        Trade.bot_config_id == bot_config_id
+                    ).count()
+                    bot_state.daily_trades_count = today_trades_count
 
                 session.commit()
                 return f"BUY order placed at {price}"
@@ -169,7 +202,7 @@ def _run_bot(bot_config_id: int):
                 bot_state = session.query(BotState).filter(BotState.id == bot_config_id).first()
                 if bot_state:
                     bot_state.status = "waiting"
-                    bot_state.updated_at = datetime.utcnow()
+                    bot_state.last_updated_at = datetime.utcnow()
                     session.commit()
                 return f"Waiting - price {price} too high"
 
@@ -182,9 +215,9 @@ def _run_bot(bot_config_id: int):
             rsi_overbought = getattr(bot_config, 'custom_rsi_overbought', 65) or 65
 
             # Risk yönetimi parametreleri
-            stop_loss = getattr(bot_config, 'custom_stop_loss', 0.5) or 0.5
-            take_profit = getattr(bot_config, 'custom_take_profit', 1.5) or 1.5
-            trailing_stop = getattr(bot_config, 'custom_trailing_stop', 0.3) or 0.3
+            stop_loss = float(getattr(bot_config, 'custom_stop_loss', 0.5) or 0.5)
+            take_profit = float(getattr(bot_config, 'custom_take_profit', 1.5) or 1.5)
+            trailing_stop = float(getattr(bot_config, 'custom_trailing_stop', 0.3) or 0.3)
 
             try:
                 if not demo_mode:
@@ -243,7 +276,7 @@ def _run_bot(bot_config_id: int):
                 bot_state = session.query(BotState).filter(BotState.id == bot_config_id).first()
                 if bot_state:
                     bot_state.status = "waiting (no signal)" if not demo_mode else "waiting (demo mode)"
-                    bot_state.updated_at = datetime.utcnow()
+                    bot_state.last_updated_at = datetime.utcnow()
                     session.commit()
                 return f"Waiting for signal - EMA Fast: {ema_fast_val:.2f}, EMA Slow: {ema_slow_val:.2f}, RSI: {rsi:.2f}"
 
@@ -281,10 +314,30 @@ def _run_bot(bot_config_id: int):
             bot_state = session.query(BotState).filter(BotState.id == bot_config_id).first()
             if bot_state:
                 bot_state.status = "running" if not demo_mode else "running (demo mode)"
-                bot_state.updated_at = datetime.utcnow()
+                bot_state.last_updated_at = datetime.utcnow()
                 if side == "BUY":
                     bot_state.stop_loss_price = stop_loss_price
                     bot_state.take_profit_price = take_profit_price
+
+                # Daily PnL hesapla - bugünkü tüm trade'lerin realized_pnl'sini topla
+                today_trades = session.query(Trade).filter(
+                    Trade.bot_config_id == bot_config_id,
+                    Trade.realized_pnl.isnot(None)
+                ).all()
+
+                daily_pnl = 0.0
+                for t in today_trades:
+                    if t.realized_pnl:
+                        daily_pnl += float(t.realized_pnl)
+
+                bot_state.daily_pnl = daily_pnl
+
+                # Trade sayısını güncelle - bugünkü tüm trade'leri say
+                today = date.today()
+                today_trades_count = session.query(Trade).filter(
+                    Trade.bot_config_id == bot_config_id
+                ).count()
+                bot_state.daily_trades_count = today_trades_count
 
             session.commit()
             return f"{side} order placed at {price} (EMA Fast: {ema_fast_val:.2f}, EMA Slow: {ema_slow_val:.2f}, RSI: {rsi:.2f})"
@@ -293,6 +346,6 @@ def _run_bot(bot_config_id: int):
             bot_state = session.query(BotState).filter(BotState.id == bot_config_id).first()
             if bot_state:
                 bot_state.status = "error"
-                bot_state.updated_at = datetime.utcnow()
+                bot_state.last_updated_at = datetime.utcnow()
                 session.commit()
             return f"Unknown strategy: {strategy}"

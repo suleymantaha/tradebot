@@ -165,6 +165,43 @@ const ApiKeysPage = () => {
                         <div className="px-8 py-8">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <div className="space-y-6">
+                                    {/* Test API Key Uyarısı */}
+                                    {apiKey.api_key_masked && apiKey.api_key_masked.includes('test_api') && (
+                                        <div className={`p-6 rounded-2xl border ${isDark
+                                            ? 'bg-yellow-900/30 border-yellow-800 text-yellow-300'
+                                            : 'bg-yellow-50 border-yellow-200 text-yellow-700'
+                                            }`}>
+                                            <div className="flex items-center mb-3">
+                                                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                                </svg>
+                                                <span className="font-semibold">TEST ANAHTARI TESPİT EDİLDİ</span>
+                                            </div>
+                                            <p className="text-sm mb-2">
+                                                Bu API anahtarı test verisidir ve gerçek Binance trading işlemleri için kullanılamaz.
+                                            </p>
+                                            <p className="text-sm mb-3">
+                                                Gerçek trading ve bakiye bilgileri için geçerli Binance API anahtarları eklemelisiniz.
+                                            </p>
+                                            <div className="flex space-x-2">
+                                                <button
+                                                    onClick={handleDelete}
+                                                    className="text-xs px-3 py-1 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors duration-200"
+                                                >
+                                                    Test Anahtarını Sil
+                                                </button>
+                                                <a
+                                                    href="https://www.binance.com/en/my/settings/api-management"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-xs px-3 py-1 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors duration-200"
+                                                >
+                                                    Binance API Oluştur
+                                                </a>
+                                            </div>
+                                        </div>
+                                    )}
+
                                     <div className={`p-6 rounded-2xl ${isDark ? 'bg-gradient-to-r from-blue-900/30 to-indigo-900/30' : 'bg-gradient-to-r from-blue-50 to-indigo-50'}`}>
                                         <label className={`block text-sm font-semibold mb-3 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                                             🔐 API Anahtarı

@@ -31,6 +31,21 @@ const DashboardPage = () => {
         }
 
         fetchData()
+
+        // Her 30 saniyede bir bot durumlarını yenile
+        const interval = setInterval(() => {
+            const refreshBots = async () => {
+                try {
+                    const botsResponse = await botConfigAPI.getAll()
+                    setBots(botsResponse.data)
+                } catch (error) {
+                    console.error('Bot verileri yenilenirken hata:', error)
+                }
+            }
+            refreshBots()
+        }, 30000)
+
+        return () => clearInterval(interval)
     }, [])
 
     if (loading) {

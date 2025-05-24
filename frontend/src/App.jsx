@@ -8,6 +8,9 @@ import ApiKeysPage from './pages/ApiKeys/ApiKeysPage'
 import BotsPage from './pages/Bots/BotsPage'
 import BotCreatePage from './pages/Bots/BotCreatePage'
 import BotDetailPage from './pages/Bots/BotDetailPage'
+import BotEditPage from './pages/Bots/BotEditPage'
+import BotTrades from './pages/Bots/BotTrades'
+import BotPerformance from './pages/Bots/BotPerformance'
 import { ThemeProvider } from './contexts/ThemeContext'
 import useAuthStore from './store/authStore'
 
@@ -83,6 +86,30 @@ function App() {
                             element={
                                 <PrivateRoute>
                                     <BotDetailPage />
+                                </PrivateRoute>
+                            }
+                        />
+                        <Route
+                            path="bots/:id/edit"
+                            element={
+                                <PrivateRoute>
+                                    <BotEditPage />
+                                </PrivateRoute>
+                            }
+                        />
+                        <Route
+                            path="bots/:id/trades"
+                            element={
+                                <PrivateRoute>
+                                    <BotTrades />
+                                </PrivateRoute>
+                            }
+                        />
+                        <Route
+                            path="bots/:id/performance"
+                            element={
+                                <PrivateRoute>
+                                    <BotPerformance />
                                 </PrivateRoute>
                             }
                         />
