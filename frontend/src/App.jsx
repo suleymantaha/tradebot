@@ -11,6 +11,7 @@ import BotDetailPage from './pages/Bots/BotDetailPage'
 import BotEditPage from './pages/Bots/BotEditPage'
 import BotTrades from './pages/Bots/BotTrades'
 import BotPerformance from './pages/Bots/BotPerformance'
+import BacktestPage from './pages/Backtest/BacktestPage'
 import { ThemeProvider } from './contexts/ThemeContext'
 import useAuthStore from './store/authStore'
 
@@ -110,6 +111,14 @@ function App() {
                             element={
                                 <PrivateRoute>
                                     <BotPerformance />
+                                </PrivateRoute>
+                            }
+                        />
+                        <Route
+                            path="backtest"
+                            element={
+                                <PrivateRoute>
+                                    <BacktestPage />
                                 </PrivateRoute>
                             }
                         />

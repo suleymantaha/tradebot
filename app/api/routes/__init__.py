@@ -6,3 +6,4 @@ from .trade import router as trade_router
 from .bot_runner import router as bot_runner_router
 from .bot_report import router as bot_report_router
 from .symbols import router as symbols_router
+from .backtest import router as backtest_router

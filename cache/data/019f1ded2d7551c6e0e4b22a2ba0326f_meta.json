@@ -1,0 +1,9 @@
+{
+  "symbol": "ETHUSDT",
+  "interval": "15m",
+  "start_date": "2025-01-01",
+  "end_date": "2025-04-04",
+  "cached_at": "2025-05-25T00:57:44.675245",
+  "rows": 8928,
+  "cache_key": "019f1ded2d7551c6e0e4b22a2ba0326f"
+}
