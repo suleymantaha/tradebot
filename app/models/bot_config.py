@@ -30,6 +30,24 @@ class BotConfig(Base):
     api_key_id = Column(Integer, ForeignKey("api_keys.id"), nullable=True)
     strategy = Column(String, nullable=False, default="simple")
     ema_period = Column(Integer, nullable=True)
+
+    # İleri seviye teknik indikatör parametreleri
+    custom_ema_fast = Column(Integer, nullable=True, default=8)
+    custom_ema_slow = Column(Integer, nullable=True, default=21)
+    custom_rsi_period = Column(Integer, nullable=True, default=7)
+    custom_rsi_oversold = Column(Integer, nullable=True, default=35)
+    custom_rsi_overbought = Column(Integer, nullable=True, default=65)
+
+    # İleri seviye risk yönetimi
+    custom_stop_loss = Column(Numeric, nullable=True, default=0.5)
+    custom_take_profit = Column(Numeric, nullable=True, default=1.5)
+    custom_trailing_stop = Column(Numeric, nullable=True, default=0.3)
+
+    # Pozisyon ve fon yönetimi
+    position_type = Column(String, nullable=True, default="spot")  # "spot" veya "futures"
+    transfer_amount = Column(Numeric, nullable=True)  # Belirli miktar, None ise tüm bakiye
+    auto_transfer_funds = Column(Boolean, default=True)  # Otomatik fon transferi
+
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
