@@ -2,6 +2,8 @@
 
 Bu proje, kullanıcıların kendi Binance API anahtarlarını kullanarak, özelleştirilebilir parametrelerle otomatik alım-satım stratejileri çalıştırmalarını sağlayan bir web platformu geliştirmeyi amaçlamaktadır. Platform, mevcut strateji mantığını temel alacak ve kullanıcılara 7/24 çalışan botlar oluşturma imkanı sunacaktır.
 
+**GitHub Deposu:** [suleymantaha/tradebot](https://github.com/suleymantaha/tradebot)
+
 ## Temel Amaçlar
 
 *   Kullanıcı dostu bir arayüz üzerinden bot yapılandırması ve yönetimi.
