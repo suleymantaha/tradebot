@@ -67,7 +67,7 @@ const DashboardPage = () => {
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-                    <div className="bg-white rounded-2xl shadow-xl p-6 card-hover">
+                    <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-2xl shadow-xl p-6 card-hover transition-colors duration-300`}>
                         <div className="flex items-center">
                             <div className="flex-shrink-0">
                                 <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
@@ -77,13 +77,13 @@ const DashboardPage = () => {
                                 </div>
                             </div>
                             <div className="ml-4">
-                                <p className="text-sm font-medium text-gray-600">Toplam Bot</p>
-                                <p className="text-2xl font-bold text-gray-900">{bots.length}</p>
+                                <p className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Toplam Bot</p>
+                                <p className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{bots.length}</p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-2xl shadow-xl p-6 card-hover">
+                    <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-2xl shadow-xl p-6 card-hover transition-colors duration-300`}>
                         <div className="flex items-center">
                             <div className="flex-shrink-0">
                                 <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-xl flex items-center justify-center">
@@ -93,13 +93,13 @@ const DashboardPage = () => {
                                 </div>
                             </div>
                             <div className="ml-4">
-                                <p className="text-sm font-medium text-gray-600">Aktif Bot</p>
-                                <p className="text-2xl font-bold text-gray-900">{activeBots}</p>
+                                <p className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Aktif Bot</p>
+                                <p className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{activeBots}</p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-2xl shadow-xl p-6 card-hover">
+                    <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-2xl shadow-xl p-6 card-hover transition-colors duration-300`}>
                         <div className="flex items-center">
                             <div className="flex-shrink-0">
                                 <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
@@ -109,13 +109,13 @@ const DashboardPage = () => {
                                 </div>
                             </div>
                             <div className="ml-4">
-                                <p className="text-sm font-medium text-gray-600">Toplam İşlem</p>
-                                <p className="text-2xl font-bold text-gray-900">{totalTrades}</p>
+                                <p className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Toplam İşlem</p>
+                                <p className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{totalTrades}</p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-2xl shadow-xl p-6 card-hover">
+                    <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-2xl shadow-xl p-6 card-hover transition-colors duration-300`}>
                         <div className="flex items-center">
                             <div className="flex-shrink-0">
                                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${apiKey ? 'bg-gradient-to-r from-emerald-500 to-emerald-600' : 'bg-gradient-to-r from-amber-500 to-amber-600'
@@ -130,8 +130,8 @@ const DashboardPage = () => {
                                 </div>
                             </div>
                             <div className="ml-4">
-                                <p className="text-sm font-medium text-gray-600">API Durumu</p>
-                                <p className="text-sm font-bold text-gray-900">{apiKey ? 'Bağlı' : 'Bağlı Değil'}</p>
+                                <p className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>API Durumu</p>
+                                <p className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{apiKey ? 'Bağlı' : 'Bağlı Değil'}</p>
                             </div>
                         </div>
                     </div>
@@ -139,8 +139,10 @@ const DashboardPage = () => {
 
                 {/* API Key Section */}
                 <div className="mb-12">
-                    <div className={`rounded-3xl shadow-2xl overflow-hidden ${apiKey ? 'bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200' : 'bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200'
-                        }`}>
+                    <div className={`rounded-3xl shadow-2xl overflow-hidden ${apiKey
+                        ? `${isDark ? 'bg-gradient-to-r from-green-900/30 to-emerald-900/30 border border-green-700' : 'bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200'}`
+                        : `${isDark ? 'bg-gradient-to-r from-amber-900/30 to-orange-900/30 border border-amber-700' : 'bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200'}`
+                        } transition-colors duration-300`}>
                         <div className="px-8 py-8">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center">
@@ -151,11 +153,15 @@ const DashboardPage = () => {
                                         </svg>
                                     </div>
                                     <div>
-                                        <h3 className={`text-2xl font-bold mb-2 ${apiKey ? 'text-green-800' : 'text-amber-800'
+                                        <h3 className={`text-2xl font-bold mb-2 ${apiKey
+                                            ? `${isDark ? 'text-green-300' : 'text-green-800'}`
+                                            : `${isDark ? 'text-amber-300' : 'text-amber-800'}`
                                             }`}>
                                             Binance API Anahtarı
                                         </h3>
-                                        <p className={`text-lg ${apiKey ? 'text-green-700' : 'text-amber-700'
+                                        <p className={`text-lg ${apiKey
+                                            ? `${isDark ? 'text-green-400' : 'text-green-700'}`
+                                            : `${isDark ? 'text-amber-400' : 'text-amber-700'}`
                                             }`}>
                                             {apiKey
                                                 ? `✅ API anahtarı başarıyla bağlandı`
@@ -163,7 +169,7 @@ const DashboardPage = () => {
                                             }
                                         </p>
                                         {apiKey && (
-                                            <p className="text-sm text-green-600 mt-1">
+                                            <p className={`text-sm mt-1 ${isDark ? 'text-green-500' : 'text-green-600'}`}>
                                                 Anahtar: {apiKey.api_key_masked}
                                             </p>
                                         )}
@@ -173,7 +179,10 @@ const DashboardPage = () => {
                                     {apiKey ? (
                                         <Link
                                             to="/api-keys"
-                                            className="inline-flex items-center px-6 py-3 bg-white text-green-700 rounded-2xl font-semibold hover:bg-green-50 transition-all duration-200 shadow-lg hover:shadow-xl"
+                                            className={`inline-flex items-center px-6 py-3 rounded-2xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl ${isDark
+                                                ? 'bg-gray-700 text-green-400 hover:bg-gray-600'
+                                                : 'bg-white text-green-700 hover:bg-green-50'
+                                                }`}
                                         >
                                             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -202,10 +211,10 @@ const DashboardPage = () => {
                 <div className="mb-8">
                     <div className="flex items-center justify-between mb-8">
                         <div>
-                            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                            <h2 className={`text-3xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                 Trading Botları
                             </h2>
-                            <p className="text-gray-600">
+                            <p className={`${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                                 {bots.length > 0 ? `${bots.length} bot bulundu, ${activeBots} tanesi aktif` : 'Henüz bot oluşturmadınız'}
                             </p>
                         </div>
@@ -221,16 +230,16 @@ const DashboardPage = () => {
                     </div>
 
                     {bots.length === 0 ? (
-                        <div className="bg-white rounded-3xl shadow-2xl p-12 text-center card-hover">
-                            <div className="w-24 h-24 bg-gradient-to-r from-indigo-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <svg className="w-12 h-12 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-3xl shadow-2xl p-12 text-center card-hover transition-colors duration-300`}>
+                            <div className={`w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 ${isDark ? 'bg-gradient-to-r from-indigo-900 to-purple-900' : 'bg-gradient-to-r from-indigo-100 to-purple-100'}`}>
+                                <svg className={`w-12 h-12 ${isDark ? 'text-indigo-400' : 'text-indigo-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                                 </svg>
                             </div>
-                            <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                            <h3 className={`text-2xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                 İlk Botunuzu Oluşturun! 🚀
                             </h3>
-                            <p className="text-lg text-gray-600 mb-8 max-w-md mx-auto">
+                            <p className={`text-lg mb-8 max-w-md mx-auto ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                                 Gelişmiş trading botları ile otomatik alım satım yapmaya başlayın. Teknik analiz ve risk yönetimi ile profesyonel trading.
                             </p>
                             <Link
@@ -248,46 +257,44 @@ const DashboardPage = () => {
                             {bots.map((bot, index) => (
                                 <div
                                     key={bot.id}
-                                    className={`bg-white rounded-3xl shadow-2xl overflow-hidden card-hover animate-fadeIn`}
+                                    className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-3xl shadow-2xl overflow-hidden card-hover animate-fadeIn transition-colors duration-300`}
                                     style={{ animationDelay: `${index * 0.1}s` }}
                                 >
                                     <div className="p-8">
                                         <div className="flex items-center justify-between mb-6">
                                             <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${bot.is_active ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 'bg-gradient-to-r from-gray-400 to-gray-500'
                                                 }`}>
-                                                <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                                                </svg>
+                                                <span className="text-2xl">🤖</span>
                                             </div>
                                             <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${bot.is_active
-                                                ? 'bg-green-100 text-green-800'
-                                                : 'bg-gray-100 text-gray-800'
+                                                ? `${isDark ? 'bg-green-900 text-green-300' : 'bg-green-100 text-green-800'}`
+                                                : `${isDark ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-800'}`
                                                 }`}>
                                                 {bot.is_active ? '🟢 Aktif' : '⚪ Pasif'}
                                             </span>
                                         </div>
 
-                                        <h3 className="text-xl font-bold text-gray-900 mb-4">
+                                        <h3 className={`text-xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                             {bot.name}
                                         </h3>
 
                                         <div className="space-y-3 mb-6">
                                             <div className="flex items-center justify-between">
-                                                <span className="text-sm font-medium text-gray-600">📈 Sembol:</span>
-                                                <span className="text-sm font-bold text-gray-900">{bot.symbol}</span>
+                                                <span className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>📈 Sembol:</span>
+                                                <span className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-900'} font-mono`}>{bot.symbol}</span>
                                             </div>
                                             <div className="flex items-center justify-between">
-                                                <span className="text-sm font-medium text-gray-600">🎯 Strateji:</span>
-                                                <span className="text-sm font-bold text-gray-900 uppercase">{bot.strategy}</span>
+                                                <span className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>🎯 Strateji:</span>
+                                                <span className={`text-sm font-bold uppercase ${isDark ? 'text-white' : 'text-gray-900'}`}>{bot.strategy}</span>
                                             </div>
                                             <div className="flex items-center justify-between">
-                                                <span className="text-sm font-medium text-gray-600">⏰ Zaman Dilimi:</span>
-                                                <span className="text-sm font-bold text-gray-900">{bot.timeframe}</span>
+                                                <span className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>⏰ Zaman Dilimi:</span>
+                                                <span className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{bot.timeframe}</span>
                                             </div>
                                             {bot.position_type && (
                                                 <div className="flex items-center justify-between">
-                                                    <span className="text-sm font-medium text-gray-600">💼 Tip:</span>
-                                                    <span className={`text-sm font-bold ${bot.position_type === 'futures' ? 'text-purple-600' : 'text-blue-600'}`}>
+                                                    <span className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>💼 Tip:</span>
+                                                    <span className={`text-sm font-bold ${bot.position_type === 'futures' ? 'text-purple-400' : 'text-blue-400'}`}>
                                                         {bot.position_type === 'futures' ? '⚡ Futures' : '🏦 Spot'}
                                                     </span>
                                                 </div>

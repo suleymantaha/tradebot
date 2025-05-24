@@ -3,8 +3,10 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { authAPI } from '../../services/api'
 import useAuthStore from '../../store/authStore'
+import { useTheme } from '../../contexts/ThemeContext'
 
 const LoginPage = () => {
+    const { isDark } = useTheme()
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState('')
     const [showPassword, setShowPassword] = useState(false)
@@ -36,22 +38,29 @@ const LoginPage = () => {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md w-full space-y-8 bg-white/80 rounded-2xl shadow-2xl p-8 animate-fade-in">
+        <div className={`min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300 ${isDark
+            ? 'bg-gradient-to-br from-gray-900 to-gray-800'
+            : 'bg-gradient-to-br from-blue-50 to-blue-100'
+            }`}>
+            <div className={`max-w-md w-full space-y-8 rounded-2xl shadow-2xl p-8 animate-fade-in transition-colors duration-300 ${isDark
+                ? 'bg-gray-800/90 backdrop-blur-sm'
+                : 'bg-white/80 backdrop-blur-sm'
+                }`}>
                 <div className="flex flex-col items-center">
                     {/* Logo or Icon */}
-                    <div className="bg-blue-600 rounded-full p-3 mb-2 shadow-lg">
-                        {/* Simple SVG icon */}
-                        <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="white"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 11c1.657 0 3-1.343 3-3S13.657 5 12 5s-3 1.343-3 3 1.343 3 3 3zm0 2c-2.67 0-8 1.337-8 4v2a1 1 0 001 1h14a1 1 0 001-1v-2c0-2.663-5.33-4-8-4z" /></svg>
+                    <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full p-3 mb-2 shadow-lg">
+                        <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="white">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                        </svg>
                     </div>
-                    <h2 className="mt-2 text-center text-3xl font-extrabold text-gray-900">
+                    <h2 className={`mt-2 text-center text-3xl font-extrabold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                         Hesabınıza giriş yapın
                     </h2>
-                    <p className="mt-2 text-center text-sm text-gray-600">
+                    <p className={`mt-2 text-center text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                         Hesabınız yok mu?{' '}
                         <Link
                             to="/register"
-                            className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+                            className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors"
                         >
                             Kayıt olun
                         </Link>
@@ -61,14 +70,17 @@ const LoginPage = () => {
                 <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
                     {/* Error message with animation */}
                     {error && (
-                        <div className="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-lg animate-shake shadow">
+                        <div className={`px-4 py-3 rounded-lg animate-shake shadow ${isDark
+                            ? 'bg-red-900/30 border border-red-700 text-red-300'
+                            : 'bg-red-100 border border-red-300 text-red-700'
+                            }`}>
                             {error}
                         </div>
                     )}
 
                     <div className="space-y-4">
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                            <label htmlFor="email" className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                                 E-posta adresi
                             </label>
                             <input
@@ -80,16 +92,19 @@ const LoginPage = () => {
                                     },
                                 })}
                                 type="email"
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all sm:text-sm shadow-sm"
+                                className={`mt-1 block w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all sm:text-sm shadow-sm ${isDark
+                                    ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-400'
+                                    : 'border-gray-300 bg-white text-gray-900 placeholder-gray-500'
+                                    }`}
                                 placeholder="E-posta adresiniz"
                             />
                             {errors.email && (
-                                <p className="mt-1 text-sm text-red-600 animate-fade-in">{errors.email.message}</p>
+                                <p className="mt-1 text-sm text-red-500 animate-fade-in">{errors.email.message}</p>
                             )}
                         </div>
 
                         <div className="relative">
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                            <label htmlFor="password" className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                                 Şifre
                             </label>
                             <input
@@ -101,14 +116,20 @@ const LoginPage = () => {
                                     },
                                 })}
                                 type={showPassword ? 'text' : 'password'}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all sm:text-sm shadow-sm pr-10"
+                                className={`mt-1 block w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all sm:text-sm shadow-sm pr-10 ${isDark
+                                    ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-400'
+                                    : 'border-gray-300 bg-white text-gray-900 placeholder-gray-500'
+                                    }`}
                                 placeholder="Şifreniz"
                             />
                             {/* Show/Hide password icon */}
                             <button
                                 type="button"
                                 tabIndex={-1}
-                                className="absolute right-2 top-9 text-gray-400 hover:text-blue-500 transition-colors"
+                                className={`absolute right-2 top-9 transition-colors ${isDark
+                                    ? 'text-gray-400 hover:text-indigo-400'
+                                    : 'text-gray-400 hover:text-indigo-500'
+                                    }`}
                                 onClick={() => setShowPassword((v) => !v)}
                                 aria-label={showPassword ? 'Şifreyi gizle' : 'Şifreyi göster'}
                             >
@@ -119,7 +140,7 @@ const LoginPage = () => {
                                 )}
                             </button>
                             {errors.password && (
-                                <p className="mt-1 text-sm text-red-600 animate-fade-in">{errors.password.message}</p>
+                                <p className="mt-1 text-sm text-red-500 animate-fade-in">{errors.password.message}</p>
                             )}
                         </div>
                     </div>
@@ -128,7 +149,7 @@ const LoginPage = () => {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg transition-all"
+                            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg transition-all transform hover:scale-105"
                         >
                             {isLoading ? (
                                 <span className="flex items-center gap-2">

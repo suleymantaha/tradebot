@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { apiKeyAPI } from '../../services/api'
+import { useTheme } from '../../contexts/ThemeContext'
 
 const ApiKeysPage = () => {
+    const { isDark } = useTheme()
     const [apiKey, setApiKey] = useState(null)
     const [loading, setLoading] = useState(true)
     const [isAdding, setIsAdding] = useState(false)
@@ -85,17 +87,17 @@ const ApiKeysPage = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50 flex items-center justify-center">
-                <div className="bg-white p-8 rounded-3xl shadow-2xl">
+            <div className={`min-h-screen ${isDark ? 'bg-gray-900' : 'bg-gradient-to-br from-indigo-50 via-white to-cyan-50'} flex items-center justify-center transition-colors duration-300`}>
+                <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} p-8 rounded-3xl shadow-2xl transition-colors duration-300`}>
                     <div className="animate-spin rounded-full h-16 w-16 border-4 border-indigo-200 border-t-indigo-600 mx-auto"></div>
-                    <p className="mt-4 text-lg text-gray-600 text-center font-medium">Yükleniyor...</p>
+                    <p className={`mt-4 text-lg ${isDark ? 'text-gray-300' : 'text-gray-600'} text-center font-medium`}>Yükleniyor...</p>
                 </div>
             </div>
         )
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50">
+        <div className={`min-h-screen ${isDark ? 'bg-gray-900' : 'bg-gradient-to-br from-indigo-50 via-white to-cyan-50'} transition-colors duration-300`}>
             <div className="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
                 {/* Header */}
                 <div className="text-center mb-12 animate-fadeIn">
@@ -107,14 +109,17 @@ const ApiKeysPage = () => {
                     <h1 className="text-5xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-4">
                         API Anahtarı Yönetimi
                     </h1>
-                    <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                    <p className={`text-xl ${isDark ? 'text-gray-300' : 'text-gray-600'} max-w-2xl mx-auto`}>
                         Binance API anahtarınızı güvenli şekilde saklayın ve trading botlarınızla kullanın
                     </p>
                 </div>
 
                 {/* Alert Messages */}
                 {error && (
-                    <div className="mb-8 bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 text-red-700 px-6 py-4 rounded-2xl shadow-lg animate-fadeIn">
+                    <div className={`mb-8 px-6 py-4 rounded-2xl shadow-lg animate-fadeIn ${isDark
+                        ? 'bg-gradient-to-r from-red-900/20 to-pink-900/20 border border-red-800 text-red-300'
+                        : 'bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 text-red-700'
+                        }`}>
                         <div className="flex items-center">
                             <svg className="w-5 h-5 mr-3 text-red-500" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
@@ -125,7 +130,10 @@ const ApiKeysPage = () => {
                 )}
 
                 {success && (
-                    <div className="mb-8 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 text-green-700 px-6 py-4 rounded-2xl shadow-lg animate-fadeIn success-bounce">
+                    <div className={`mb-8 px-6 py-4 rounded-2xl shadow-lg animate-fadeIn success-bounce ${isDark
+                        ? 'bg-gradient-to-r from-green-900/20 to-emerald-900/20 border border-green-800 text-green-300'
+                        : 'bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 text-green-700'
+                        }`}>
                         <div className="flex items-center">
                             <svg className="w-5 h-5 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -137,7 +145,7 @@ const ApiKeysPage = () => {
 
                 {/* Mevcut API Key */}
                 {apiKey ? (
-                    <div className="bg-white rounded-3xl shadow-2xl overflow-hidden mb-8 card-hover animate-fadeIn">
+                    <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-3xl shadow-2xl overflow-hidden mb-8 card-hover animate-fadeIn transition-colors duration-300`}>
                         <div className="bg-gradient-to-r from-green-500 to-emerald-500 px-8 py-6">
                             <div className="flex items-center">
                                 <div className="w-16 h-16 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center mr-6">
@@ -157,21 +165,24 @@ const ApiKeysPage = () => {
                         <div className="px-8 py-8">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <div className="space-y-6">
-                                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl">
-                                        <label className="block text-sm font-semibold text-gray-700 mb-3">
+                                    <div className={`p-6 rounded-2xl ${isDark ? 'bg-gradient-to-r from-blue-900/30 to-indigo-900/30' : 'bg-gradient-to-r from-blue-50 to-indigo-50'}`}>
+                                        <label className={`block text-sm font-semibold mb-3 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                                             🔐 API Anahtarı
                                         </label>
-                                        <div className="text-sm text-gray-900 font-mono bg-white px-4 py-3 rounded-xl border border-gray-200 shadow-sm">
+                                        <div className={`text-sm font-mono px-4 py-3 rounded-xl border shadow-sm ${isDark
+                                            ? 'text-gray-200 bg-gray-700 border-gray-600'
+                                            : 'text-gray-900 bg-white border-gray-200'
+                                            }`}>
                                             {apiKey.api_key_masked}
                                         </div>
                                     </div>
 
                                     {apiKey.label && (
-                                        <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl">
-                                            <label className="block text-sm font-semibold text-gray-700 mb-3">
+                                        <div className={`p-6 rounded-2xl ${isDark ? 'bg-gradient-to-r from-purple-900/30 to-pink-900/30' : 'bg-gradient-to-r from-purple-50 to-pink-50'}`}>
+                                            <label className={`block text-sm font-semibold mb-3 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                                                 🏷️ Etiket
                                             </label>
-                                            <div className="text-sm text-gray-900 font-medium">
+                                            <div className={`text-sm font-medium ${isDark ? 'text-gray-200' : 'text-gray-900'}`}>
                                                 {apiKey.label}
                                             </div>
                                         </div>
@@ -179,15 +190,15 @@ const ApiKeysPage = () => {
                                 </div>
 
                                 <div className="space-y-6">
-                                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-2xl">
-                                        <label className="block text-sm font-semibold text-gray-700 mb-3">
+                                    <div className={`p-6 rounded-2xl ${isDark ? 'bg-gradient-to-r from-green-900/30 to-emerald-900/30' : 'bg-gradient-to-r from-green-50 to-emerald-50'}`}>
+                                        <label className={`block text-sm font-semibold mb-3 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                                             📊 Durum
                                         </label>
                                         <div>
                                             <span
                                                 className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold ${apiKey.is_valid
-                                                    ? 'bg-green-100 text-green-800 border border-green-200'
-                                                    : 'bg-red-100 text-red-800 border border-red-200'
+                                                    ? `${isDark ? 'bg-green-900 text-green-300 border border-green-700' : 'bg-green-100 text-green-800 border border-green-200'}`
+                                                    : `${isDark ? 'bg-red-900 text-red-300 border border-red-700' : 'bg-red-100 text-red-800 border border-red-200'}`
                                                     }`}
                                             >
                                                 {apiKey.is_valid ? '✅ Geçerli' : '❌ Geçersiz'}
@@ -195,22 +206,22 @@ const ApiKeysPage = () => {
                                         </div>
                                     </div>
 
-                                    <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-6 rounded-2xl">
-                                        <label className="block text-sm font-semibold text-gray-700 mb-3">
+                                    <div className={`p-6 rounded-2xl ${isDark ? 'bg-gradient-to-r from-amber-900/30 to-orange-900/30' : 'bg-gradient-to-r from-amber-50 to-orange-50'}`}>
+                                        <label className={`block text-sm font-semibold mb-3 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                                             📅 Oluşturulma Tarihi
                                         </label>
-                                        <div className="text-sm text-gray-900 font-medium">
+                                        <div className={`text-sm font-medium ${isDark ? 'text-gray-200' : 'text-gray-900'}`}>
                                             {new Date(apiKey.created_at).toLocaleString('tr-TR')}
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="mt-8 pt-8 border-t border-gray-200">
-                                <div className="flex items-center justify-between bg-gradient-to-r from-red-50 to-pink-50 p-6 rounded-2xl">
+                            <div className={`mt-8 pt-8 border-t ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
+                                <div className={`flex items-center justify-between p-6 rounded-2xl ${isDark ? 'bg-gradient-to-r from-red-900/30 to-pink-900/30' : 'bg-gradient-to-r from-red-50 to-pink-50'}`}>
                                     <div>
-                                        <h4 className="text-lg font-semibold text-red-800 mb-2">⚠️ Tehlikeli Bölge</h4>
-                                        <p className="text-sm text-red-700">
+                                        <h4 className={`text-lg font-semibold mb-2 ${isDark ? 'text-red-400' : 'text-red-800'}`}>⚠️ Tehlikeli Bölge</h4>
+                                        <p className={`text-sm ${isDark ? 'text-red-300' : 'text-red-700'}`}>
                                             API anahtarını silmek tüm botlarınızı kalıcı olarak siler. Bu işlem geri alınamaz!
                                         </p>
                                     </div>
@@ -235,7 +246,7 @@ const ApiKeysPage = () => {
                     </div>
                 ) : (
                     /* API Key Ekleme Formu */
-                    <div className="bg-white rounded-3xl shadow-2xl overflow-hidden card-hover animate-fadeIn">
+                    <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-3xl shadow-2xl overflow-hidden card-hover animate-fadeIn transition-colors duration-300`}>
                         <div className="bg-gradient-to-r from-indigo-500 to-purple-500 px-8 py-6">
                             <div className="flex items-center">
                                 <div className="w-16 h-16 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center mr-6">
@@ -254,18 +265,21 @@ const ApiKeysPage = () => {
 
                         <div className="px-8 py-8">
                             {/* Güvenlik Uyarısı */}
-                            <div className="mb-8 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-6">
+                            <div className={`mb-8 border rounded-2xl p-6 ${isDark
+                                ? 'bg-gradient-to-r from-amber-900/30 to-orange-900/30 border-amber-700'
+                                : 'bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200'
+                                }`}>
                                 <div className="flex items-start">
                                     <div className="flex-shrink-0">
-                                        <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
+                                        <div className={`w-12 h-12 rounded-full flex items-center justify-center ${isDark ? 'bg-amber-800' : 'bg-amber-100'}`}>
                                             <span className="text-2xl">🛡️</span>
                                         </div>
                                     </div>
                                     <div className="ml-4">
-                                        <h4 className="text-lg font-semibold text-amber-800 mb-3">
+                                        <h4 className={`text-lg font-semibold mb-3 ${isDark ? 'text-amber-400' : 'text-amber-800'}`}>
                                             Güvenlik Uyarısı
                                         </h4>
-                                        <div className="text-sm text-amber-700 space-y-2">
+                                        <div className={`text-sm space-y-2 ${isDark ? 'text-amber-300' : 'text-amber-700'}`}>
                                             <div className="flex items-center">
                                                 <span className="text-green-500 mr-2">✅</span>
                                                 API anahtarınız şifrelenmiş olarak saklanır
@@ -289,7 +303,7 @@ const ApiKeysPage = () => {
 
                             <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
                                 <div>
-                                    <label htmlFor="api_key" className="block text-sm font-semibold text-gray-700 mb-3">
+                                    <label htmlFor="api_key" className={`block text-sm font-semibold mb-3 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                                         🔐 API Anahtarı *
                                     </label>
                                     <input
@@ -301,7 +315,10 @@ const ApiKeysPage = () => {
                                             },
                                         })}
                                         type="text"
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 text-sm"
+                                        className={`w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 text-sm ${isDark
+                                            ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-400'
+                                            : 'border-gray-300 bg-white text-gray-900 placeholder-gray-500'
+                                            }`}
                                         placeholder="Binance API anahtarınızı girin"
                                     />
                                     {errors.api_key && (
@@ -315,7 +332,7 @@ const ApiKeysPage = () => {
                                 </div>
 
                                 <div>
-                                    <label htmlFor="secret_key" className="block text-sm font-semibold text-gray-700 mb-3">
+                                    <label htmlFor="secret_key" className={`block text-sm font-semibold mb-3 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                                         🔒 Secret Anahtarı *
                                     </label>
                                     <input
@@ -327,7 +344,10 @@ const ApiKeysPage = () => {
                                             },
                                         })}
                                         type="password"
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 text-sm"
+                                        className={`w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 text-sm ${isDark
+                                            ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-400'
+                                            : 'border-gray-300 bg-white text-gray-900 placeholder-gray-500'
+                                            }`}
                                         placeholder="Binance Secret anahtarınızı girin"
                                     />
                                     {errors.secret_key && (
@@ -341,13 +361,16 @@ const ApiKeysPage = () => {
                                 </div>
 
                                 <div>
-                                    <label htmlFor="label" className="block text-sm font-semibold text-gray-700 mb-3">
+                                    <label htmlFor="label" className={`block text-sm font-semibold mb-3 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                                         🏷️ Etiket (Opsiyonel)
                                     </label>
                                     <input
                                         {...register('label')}
                                         type="text"
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 text-sm"
+                                        className={`w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 text-sm ${isDark
+                                            ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-400'
+                                            : 'border-gray-300 bg-white text-gray-900 placeholder-gray-500'
+                                            }`}
                                         placeholder="örn: Ana Hesap"
                                     />
                                 </div>
