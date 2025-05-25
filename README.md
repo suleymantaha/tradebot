@@ -80,7 +80,7 @@
 
 ### 1️⃣ **Proje İndirme**
 ```bash
-git clone https://github.com/babacanserkan/tradebot.git
+git clone https://github.com/suleymantaha/tradebot.git
 cd tradebot
 ```
 
@@ -451,7 +451,7 @@ sudo ufw enable
 6. 🔄 Submit a pull request
 
 ### 🐛 **Bug Reports**
-[GitHub Issues](https://github.com/babacanserkan/tradebot/issues) üzerinden:
+[GitHub Issues](https://github.com/suleymantaha/tradebot/issues) üzerinden:
 - 📝 Detaylı açıklama
 - 🔄 Reproduce steps
 - 📊 Expected vs actual behavior
@@ -510,7 +510,7 @@ Bu proje aşağıdaki açık kaynak projeleri kullanmaktadır:
 
 **🚀 TradeBot ile Happy Trading! 💰📈**
 
-[![GitHub stars](https://img.shields.io/github/stars/babacanserkan/tradebot?style=social)](https://github.com/babacanserkan/tradebot)
-[![GitHub forks](https://img.shields.io/github/forks/babacanserkan/tradebot?style=social)](https://github.com/babacanserkan/tradebot)
+[![GitHub stars](https://img.shields.io/github/stars/suleymantaha/tradebot?style=social)](https://github.com/suleymantaha/tradebot)
+[![GitHub forks](https://img.shields.io/github/forks/suleymantaha/tradebot?style=social)](https://github.com/suleymantaha/tradebot)
 
 </div>
