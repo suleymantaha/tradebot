@@ -47,6 +47,7 @@ class BotConfig(Base):
     position_type = Column(String, nullable=True, default="spot")  # "spot" veya "futures"
     transfer_amount = Column(Numeric, nullable=True)  # Belirli miktar, None ise tüm bakiye
     auto_transfer_funds = Column(Boolean, default=True)  # Otomatik fon transferi
+    leverage = Column(Integer, nullable=True, default=10)  # 🆕 Kaldıraç (futures için)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

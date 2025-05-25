@@ -14,6 +14,9 @@ const BotCreatePage = () => {
     const [symbols, setSymbols] = useState([])
     const [loadingSymbols, setLoadingSymbols] = useState(false)
     const [currentStep, setCurrentStep] = useState(1)
+    const [searchTerm, setSearchTerm] = useState('')
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+    const [selectedSymbol, setSelectedSymbol] = useState('')
 
     const {
         register,
@@ -73,7 +76,7 @@ const BotCreatePage = () => {
 
     useEffect(() => {
         const loadSymbols = async () => {
-            if (!apiKey) return
+            if (!positionType) return
 
             setLoadingSymbols(true)
             try {
@@ -82,22 +85,24 @@ const BotCreatePage = () => {
                     symbolsAPI.getSpotSymbols
 
                 const response = await endpoint()
-                setSymbols(response.data || [])
+                if (response.data && response.data.length > 0) {
+                    setSymbols(response.data)
+                    console.log(`${positionType} için ${response.data.length} sembol yüklendi`)
+                } else {
+                    throw new Error('Boş sembol listesi döndü')
+                }
             } catch (err) {
-                console.warn('Sembol listesi yüklenemedi, varsayılan listesi kullanılıyor')
-                setSymbols([
-                    { symbol: 'BTCUSDT', baseAsset: 'BTC', quoteAsset: 'USDT' },
-                    { symbol: 'ETHUSDT', baseAsset: 'ETH', quoteAsset: 'USDT' },
-                    { symbol: 'ADAUSDT', baseAsset: 'ADA', quoteAsset: 'USDT' },
-                    { symbol: 'BNBUSDT', baseAsset: 'BNB', quoteAsset: 'USDT' },
-                ])
+                console.error('Sembol listesi yüklenirken hata:', err)
+                setError(`Sembol listesi yüklenemedi. API'ye bağlantı sorunu var. Lütfen sayfayı yenileyip tekrar deneyin.`)
+                // Boş array bırakıyoruz - dropdown açılmayacak ama user bilgilendirilecek
+                setSymbols([])
             } finally {
                 setLoadingSymbols(false)
             }
         }
 
         loadSymbols()
-    }, [apiKey, positionType])
+    }, [positionType])
 
     const onSubmit = async (data) => {
         if (!apiKey) {
@@ -131,6 +136,7 @@ const BotCreatePage = () => {
                 custom_take_profit: parseFloat(data.custom_take_profit),
                 custom_trailing_stop: parseFloat(data.custom_trailing_stop),
                 transfer_amount: data.transfer_amount ? parseFloat(data.transfer_amount) : null,
+                leverage: data.leverage ? parseInt(data.leverage) : 10,
             }
 
             const response = await botConfigAPI.create(botData)
@@ -307,39 +313,170 @@ const BotCreatePage = () => {
                                             <option value="spot">🏦 Spot Trading</option>
                                             <option value="futures">⚡ Futures Trading</option>
                                         </select>
+                                        {errors.position_type && (
+                                            <p className="text-sm text-red-600 flex items-center">
+                                                <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                                </svg>
+                                                {errors.position_type.message}
+                                            </p>
+                                        )}
                                     </div>
+
+                                    {/* 🆕 Leverage alanı - sadece futures seçildiyse göster */}
+                                    {positionType === 'futures' && (
+                                        <div className="space-y-2">
+                                            <label className={`block text-sm font-semibold ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                                                ⚡ Kaldıraç (Leverage) *
+                                            </label>
+                                            <select
+                                                {...register('leverage', {
+                                                    required: positionType === 'futures' ? 'Kaldıraç seçimi gereklidir' : false,
+                                                    min: { value: 1, message: 'En az 1x olmalıdır' },
+                                                    max: { value: 125, message: 'En fazla 125x olabilir' }
+                                                })}
+                                                className={`w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 ${isDark
+                                                    ? 'border-gray-600 bg-gray-700 text-white'
+                                                    : 'border-gray-300 bg-white text-gray-900'
+                                                    }`}
+                                            >
+                                                <option value="1">1x (Güvenli)</option>
+                                                <option value="2">2x</option>
+                                                <option value="3">3x</option>
+                                                <option value="5">5x</option>
+                                                <option value="10">10x (Varsayılan)</option>
+                                                <option value="20">20x (Riskli)</option>
+                                                <option value="50">50x (Çok Riskli)</option>
+                                                <option value="75">75x (Aşırı Riskli)</option>
+                                                <option value="100">100x (Maksimum Risk)</option>
+                                                <option value="125">125x (Aşırı Risk)</option>
+                                            </select>
+                                            <div className={`text-xs mt-1 p-2 rounded-lg ${isDark ? 'bg-orange-900/30 text-orange-300' : 'bg-orange-50 text-orange-700'}`}>
+                                                <p className="flex items-center">
+                                                    <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                                    </svg>
+                                                    <strong>Risk Uyarısı:</strong> Yüksek kaldıraç büyük kazançlar sağlayabilir ancak aynı zamanda büyük kayıplar da yaratabilir.
+                                                </p>
+                                            </div>
+                                            {errors.leverage && (
+                                                <p className="text-sm text-red-600 flex items-center">
+                                                    <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                                    </svg>
+                                                    {errors.leverage.message}
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="space-y-2">
                                     <label className={`block text-sm font-semibold ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                                         📈 Trading Çifti *
-                                        {loadingSymbols && <span className="ml-2 text-xs text-indigo-500">(Yükleniyor...)</span>}
+                                        {loadingSymbols && <span className="ml-2 text-xs text-indigo-500">(Dinamik yükleniyor...)</span>}
+                                        {!loadingSymbols && symbols.length > 20 && <span className="ml-2 text-xs text-green-500">({symbols.length} sembol yüklendi)</span>}
+                                        {!loadingSymbols && symbols.length === 0 && <span className="ml-2 text-xs text-red-500">(Sembol yüklenemedi - Sayfa yenileyin)</span>}
                                     </label>
-                                    <select
-                                        {...register('symbol', { required: 'Trading çifti seçimi gereklidir' })}
-                                        className={`w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 ${isDark
-                                            ? 'border-gray-600 bg-gray-700 text-white'
-                                            : 'border-gray-300 bg-white text-gray-900'
-                                            }`}
-                                        disabled={loadingSymbols}
-                                    >
-                                        <option value="">Trading çifti seçin</option>
-                                        {symbols.map((symbol) => (
-                                            <option key={symbol.symbol} value={symbol.symbol}>
-                                                {symbol.symbol} ({symbol.baseAsset}/{symbol.quoteAsset})
-                                            </option>
-                                        ))}
-                                    </select>
+
+                                    {/* 🆕 Searchable Symbol Dropdown */}
+                                    <div className="relative">
+                                        <input
+                                            {...register('symbol', { required: 'Trading çifti seçimi gereklidir' })}
+                                            type="text"
+                                            value={searchTerm}
+                                            onChange={(e) => {
+                                                setSearchTerm(e.target.value)
+                                                setIsDropdownOpen(true)
+                                                setValue('symbol', e.target.value)
+                                            }}
+                                            onFocus={() => setIsDropdownOpen(true)}
+                                            className={`w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 ${isDark
+                                                ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-400'
+                                                : 'border-gray-300 bg-white text-gray-900 placeholder-gray-500'
+                                                }`}
+                                            placeholder={loadingSymbols ? "Yükleniyor..." : "BTCUSDT yazın veya arayın..."}
+                                            disabled={loadingSymbols}
+                                            autoComplete="off"
+                                        />
+
+                                        {/* Dropdown Icon */}
+                                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                            <svg className={`h-5 w-5 ${isDark ? 'text-gray-400' : 'text-gray-400'} transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </div>
+
+                                        {/* Dropdown List */}
+                                        {isDropdownOpen && !loadingSymbols && symbols.length > 0 && (
+                                            <div className={`absolute z-50 w-full mt-1 ${isDark ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'} border rounded-xl shadow-lg max-h-60 overflow-y-auto`}>
+                                                {symbols
+                                                    .filter(symbol =>
+                                                        symbol.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                                        symbol.baseAsset.toLowerCase().includes(searchTerm.toLowerCase())
+                                                    )
+                                                    .slice(0, 50) // Performance için max 50 göster
+                                                    .map((symbol) => (
+                                                        <div
+                                                            key={symbol.symbol}
+                                                            className={`px-4 py-3 cursor-pointer transition-colors duration-150 ${isDark
+                                                                ? 'hover:bg-gray-600 text-white'
+                                                                : 'hover:bg-gray-50 text-gray-900'
+                                                                } ${selectedSymbol === symbol.symbol ? 'bg-indigo-50 border-l-4 border-indigo-500' : ''}`}
+                                                            onClick={() => {
+                                                                setSearchTerm(symbol.symbol)
+                                                                setSelectedSymbol(symbol.symbol)
+                                                                setValue('symbol', symbol.symbol)
+                                                                setIsDropdownOpen(false)
+                                                            }}
+                                                        >
+                                                            <div className="flex items-center justify-between">
+                                                                <span className="font-medium">{symbol.symbol}</span>
+                                                                <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-500'}`}>
+                                                                    {symbol.baseAsset}/{symbol.quoteAsset}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    ))
+                                                }
+
+                                                {/* Sonuç bulunamadı mesajı */}
+                                                {symbols.filter(symbol =>
+                                                    symbol.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                                    symbol.baseAsset.toLowerCase().includes(searchTerm.toLowerCase())
+                                                ).length === 0 && searchTerm.length > 0 && (
+                                                        <div className={`px-4 py-3 text-center ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                                            <svg className="w-8 h-8 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                                            </svg>
+                                                            <p>"{searchTerm}" için sonuç bulunamadı</p>
+                                                            <p className="text-xs mt-1">Farklı bir arama terimi deneyin</p>
+                                                        </div>
+                                                    )}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Click outside to close dropdown */}
+                                    {isDropdownOpen && (
+                                        <div
+                                            className="fixed inset-0 z-40"
+                                            onClick={() => setIsDropdownOpen(false)}
+                                        ></div>
+                                    )}
                                 </div>
 
                                 <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
                                     <div className="space-y-2">
-                                        <label className="block text-sm font-semibold text-gray-700">
+                                        <label className={`block text-sm font-semibold ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                                             ⏰ Zaman Dilimi *
                                         </label>
                                         <select
                                             {...register('timeframe', { required: 'Zaman dilimi seçimi gereklidir' })}
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+                                            className={`w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 ${isDark
+                                                ? 'border-gray-600 bg-gray-700 text-white'
+                                                : 'border-gray-300 bg-white text-gray-900'
+                                                }`}
                                         >
                                             <option value="1m">1 Dakika</option>
                                             <option value="5m">5 Dakika</option>
@@ -351,7 +488,7 @@ const BotCreatePage = () => {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label className="block text-sm font-semibold text-gray-700">
+                                        <label className={`block text-sm font-semibold ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                                             🔄 Kontrol Aralığı (saniye) *
                                         </label>
                                         <input
@@ -361,7 +498,10 @@ const BotCreatePage = () => {
                                                 max: { value: 3600, message: 'En fazla 3600 saniye olabilir' }
                                             })}
                                             type="number"
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+                                            className={`w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 ${isDark
+                                                ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-400'
+                                                : 'border-gray-300 bg-white text-gray-900 placeholder-gray-500'
+                                                }`}
                                             placeholder="60"
                                         />
                                     </div>
@@ -373,15 +513,15 @@ const BotCreatePage = () => {
                         {currentStep === 2 && (
                             <div className="space-y-8 animate-fadeIn">
                                 <div className="text-center mb-8">
-                                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Teknik İndikatör Ayarları</h2>
-                                    <p className="text-gray-600">EMA ve RSI parametrelerini özelleştirin</p>
+                                    <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} mb-2`}>Teknik İndikatör Ayarları</h2>
+                                    <p className={`${isDark ? 'text-gray-300' : 'text-gray-600'}`}>EMA ve RSI parametrelerini özelleştirin</p>
                                 </div>
 
-                                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl mb-8">
-                                    <h3 className="text-lg font-semibold text-indigo-800 mb-3">📊 EMA (Exponential Moving Average)</h3>
+                                <div className={`p-6 rounded-2xl mb-8 ${isDark ? 'bg-gradient-to-r from-blue-900/30 to-indigo-900/30' : 'bg-gradient-to-r from-blue-50 to-indigo-50'}`}>
+                                    <h3 className={`text-lg font-semibold mb-3 ${isDark ? 'text-indigo-400' : 'text-indigo-800'}`}>📊 EMA (Exponential Moving Average)</h3>
                                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                         <div className="space-y-2">
-                                            <label className="block text-sm font-semibold text-gray-700">
+                                            <label className={`block text-sm font-semibold ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                                                 ⚡ Hızlı EMA Periyodu *
                                             </label>
                                             <input
@@ -391,13 +531,16 @@ const BotCreatePage = () => {
                                                     max: { value: 50, message: 'En fazla 50 olabilir' }
                                                 })}
                                                 type="number"
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+                                                className={`w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 ${isDark
+                                                    ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-400'
+                                                    : 'border-gray-300 bg-white text-gray-900 placeholder-gray-500'
+                                                    }`}
                                                 placeholder="8"
                                             />
                                         </div>
 
                                         <div className="space-y-2">
-                                            <label className="block text-sm font-semibold text-gray-700">
+                                            <label className={`block text-sm font-semibold ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                                                 🐌 Yavaş EMA Periyodu *
                                             </label>
                                             <input
@@ -407,18 +550,21 @@ const BotCreatePage = () => {
                                                     max: { value: 200, message: 'En fazla 200 olabilir' }
                                                 })}
                                                 type="number"
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+                                                className={`w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 ${isDark
+                                                    ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-400'
+                                                    : 'border-gray-300 bg-white text-gray-900 placeholder-gray-500'
+                                                    }`}
                                                 placeholder="21"
                                             />
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl">
-                                    <h3 className="text-lg font-semibold text-purple-800 mb-3">📈 RSI (Relative Strength Index)</h3>
+                                <div className={`p-6 rounded-2xl ${isDark ? 'bg-gradient-to-r from-purple-900/30 to-pink-900/30' : 'bg-gradient-to-r from-purple-50 to-pink-50'}`}>
+                                    <h3 className={`text-lg font-semibold mb-3 ${isDark ? 'text-purple-400' : 'text-purple-800'}`}>📈 RSI (Relative Strength Index)</h3>
                                     <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                                         <div className="space-y-2">
-                                            <label className="block text-sm font-semibold text-gray-700">
+                                            <label className={`block text-sm font-semibold ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                                                 🔄 RSI Periyodu *
                                             </label>
                                             <input
@@ -428,13 +574,16 @@ const BotCreatePage = () => {
                                                     max: { value: 50, message: 'En fazla 50 olabilir' }
                                                 })}
                                                 type="number"
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+                                                className={`w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 ${isDark
+                                                    ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-400'
+                                                    : 'border-gray-300 bg-white text-gray-900 placeholder-gray-500'
+                                                    }`}
                                                 placeholder="7"
                                             />
                                         </div>
 
                                         <div className="space-y-2">
-                                            <label className="block text-sm font-semibold text-gray-700">
+                                            <label className={`block text-sm font-semibold ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                                                 📉 Aşırı Satım Seviyesi *
                                             </label>
                                             <input
@@ -444,13 +593,16 @@ const BotCreatePage = () => {
                                                     max: { value: 40, message: 'En fazla 40 olabilir' }
                                                 })}
                                                 type="number"
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+                                                className={`w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 ${isDark
+                                                    ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-400'
+                                                    : 'border-gray-300 bg-white text-gray-900 placeholder-gray-500'
+                                                    }`}
                                                 placeholder="35"
                                             />
                                         </div>
 
                                         <div className="space-y-2">
-                                            <label className="block text-sm font-semibold text-gray-700">
+                                            <label className={`block text-sm font-semibold ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                                                 📈 Aşırı Alım Seviyesi *
                                             </label>
                                             <input
@@ -460,21 +612,24 @@ const BotCreatePage = () => {
                                                     max: { value: 80, message: 'En fazla 80 olabilir' }
                                                 })}
                                                 type="number"
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+                                                className={`w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 ${isDark
+                                                    ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-400'
+                                                    : 'border-gray-300 bg-white text-gray-900 placeholder-gray-500'
+                                                    }`}
                                                 placeholder="65"
                                             />
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-2xl">
-                                    <h4 className="text-sm font-semibold text-green-800 flex items-center mb-3">
+                                <div className={`p-6 rounded-2xl ${isDark ? 'bg-gradient-to-r from-green-900/30 to-emerald-900/30' : 'bg-gradient-to-r from-green-50 to-emerald-50'}`}>
+                                    <h4 className={`text-sm font-semibold flex items-center mb-3 ${isDark ? 'text-green-400' : 'text-green-800'}`}>
                                         <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                             <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                                         </svg>
                                         Strateji Açıklaması
                                     </h4>
-                                    <p className="text-sm text-green-700">
+                                    <p className={`text-sm ${isDark ? 'text-green-300' : 'text-green-700'}`}>
                                         Bot, hızlı EMA yavaş EMA'yı yukarı kestiğinde ve RSI aşırı alım seviyesinin altındayken alış yapar.
                                         Tersi durumda satış yapar. Daha düşük RSI seviyesi daha agresif strateji demektir.
                                     </p>
@@ -486,20 +641,20 @@ const BotCreatePage = () => {
                         {currentStep === 3 && (
                             <div className="space-y-8 animate-fadeIn">
                                 <div className="text-center mb-8">
-                                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Risk Yönetimi</h2>
-                                    <p className="text-gray-600">Stop loss, take profit ve trailing stop ayarları</p>
+                                    <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} mb-2`}>Risk Yönetimi</h2>
+                                    <p className={`${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Stop loss, take profit ve trailing stop ayarları</p>
                                 </div>
 
                                 <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-                                    <div className="bg-gradient-to-r from-red-50 to-pink-50 p-6 rounded-2xl">
+                                    <div className={`p-6 rounded-2xl ${isDark ? 'bg-gradient-to-r from-red-900/30 to-pink-900/30' : 'bg-gradient-to-r from-red-50 to-pink-50'}`}>
                                         <div className="text-center mb-4">
                                             <div className="inline-flex items-center justify-center w-12 h-12 bg-red-100 rounded-full mb-3">
                                                 <span className="text-2xl">🛑</span>
                                             </div>
-                                            <h3 className="text-lg font-semibold text-red-800">Stop Loss</h3>
+                                            <h3 className={`text-lg font-semibold ${isDark ? 'text-red-400' : 'text-red-800'}`}>Stop Loss</h3>
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="block text-sm font-semibold text-gray-700">
+                                            <label className={`block text-sm font-semibold ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                                                 Yüzde (%) *
                                             </label>
                                             <input
@@ -510,21 +665,24 @@ const BotCreatePage = () => {
                                                 })}
                                                 type="number"
                                                 step="0.1"
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+                                                className={`w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200 ${isDark
+                                                    ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-400'
+                                                    : 'border-gray-300 bg-white text-gray-900 placeholder-gray-500'
+                                                    }`}
                                                 placeholder="0.5"
                                             />
                                         </div>
                                     </div>
 
-                                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-2xl">
+                                    <div className={`p-6 rounded-2xl ${isDark ? 'bg-gradient-to-r from-green-900/30 to-emerald-900/30' : 'bg-gradient-to-r from-green-50 to-emerald-50'}`}>
                                         <div className="text-center mb-4">
                                             <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mb-3">
                                                 <span className="text-2xl">🎯</span>
                                             </div>
-                                            <h3 className="text-lg font-semibold text-green-800">Take Profit</h3>
+                                            <h3 className={`text-lg font-semibold ${isDark ? 'text-green-400' : 'text-green-800'}`}>Take Profit</h3>
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="block text-sm font-semibold text-gray-700">
+                                            <label className={`block text-sm font-semibold ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                                                 Yüzde (%) *
                                             </label>
                                             <input
@@ -535,21 +693,24 @@ const BotCreatePage = () => {
                                                 })}
                                                 type="number"
                                                 step="0.1"
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                                                className={`w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 ${isDark
+                                                    ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-400'
+                                                    : 'border-gray-300 bg-white text-gray-900 placeholder-gray-500'
+                                                    }`}
                                                 placeholder="1.5"
                                             />
                                         </div>
                                     </div>
 
-                                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl">
+                                    <div className={`p-6 rounded-2xl ${isDark ? 'bg-gradient-to-r from-blue-900/30 to-indigo-900/30' : 'bg-gradient-to-r from-blue-50 to-indigo-50'}`}>
                                         <div className="text-center mb-4">
                                             <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full mb-3">
                                                 <span className="text-2xl">📊</span>
                                             </div>
-                                            <h3 className="text-lg font-semibold text-blue-800">Trailing Stop</h3>
+                                            <h3 className={`text-lg font-semibold ${isDark ? 'text-blue-400' : 'text-blue-800'}`}>Trailing Stop</h3>
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="block text-sm font-semibold text-gray-700">
+                                            <label className={`block text-sm font-semibold ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                                                 Yüzde (%) *
                                             </label>
                                             <input
@@ -560,7 +721,10 @@ const BotCreatePage = () => {
                                                 })}
                                                 type="number"
                                                 step="0.1"
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                className={`w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${isDark
+                                                    ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-400'
+                                                    : 'border-gray-300 bg-white text-gray-900 placeholder-gray-500'
+                                                    }`}
                                                 placeholder="0.3"
                                             />
                                         </div>
@@ -568,7 +732,7 @@ const BotCreatePage = () => {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="block text-sm font-semibold text-gray-700">
+                                    <label className={`block text-sm font-semibold ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                                         🔢 Günlük Maksimum İşlem (Opsiyonel)
                                     </label>
                                     <input
@@ -577,10 +741,13 @@ const BotCreatePage = () => {
                                             max: { value: 100, message: 'En fazla 100 olabilir' }
                                         })}
                                         type="number"
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+                                        className={`w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 ${isDark
+                                            ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-400'
+                                            : 'border-gray-300 bg-white text-gray-900 placeholder-gray-500'
+                                            }`}
                                         placeholder="10"
                                     />
-                                    <p className="text-sm text-gray-500">
+                                    <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                                         Boş bırakılırsa sınırsız işlem yapabilir
                                     </p>
                                 </div>
@@ -591,15 +758,15 @@ const BotCreatePage = () => {
                         {currentStep === 4 && (
                             <div className="space-y-8 animate-fadeIn">
                                 <div className="text-center mb-8">
-                                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Fon Yönetimi</h2>
-                                    <p className="text-gray-600">Otomatik fon transferi ve bot durumu ayarları</p>
+                                    <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} mb-2`}>Fon Yönetimi</h2>
+                                    <p className={`${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Otomatik fon transferi ve bot durumu ayarları</p>
                                 </div>
 
-                                <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-8 rounded-2xl">
+                                <div className={`p-8 rounded-2xl ${isDark ? 'bg-gradient-to-r from-amber-900/30 to-orange-900/30' : 'bg-gradient-to-r from-amber-50 to-orange-50'}`}>
                                     <div className="flex items-center justify-between mb-6">
                                         <div>
-                                            <h3 className="text-lg font-semibold text-amber-800 mb-2">💸 Otomatik Fon Transferi</h3>
-                                            <p className="text-sm text-amber-700">
+                                            <h3 className={`text-lg font-semibold mb-2 ${isDark ? 'text-amber-400' : 'text-amber-800'}`}>💸 Otomatik Fon Transferi</h3>
+                                            <p className={`text-sm ${isDark ? 'text-amber-300' : 'text-amber-700'}`}>
                                                 {positionType === 'futures'
                                                     ? 'Futures trading için Spot → Futures cüzdanına otomatik transfer'
                                                     : 'Spot trading için Futures → Spot cüzdanına otomatik transfer'
@@ -617,7 +784,7 @@ const BotCreatePage = () => {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label className="block text-sm font-semibold text-gray-700">
+                                        <label className={`block text-sm font-semibold ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                                             💰 Transfer Miktarı (USDT - Opsiyonel)
                                         </label>
                                         <input
@@ -626,20 +793,23 @@ const BotCreatePage = () => {
                                             })}
                                             type="number"
                                             step="0.01"
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200"
+                                            className={`w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200 ${isDark
+                                                ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-400'
+                                                : 'border-gray-300 bg-white text-gray-900 placeholder-gray-500'
+                                                }`}
                                             placeholder="100.00"
                                         />
-                                        <p className="text-sm text-gray-500">
+                                        <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                                             Boş bırakılırsa tüm mevcut bakiye transfer edilir
                                         </p>
                                     </div>
                                 </div>
 
-                                <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-8 rounded-2xl">
+                                <div className={`p-8 rounded-2xl ${isDark ? 'bg-gradient-to-r from-green-900/30 to-emerald-900/30' : 'bg-gradient-to-r from-green-50 to-emerald-50'}`}>
                                     <div className="flex items-center justify-between">
                                         <div>
-                                            <h3 className="text-lg font-semibold text-green-800 mb-2">🚀 Bot Durumu</h3>
-                                            <p className="text-sm text-green-700">
+                                            <h3 className={`text-lg font-semibold mb-2 ${isDark ? 'text-green-400' : 'text-green-800'}`}>🚀 Bot Durumu</h3>
+                                            <p className={`text-sm ${isDark ? 'text-green-300' : 'text-green-700'}`}>
                                                 Botu oluşturulduktan sonra hemen çalışmaya başlasın mı?
                                             </p>
                                         </div>
@@ -657,11 +827,14 @@ const BotCreatePage = () => {
                         )}
 
                         {/* Navigation Buttons */}
-                        <div className="flex justify-between pt-8 border-t border-gray-200">
+                        <div className={`flex justify-between pt-8 border-t ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
                             <button
                                 type="button"
                                 onClick={() => currentStep === 1 ? navigate('/dashboard') : prevStep()}
-                                className="flex items-center px-6 py-3 border border-gray-300 rounded-xl shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200"
+                                className={`flex items-center px-6 py-3 border rounded-xl shadow-sm text-sm font-medium transition-all duration-200 ${isDark
+                                    ? 'border-gray-600 text-gray-300 bg-gray-700 hover:bg-gray-600'
+                                    : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
+                                    } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
                             >
                                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />

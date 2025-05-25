@@ -320,6 +320,25 @@ const BotDetailPage = () => {
                                     </div>
 
                                     <div className={`p-4 rounded-xl ${isDark ? 'bg-gray-700/50' : 'bg-gray-50'}`}>
+                                        <dt className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'} mb-1`}>💼 Pozisyon Türü</dt>
+                                        <dd className={`text-sm ${isDark ? 'text-white' : 'text-gray-900'} font-bold`}>
+                                            {bot.position_type === 'futures' ? '⚡ Futures Trading' : '🏦 Spot Trading'}
+                                        </dd>
+                                    </div>
+
+                                    {/* 🆕 Leverage bilgisi - sadece futures için göster */}
+                                    {bot.position_type === 'futures' && (
+                                        <div className={`p-4 rounded-xl ${isDark ? 'bg-gray-700/50' : 'bg-gray-50'}`}>
+                                            <dt className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'} mb-1`}>⚡ Kaldıraç</dt>
+                                            <dd className={`text-sm ${isDark ? 'text-white' : 'text-gray-900'} font-bold`}>
+                                                <span className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-2 py-1 rounded-lg">
+                                                    {bot.leverage || 10}x
+                                                </span>
+                                            </dd>
+                                        </div>
+                                    )}
+
+                                    <div className={`p-4 rounded-xl ${isDark ? 'bg-gray-700/50' : 'bg-gray-50'}`}>
                                         <dt className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'} mb-1`}>🎯 Strateji</dt>
                                         <dd className={`text-sm ${isDark ? 'text-white' : 'text-gray-900'} capitalize font-bold`}>{bot.strategy}</dd>
                                     </div>

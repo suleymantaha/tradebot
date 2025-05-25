@@ -2,6 +2,8 @@ from binance.client import Client
 from binance.exceptions import BinanceAPIException, BinanceOrderException
 from typing import Dict, Any, Optional
 import logging
+import requests
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -149,6 +151,37 @@ class BinanceClientWrapper:
             logger.error(f"Sembol listesi alınamadı: {e}")
             return None
 
+    @staticmethod
+    def get_public_symbols() -> Optional[list]:
+        """Public endpoint ile tüm aktif sembolleri döndürür (API key gerekmez)"""
+        try:
+            # Environment variable'dan testnet kontrolü
+            testnet_env = os.getenv('TESTNET_URL', 'false').lower()
+            if testnet_env in ['true', '1', 'yes']:  # Testnet
+                url = "https://testnet.binance.vision/api/v3/exchangeInfo"
+            else:  # Mainnet
+                url = "https://api.binance.com/api/v3/exchangeInfo"
+
+            response = requests.get(url, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                symbols = []
+                for symbol_info in data['symbols']:
+                    if symbol_info['status'] == 'TRADING':
+                        symbols.append({
+                            'symbol': symbol_info['symbol'],
+                            'baseAsset': symbol_info['baseAsset'],
+                            'quoteAsset': symbol_info['quoteAsset'],
+                            'status': symbol_info['status']
+                        })
+                return symbols
+            else:
+                logger.error(f"Public symbols API hatası: {response.status_code}")
+                return None
+        except Exception as e:
+            logger.error(f"Public symbols alınamadı: {e}")
+            return None
+
     def get_futures_symbols(self) -> Optional[list]:
         """Futures sembolleri döndürür"""
         try:
@@ -165,6 +198,37 @@ class BinanceClientWrapper:
             return symbols
         except Exception as e:
             logger.error(f"Futures sembol listesi alınamadı: {e}")
+            return None
+
+    @staticmethod
+    def get_public_futures_symbols() -> Optional[list]:
+        """Public endpoint ile futures sembolleri döndürür (API key gerekmez)"""
+        try:
+            # Environment variable'dan testnet kontrolü
+            testnet_env = os.getenv('TESTNET_URL', 'false').lower()
+            if testnet_env in ['true', '1', 'yes']:  # Testnet
+                url = "https://testnet.binancefuture.com/fapi/v1/exchangeInfo"
+            else:  # Mainnet
+                url = "https://fapi.binance.com/fapi/v1/exchangeInfo"
+
+            response = requests.get(url, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                symbols = []
+                for symbol_info in data['symbols']:
+                    if symbol_info['status'] == 'TRADING':
+                        symbols.append({
+                            'symbol': symbol_info['symbol'],
+                            'baseAsset': symbol_info['baseAsset'],
+                            'quoteAsset': symbol_info['quoteAsset'],
+                            'status': symbol_info['status']
+                        })
+                return symbols
+            else:
+                logger.error(f"Public futures symbols API hatası: {response.status_code}")
+                return None
+        except Exception as e:
+            logger.error(f"Public futures symbols alınamadı: {e}")
             return None
 
     def transfer_to_futures(self, asset: str, amount: float) -> Optional[Dict[str, Any]]:
@@ -235,4 +299,32 @@ class BinanceClientWrapper:
             return order
         except Exception as e:
             logger.error(f"Futures satış emri hatası: {e}")
+            return None
+
+    def set_leverage(self, symbol: str, leverage: int) -> Optional[Dict[str, Any]]:
+        """Futures trading için kaldıraç ayarlar"""
+        try:
+            # Leverage 1-125 arasında olmalı
+            if leverage < 1 or leverage > 125:
+                leverage = 10  # Default leverage
+
+            result = self.client.futures_change_leverage(
+                symbol=symbol,
+                leverage=leverage
+            )
+            logger.info(f"{symbol} için kaldıraç {leverage}x olarak ayarlandı")
+            return result
+        except Exception as e:
+            logger.error(f"Kaldıraç ayarlama hatası {symbol} {leverage}x: {e}")
+            return None
+
+    def get_leverage(self, symbol: str) -> Optional[int]:
+        """Belirtilen sembol için mevcut kaldıracı döndürür"""
+        try:
+            position_info = self.client.futures_position_information(symbol=symbol)
+            if position_info:
+                return int(position_info[0].get('leverage', 1))
+            return None
+        except Exception as e:
+            logger.error(f"Kaldıraç bilgisi alınamadı {symbol}: {e}")
             return None

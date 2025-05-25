@@ -1,19 +1,19 @@
-"""Add backtest table
+"""Create backtest table - fixed
 
-Revision ID: f0307c41750e
-Revises: 3742c83cd3b1
-Create Date: 2025-05-25 01:57:16.445349
+Revision ID: 8dff47bdfa5f
+Revises: 107856acfca7
+Create Date: 2025-05-25 21:18:34.492458
 
 """
 from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.dialects import postgresql
+
 
 # revision identifiers, used by Alembic.
-revision: str = 'f0307c41750e'
-down_revision: Union[str, None] = '3742c83cd3b1'
+revision: str = '8dff47bdfa5f'
+down_revision: Union[str, None] = '107856acfca7'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

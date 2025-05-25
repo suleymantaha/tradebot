@@ -95,15 +95,8 @@ class BacktestService:
         except Exception as e:
             print(f"⚠️ Could not get current price for {symbol}: {e}")
 
-        # Fallback to base prices if API fails
-        fallback_prices = {
-            'BNBUSDT': 300, 'BTCUSDT': 45000, 'ETHUSDT': 3000,
-            'ADAUSDT': 0.5, 'DOTUSDT': 8, 'XRPUSDT': 0.6,
-            'LTCUSDT': 100, 'BCHUSDT': 250, 'LINKUSDT': 15, 'XLMUSDT': 0.12
-        }
-        fallback_price = fallback_prices.get(symbol, 100)
-        print(f"📊 Using fallback price for {symbol}: ${fallback_price}")
-        return fallback_price
+
+
 
     async def generate_sample_data(self, symbol: str, interval: str, start_date: str, end_date: str) -> pd.DataFrame:
         """Generate sample data for testing when API keys are not available"""

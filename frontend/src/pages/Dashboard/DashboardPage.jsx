@@ -9,6 +9,8 @@ const DashboardPage = () => {
     const { isDark } = useTheme()
     const [bots, setBots] = useState([])
     const [apiKey, setApiKey] = useState(null)
+    const [balance, setBalance] = useState(null)
+    const [loadingBalance, setLoadingBalance] = useState(false)
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
@@ -38,6 +40,11 @@ const DashboardPage = () => {
                 try {
                     const botsResponse = await botConfigAPI.getAll()
                     setBots(botsResponse.data)
+
+                    // API key varsa balance'ı da yenile
+                    if (apiKey) {
+                        fetchBalance()
+                    }
                 } catch (error) {
                     console.error('Bot verileri yenilenirken hata:', error)
                 }
@@ -47,6 +54,32 @@ const DashboardPage = () => {
 
         return () => clearInterval(interval)
     }, [])
+
+    // Balance çekme fonksiyonu
+    const fetchBalance = async () => {
+        if (!apiKey) return
+
+        setLoadingBalance(true)
+        try {
+            const balanceResponse = await apiKeyAPI.getBalance()
+            setBalance(balanceResponse.data)
+            console.log('💰 Balance başarıyla yüklendi:', balanceResponse.data)
+        } catch (error) {
+            console.error('Balance yüklenirken hata:', error)
+            setBalance(null)
+        } finally {
+            setLoadingBalance(false)
+        }
+    }
+
+    // API key değiştiğinde balance'ı güncelle
+    useEffect(() => {
+        if (apiKey) {
+            fetchBalance()
+        } else {
+            setBalance(null)
+        }
+    }, [apiKey])
 
     if (loading) {
         return (
@@ -151,6 +184,125 @@ const DashboardPage = () => {
                         </div>
                     </div>
                 </div>
+
+                {/* 🆕 Balance Widget - API Key varsa göster */}
+                {apiKey && (
+                    <div className="mb-12">
+                        <div className={`rounded-3xl shadow-2xl overflow-hidden ${isDark ? 'bg-gradient-to-r from-yellow-900/30 to-amber-900/30 border border-yellow-700' : 'bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-200'} transition-colors duration-300`}>
+                            <div className="px-8 py-8">
+                                <div className="flex items-center justify-between mb-6">
+                                    <div className="flex items-center">
+                                        <div className="w-16 h-16 bg-gradient-to-r from-yellow-500 to-amber-500 rounded-2xl flex items-center justify-center mr-6">
+                                            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h3 className={`text-2xl font-bold mb-2 ${isDark ? 'text-yellow-300' : 'text-yellow-800'}`}>
+                                                💰 Binance Bakiye
+                                            </h3>
+                                            <p className={`text-lg ${isDark ? 'text-yellow-400' : 'text-yellow-700'}`}>
+                                                Canlı bakiye bilgileriniz
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={fetchBalance}
+                                        disabled={loadingBalance}
+                                        className={`inline-flex items-center px-6 py-3 rounded-2xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl ${isDark
+                                            ? 'bg-gray-700 text-yellow-400 hover:bg-gray-600'
+                                            : 'bg-white text-yellow-700 hover:bg-yellow-50'
+                                            } ${loadingBalance ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    >
+                                        {loadingBalance ? (
+                                            <>
+                                                <svg className="animate-spin w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24">
+                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                                Yükleniyor...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                                </svg>
+                                                Yenile
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+
+                                {/* Balance Cards */}
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    {/* Spot Balance */}
+                                    <div className={`${isDark ? 'bg-gray-800/50' : 'bg-white/70'} rounded-2xl p-6 backdrop-blur-sm`}>
+                                        <div className="flex items-center justify-between mb-3">
+                                            <h4 className={`font-semibold ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>🏦 Spot Cüzdan</h4>
+                                            <span className="text-2xl">💵</span>
+                                        </div>
+                                        <p className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                            {balance ? `${parseFloat(balance.spot_balance || 0).toFixed(2)}` : '--'}
+                                            <span className="text-lg font-medium ml-1 text-gray-500">USDT</span>
+                                        </p>
+                                    </div>
+
+                                    {/* Futures Balance */}
+                                    <div className={`${isDark ? 'bg-gray-800/50' : 'bg-white/70'} rounded-2xl p-6 backdrop-blur-sm`}>
+                                        <div className="flex items-center justify-between mb-3">
+                                            <h4 className={`font-semibold ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>⚡ Futures Cüzdan</h4>
+                                            <span className="text-2xl">📈</span>
+                                        </div>
+                                        <p className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                            {balance ? `${parseFloat(balance.futures_balance || 0).toFixed(2)}` : '--'}
+                                            <span className="text-lg font-medium ml-1 text-gray-500">USDT</span>
+                                        </p>
+                                    </div>
+
+                                    {/* Total Balance */}
+                                    <div className={`${isDark ? 'bg-gradient-to-r from-yellow-900/50 to-amber-900/50' : 'bg-gradient-to-r from-yellow-100 to-amber-100'} rounded-2xl p-6`}>
+                                        <div className="flex items-center justify-between mb-3">
+                                            <h4 className={`font-semibold ${isDark ? 'text-yellow-300' : 'text-yellow-800'}`}>💎 Toplam Bakiye</h4>
+                                            <span className="text-2xl">🏆</span>
+                                        </div>
+                                        <p className={`text-3xl font-bold ${isDark ? 'text-yellow-200' : 'text-yellow-900'}`}>
+                                            {balance ? `${parseFloat(balance.total_balance || 0).toFixed(2)}` : '--'}
+                                            <span className="text-lg font-medium ml-1 opacity-70">USDT</span>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Balance Info */}
+                                {balance && (
+                                    <div className={`mt-6 p-4 rounded-xl ${isDark ? 'bg-gray-800/30' : 'bg-white/50'} border-l-4 border-yellow-500`}>
+                                        <div className="flex items-center">
+                                            <svg className="w-5 h-5 text-yellow-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                                            </svg>
+                                            <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                                                Bakiye bilgileri gerçek zamanlı Binance API'den alınmaktadır. Son güncelleme: {new Date().toLocaleTimeString('tr-TR')}
+                                            </span>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Error State */}
+                                {!balance && !loadingBalance && apiKey && (
+                                    <div className={`mt-6 p-4 rounded-xl ${isDark ? 'bg-red-900/30' : 'bg-red-50'} border-l-4 border-red-500`}>
+                                        <div className="flex items-center">
+                                            <svg className="w-5 h-5 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                            </svg>
+                                            <span className={`text-sm ${isDark ? 'text-red-300' : 'text-red-700'}`}>
+                                                Bakiye bilgileri yüklenemedi. API anahtarınızın geçerli olduğundan emin olun ve "Yenile" butonuna tıklayın.
+                                            </span>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* API Key Section */}
                 <div className="mb-12">

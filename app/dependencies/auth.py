@@ -7,8 +7,10 @@ from app.core.jwt import verify_access_token
 from app.models.user import User
 from app.database import SessionLocal
 from app.schemas.token import TokenData
+from typing import Optional
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login", auto_error=False)
 
 async def get_db():
     async with SessionLocal() as session:
@@ -36,3 +38,27 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
     if not current_user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
+
+async def get_current_user_optional(token: str = Depends(oauth2_scheme_optional), db: AsyncSession = Depends(get_db)) -> Optional[User]:
+    """Optional authentication - returns User if authenticated, None if not"""
+    if not token:
+        return None
+
+    try:
+        payload = verify_access_token(token)
+        if payload is None:
+            return None
+
+        email: str = payload.get("sub")
+        if email is None:
+            return None
+
+        result = await db.execute(select(User).where(User.email == email))
+        user = result.scalars().first()
+
+        # Check if user is active
+        if user and user.is_active:
+            return user
+        return None
+    except:
+        return None

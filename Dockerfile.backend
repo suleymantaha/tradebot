@@ -1,0 +1,55 @@
+# Python 3.13 slim image kullan
+FROM python:3.13-slim
+
+# Maintainer bilgisi
+LABEL maintainer="TradeBot Team"
+LABEL description="TradeBot Backend API"
+
+# Working directory oluştur
+WORKDIR /app
+
+# System dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    curl \
+    postgresql-client \
+    redis-tools \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Uygulama kodunu kopyala
+COPY . .
+
+# Cache ve logs dizinlerini oluştur
+RUN mkdir -p /app/cache /app/logs
+RUN chmod 755 /app/cache /app/logs
+
+# Health check endpoint ekle
+RUN echo '#!/usr/bin/env python3\n\
+    from fastapi import APIRouter\n\
+    \n\
+    router = APIRouter()\n\
+    \n\
+    @router.get("/health")\n\
+    async def health_check():\n\
+    return {"status": "healthy", "service": "tradebot-backend"}\n\
+    ' > /app/app/api/routes/health.py
+
+# Alembic migration'ları çalıştır ve uygulamayı başlat
+COPY scripts/start.sh /app/start.sh
+RUN chmod +x /app/start.sh
+
+# Port expose et
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Uygulamayı başlat
+CMD ["/app/start.sh"]

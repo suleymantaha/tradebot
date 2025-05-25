@@ -244,10 +244,48 @@ export const botRunnerAPI = {
     stop: (id) => api.post(`/api/v1/bots/${id}/stop`),
 }
 
-// Symbols API fonksiyonları
+// Symbols API fonksiyonları - Direct fetch (no auth required)
 export const symbolsAPI = {
-    getSpotSymbols: () => api.get('/api/v1/symbols/spot'),
-    getFuturesSymbols: () => api.get('/api/v1/symbols/futures'),
+    getSpotSymbols: async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/v1/symbols/spot`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`)
+            }
+
+            const data = await response.json()
+            return { data }
+        } catch (error) {
+            console.error('Spot symbols fetch error:', error)
+            throw error
+        }
+    },
+    getFuturesSymbols: async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/v1/symbols/futures`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`)
+            }
+
+            const data = await response.json()
+            return { data }
+        } catch (error) {
+            console.error('Futures symbols fetch error:', error)
+            throw error
+        }
+    },
 }
 
 // Export both old and new APIs

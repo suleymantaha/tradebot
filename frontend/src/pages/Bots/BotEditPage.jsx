@@ -15,6 +15,10 @@ const BotEditPage = () => {
     const [symbols, setSymbols] = useState([])
     const [loadingSymbols, setLoadingSymbols] = useState(false)
     const [currentStep, setCurrentStep] = useState(1)
+    // 🆕 Searchable dropdown için state'ler
+    const [searchTerm, setSearchTerm] = useState('')
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+    const [selectedSymbol, setSelectedSymbol] = useState('')
 
     const {
         register,
@@ -48,8 +52,9 @@ const BotEditPage = () => {
                     strategy: bot.strategy,
                     timeframe: bot.timeframe,
                     position_type: bot.position_type,
+                    leverage: bot.leverage || 10,
                     is_active: bot.is_active,
-                    auto_transfer_funds: bot.auto_transfer_funds,
+                    auto_transfer_funds: bot.auto_transfer_funds || true,
                     check_interval_seconds: bot.check_interval_seconds,
                     stop_loss_perc: bot.stop_loss_perc,
                     take_profit_perc: bot.take_profit_perc,
@@ -71,6 +76,10 @@ const BotEditPage = () => {
                     custom_trailing_stop: bot.custom_trailing_stop || bot.trailing_stop_perc,
                     transfer_amount: bot.transfer_amount,
                 })
+
+                // 🆕 Mevcut symbol'ü searchable dropdown için set et
+                setSearchTerm(bot.symbol || '')
+                setSelectedSymbol(bot.symbol || '')
 
             } catch (err) {
                 if (err.response?.status === 404) {
@@ -98,15 +107,17 @@ const BotEditPage = () => {
                     symbolsAPI.getSpotSymbols
 
                 const response = await endpoint()
-                setSymbols(response.data || [])
+                if (response.data && response.data.length > 0) {
+                    setSymbols(response.data)
+                    console.log(`${positionType} için ${response.data.length} sembol yüklendi`)
+                } else {
+                    throw new Error('Boş sembol listesi döndü')
+                }
             } catch (err) {
-                console.warn('Sembol listesi yüklenemedi, varsayılan listesi kullanılıyor')
-                setSymbols([
-                    { symbol: 'BTCUSDT', baseAsset: 'BTC', quoteAsset: 'USDT' },
-                    { symbol: 'ETHUSDT', baseAsset: 'ETH', quoteAsset: 'USDT' },
-                    { symbol: 'ADAUSDT', baseAsset: 'ADA', quoteAsset: 'USDT' },
-                    { symbol: 'BNBUSDT', baseAsset: 'BNB', quoteAsset: 'USDT' },
-                ])
+                console.error('Sembol listesi yüklenirken hata:', err)
+                setError(`Sembol listesi yüklenemedi. API'ye bağlantı sorunu var. Lütfen sayfayı yenileyip tekrar deneyin.`)
+                // Boş array bırakıyoruz - dropdown açılmayacak ama user bilgilendirilecek
+                setSymbols([])
             } finally {
                 setLoadingSymbols(false)
             }
@@ -142,6 +153,7 @@ const BotEditPage = () => {
                 custom_take_profit: parseFloat(data.custom_take_profit),
                 custom_trailing_stop: parseFloat(data.custom_trailing_stop),
                 transfer_amount: data.transfer_amount ? parseFloat(data.transfer_amount) : null,
+                leverage: data.leverage ? parseInt(data.leverage) : 10,
             }
 
             await botConfigAPI.update(id, botData)
@@ -290,29 +302,157 @@ const BotEditPage = () => {
                                             <option value="spot">🏦 Spot Trading</option>
                                             <option value="futures">⚡ Futures Trading</option>
                                         </select>
+                                        {errors.position_type && (
+                                            <p className="text-sm text-red-600 flex items-center">
+                                                <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                                </svg>
+                                                {errors.position_type.message}
+                                            </p>
+                                        )}
                                     </div>
+
+                                    {/* 🆕 Leverage alanı - sadece futures seçildiyse göster */}
+                                    {positionType === 'futures' && (
+                                        <div className="space-y-2">
+                                            <label className={`block text-sm font-semibold ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                                                ⚡ Kaldıraç (Leverage) *
+                                            </label>
+                                            <select
+                                                {...register('leverage', {
+                                                    required: positionType === 'futures' ? 'Kaldıraç seçimi gereklidir' : false,
+                                                    min: { value: 1, message: 'En az 1x olmalıdır' },
+                                                    max: { value: 125, message: 'En fazla 125x olabilir' }
+                                                })}
+                                                className={`w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 ${isDark
+                                                    ? 'border-gray-600 bg-gray-700 text-white'
+                                                    : 'border-gray-300 bg-white text-gray-900'
+                                                    }`}
+                                            >
+                                                <option value="1">1x (Güvenli)</option>
+                                                <option value="2">2x</option>
+                                                <option value="3">3x</option>
+                                                <option value="5">5x</option>
+                                                <option value="10">10x (Varsayılan)</option>
+                                                <option value="20">20x (Riskli)</option>
+                                                <option value="50">50x (Çok Riskli)</option>
+                                                <option value="75">75x (Aşırı Riskli)</option>
+                                                <option value="100">100x (Maksimum Risk)</option>
+                                                <option value="125">125x (Aşırı Risk)</option>
+                                            </select>
+                                            <div className={`text-xs mt-1 p-2 rounded-lg ${isDark ? 'bg-orange-900/30 text-orange-300' : 'bg-orange-50 text-orange-700'}`}>
+                                                <p className="flex items-center">
+                                                    <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v4a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                                    </svg>
+                                                    <strong>Risk Uyarısı:</strong> Yüksek kaldıraç büyük kazançlar sağlayabilir ancak aynı zamanda büyük kayıplar da yaratabilir.
+                                                </p>
+                                            </div>
+                                            {errors.leverage && (
+                                                <p className="text-sm text-red-600 flex items-center">
+                                                    <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                                    </svg>
+                                                    {errors.leverage.message}
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="space-y-2">
                                     <label className={`block text-sm font-semibold ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                                         📈 Trading Çifti *
-                                        {loadingSymbols && <span className="ml-2 text-xs text-amber-500">(Yükleniyor...)</span>}
+                                        {loadingSymbols && <span className="ml-2 text-xs text-amber-500">(Dinamik yükleniyor...)</span>}
+                                        {!loadingSymbols && symbols.length > 20 && <span className="ml-2 text-xs text-green-500">({symbols.length} sembol yüklendi)</span>}
+                                        {!loadingSymbols && symbols.length === 0 && <span className="ml-2 text-xs text-red-500">(Sembol yüklenemedi - Sayfa yenileyin)</span>}
                                     </label>
-                                    <select
-                                        {...register('symbol', { required: 'Trading çifti seçimi gereklidir' })}
-                                        className={`w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200 ${isDark
-                                            ? 'border-gray-600 bg-gray-700 text-white'
-                                            : 'border-gray-300 bg-white text-gray-900'
-                                            }`}
-                                        disabled={loadingSymbols}
-                                    >
-                                        <option value="">Trading çifti seçin</option>
-                                        {symbols.map((symbol) => (
-                                            <option key={symbol.symbol} value={symbol.symbol}>
-                                                {symbol.symbol} ({symbol.baseAsset}/{symbol.quoteAsset})
-                                            </option>
-                                        ))}
-                                    </select>
+
+                                    {/* 🆕 Searchable Symbol Dropdown */}
+                                    <div className="relative">
+                                        <input
+                                            {...register('symbol', { required: 'Trading çifti seçimi gereklidir' })}
+                                            type="text"
+                                            value={searchTerm}
+                                            onChange={(e) => {
+                                                setSearchTerm(e.target.value)
+                                                setIsDropdownOpen(true)
+                                                setValue('symbol', e.target.value)
+                                            }}
+                                            onFocus={() => setIsDropdownOpen(true)}
+                                            className={`w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200 ${isDark
+                                                ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-400'
+                                                : 'border-gray-300 bg-white text-gray-900 placeholder-gray-500'
+                                                }`}
+                                            placeholder={loadingSymbols ? "Yükleniyor..." : "BTCUSDT yazın veya arayın..."}
+                                            disabled={loadingSymbols}
+                                            autoComplete="off"
+                                        />
+
+                                        {/* Dropdown Icon */}
+                                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                            <svg className={`h-5 w-5 ${isDark ? 'text-gray-400' : 'text-gray-400'} transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </div>
+
+                                        {/* Dropdown List */}
+                                        {isDropdownOpen && !loadingSymbols && symbols.length > 0 && (
+                                            <div className={`absolute z-50 w-full mt-1 ${isDark ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'} border rounded-xl shadow-lg max-h-60 overflow-y-auto`}>
+                                                {symbols
+                                                    .filter(symbol =>
+                                                        symbol.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                                        symbol.baseAsset.toLowerCase().includes(searchTerm.toLowerCase())
+                                                    )
+                                                    .slice(0, 50) // Performance için max 50 göster
+                                                    .map((symbol) => (
+                                                        <div
+                                                            key={symbol.symbol}
+                                                            className={`px-4 py-3 cursor-pointer transition-colors duration-150 ${isDark
+                                                                ? 'hover:bg-gray-600 text-white'
+                                                                : 'hover:bg-gray-50 text-gray-900'
+                                                                } ${selectedSymbol === symbol.symbol ? 'bg-amber-50 border-l-4 border-amber-500' : ''}`}
+                                                            onClick={() => {
+                                                                setSearchTerm(symbol.symbol)
+                                                                setSelectedSymbol(symbol.symbol)
+                                                                setValue('symbol', symbol.symbol)
+                                                                setIsDropdownOpen(false)
+                                                            }}
+                                                        >
+                                                            <div className="flex items-center justify-between">
+                                                                <span className="font-medium">{symbol.symbol}</span>
+                                                                <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-500'}`}>
+                                                                    {symbol.baseAsset}/{symbol.quoteAsset}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    ))
+                                                }
+
+                                                {/* Sonuç bulunamadı mesajı */}
+                                                {symbols.filter(symbol =>
+                                                    symbol.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                                    symbol.baseAsset.toLowerCase().includes(searchTerm.toLowerCase())
+                                                ).length === 0 && searchTerm.length > 0 && (
+                                                        <div className={`px-4 py-3 text-center ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                                            <svg className="w-8 h-8 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                                            </svg>
+                                                            <p>"{searchTerm}" için sonuç bulunamadı</p>
+                                                            <p className="text-xs mt-1">Farklı bir arama terimi deneyin</p>
+                                                        </div>
+                                                    )}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Click outside to close dropdown */}
+                                    {isDropdownOpen && (
+                                        <div
+                                            className="fixed inset-0 z-40"
+                                            onClick={() => setIsDropdownOpen(false)}
+                                        ></div>
+                                    )}
                                 </div>
 
                                 <div className="grid grid-cols-1 gap-8 md:grid-cols-2">

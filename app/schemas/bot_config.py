@@ -43,6 +43,7 @@ class BotConfigBase(BaseModel):
     position_type: Optional[str] = "spot"  # "spot" veya "futures"
     transfer_amount: Optional[float] = None  # Belirli miktar, None ise tüm bakiye
     auto_transfer_funds: Optional[bool] = True  # Otomatik fon transferi
+    leverage: Optional[int] = 10  # 🆕 Kaldıraç (futures için)
 
 class BotConfigCreate(BotConfigBase):
     pass

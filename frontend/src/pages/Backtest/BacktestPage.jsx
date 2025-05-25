@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useTheme } from '../../contexts/ThemeContext'
-import apiService from '../../services/api'
+import apiService, { symbolsAPI } from '../../services/api'
 import BacktestHistory from '../../components/Backtest/BacktestHistory'
 import useAuthStore from '../../store/authStore'
 import { useNavigate } from 'react-router-dom'
@@ -18,6 +18,10 @@ const BacktestPage = () => {
     const [marketType, setMarketType] = useState('spot') // spot or futures
     const [symbols, setSymbols] = useState([])
     const [symbolsLoading, setSymbolsLoading] = useState(false)
+    // 🆕 Searchable dropdown için state'ler
+    const [searchTerm, setSearchTerm] = useState('BNBUSDT')
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+    const [selectedSymbol, setSelectedSymbol] = useState('BNBUSDT')
 
     // Tarih aralığı
     const [startDate, setStartDate] = useState(null)
@@ -121,6 +125,8 @@ const BacktestPage = () => {
     useEffect(() => {
         if (isAuthenticated && token) {
             fetchCacheInfo()
+            // 🆕 İlk yüklemede sembolleri de getir
+            fetchSymbols(marketType)
         }
     }, [isAuthenticated, token])
 
@@ -129,33 +135,37 @@ const BacktestPage = () => {
             setSymbolsLoading(true)
             console.log(`🔄 Fetching ${marketType} symbols...`)
 
-            const response = await apiService.getSymbols(marketType)
-            if (response.status === 'success' && response.data.symbols) {
-                setSymbols(response.data.symbols)
-                console.log(`✅ Loaded ${response.data.symbols.length} ${marketType} symbols`)
+            const endpoint = marketType === 'futures' ?
+                symbolsAPI.getFuturesSymbols :
+                symbolsAPI.getSpotSymbols
 
-                // Set default symbol if current one doesn't exist in new list
-                const symbolExists = response.data.symbols.some(s => s.symbol === symbol)
-                if (!symbolExists && response.data.symbols.length > 0) {
-                    setSymbol(response.data.symbols[0].symbol)
+            const response = await endpoint()
+            if (response.data && response.data.length > 0) {
+                setSymbols(response.data)
+                console.log(`✅ Loaded ${response.data.length} ${marketType} symbols`)
+
+                // Mevcut symbol yeni listede yoksa ilkini seç
+                const symbolExists = response.data.some(s => s.symbol === symbol)
+                if (!symbolExists && response.data.length > 0) {
+                    const newSymbol = response.data[0].symbol
+                    setSymbol(newSymbol)
+                    setSearchTerm(newSymbol)
+                    setSelectedSymbol(newSymbol)
                 }
             } else {
-                console.error('❌ Invalid symbols response:', response)
-                // Fallback to default symbols
-                setSymbols([
-                    { symbol: 'BTCUSDT', baseAsset: 'BTC', quoteAsset: 'USDT' },
-                    { symbol: 'ETHUSDT', baseAsset: 'ETH', quoteAsset: 'USDT' },
-                    { symbol: 'BNBUSDT', baseAsset: 'BNB', quoteAsset: 'USDT' }
-                ])
+                throw new Error('Boş sembol listesi döndü')
             }
         } catch (error) {
             console.error('❌ Error fetching symbols:', error)
-            // Fallback to default symbols
-            setSymbols([
+            // Fallback symbols
+            const fallbackSymbols = [
                 { symbol: 'BTCUSDT', baseAsset: 'BTC', quoteAsset: 'USDT' },
                 { symbol: 'ETHUSDT', baseAsset: 'ETH', quoteAsset: 'USDT' },
-                { symbol: 'BNBUSDT', baseAsset: 'BNB', quoteAsset: 'USDT' }
-            ])
+                { symbol: 'BNBUSDT', baseAsset: 'BNB', quoteAsset: 'USDT' },
+                { symbol: 'SOLUSDT', baseAsset: 'SOL', quoteAsset: 'USDT' },
+                { symbol: 'ADAUSDT', baseAsset: 'ADA', quoteAsset: 'USDT' }
+            ]
+            setSymbols(fallbackSymbols)
         } finally {
             setSymbolsLoading(false)
         }
@@ -163,10 +173,8 @@ const BacktestPage = () => {
 
     // Market type değiştiğinde symbols'ları fetch et
     useEffect(() => {
-        if (isAuthenticated && token) {
-            fetchSymbols(marketType)
-        }
-    }, [marketType, isAuthenticated, token])
+        fetchSymbols(marketType)
+    }, [marketType])
 
     const runBacktest = async () => {
         setIsLoading(true)
@@ -389,33 +397,104 @@ const BacktestPage = () => {
                                 <div className="mb-4">
                                     <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                                         💱 İşlem Çifti
+                                        {symbolsLoading && <span className="ml-2 text-xs text-indigo-500">(Yükleniyor...)</span>}
+                                        {!symbolsLoading && symbols.length > 20 && <span className="ml-2 text-xs text-green-500">({symbols.length} sembol yüklendi)</span>}
                                     </label>
+
+                                    {/* 🆕 Searchable Symbol Dropdown */}
                                     <div className="relative">
-                                        <select
-                                            value={symbol}
-                                            onChange={(e) => setSymbol(e.target.value)}
+                                        <input
+                                            type="text"
+                                            value={searchTerm}
+                                            onChange={(e) => {
+                                                setSearchTerm(e.target.value)
+                                                setIsDropdownOpen(true)
+                                            }}
+                                            onFocus={() => setIsDropdownOpen(true)}
+                                            className={`w-full px-4 py-2 rounded-xl border transition-colors focus:ring-2 focus:ring-indigo-500 focus:outline-none ${isDark
+                                                ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                                                : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                                                } ${symbolsLoading ? 'cursor-not-allowed opacity-50' : ''}`}
+                                            placeholder={symbolsLoading ? "Yükleniyor..." : "BTCUSDT yazın veya arayın..."}
                                             disabled={symbolsLoading}
-                                            className={`w-full px-4 py-2 rounded-xl border transition-colors ${isDark ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:ring-2 focus:ring-indigo-500 disabled:opacity-50`}
-                                        >
+                                            autoComplete="off"
+                                        />
+
+                                        {/* Dropdown Icon */}
+                                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                             {symbolsLoading ? (
-                                                <option>Yükleniyor...</option>
-                                            ) : (
-                                                symbols.map(sym => (
-                                                    <option key={sym.symbol} value={sym.symbol}>
-                                                        {sym.symbol} {sym.baseAsset && `(${sym.baseAsset})`}
-                                                    </option>
-                                                ))
-                                            )}
-                                        </select>
-                                        {symbolsLoading && (
-                                            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                                                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-indigo-500"></div>
+                                            ) : (
+                                                <svg className={`h-4 w-4 ${isDark ? 'text-gray-400' : 'text-gray-400'} transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            )}
+                                        </div>
+
+                                        {/* Dropdown List */}
+                                        {isDropdownOpen && !symbolsLoading && symbols.length > 0 && (
+                                            <div className={`absolute z-50 w-full mt-1 ${isDark ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'} border rounded-xl shadow-lg max-h-60 overflow-y-auto`}>
+                                                {symbols
+                                                    .filter(sym =>
+                                                        sym.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                                        (sym.baseAsset && sym.baseAsset.toLowerCase().includes(searchTerm.toLowerCase()))
+                                                    )
+                                                    .slice(0, 50) // Performance için max 50 göster
+                                                    .map((sym) => (
+                                                        <div
+                                                            key={sym.symbol}
+                                                            className={`px-4 py-3 cursor-pointer transition-colors duration-150 ${isDark
+                                                                ? 'hover:bg-gray-600 text-white'
+                                                                : 'hover:bg-gray-50 text-gray-900'
+                                                                } ${selectedSymbol === sym.symbol ? 'bg-indigo-50 border-l-4 border-indigo-500' : ''}`}
+                                                            onClick={() => {
+                                                                setSymbol(sym.symbol)
+                                                                setSearchTerm(sym.symbol)
+                                                                setSelectedSymbol(sym.symbol)
+                                                                setIsDropdownOpen(false)
+                                                            }}
+                                                        >
+                                                            <div className="flex items-center justify-between">
+                                                                <span className="font-medium">{sym.symbol}</span>
+                                                                {sym.baseAsset && sym.quoteAsset && (
+                                                                    <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-500'}`}>
+                                                                        {sym.baseAsset}/{sym.quoteAsset}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    ))
+                                                }
+
+                                                {/* Sonuç bulunamadı mesajı */}
+                                                {symbols.filter(sym =>
+                                                    sym.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                                    (sym.baseAsset && sym.baseAsset.toLowerCase().includes(searchTerm.toLowerCase()))
+                                                ).length === 0 && searchTerm.length > 0 && (
+                                                        <div className={`px-4 py-3 text-center ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                                            <svg className="w-8 h-8 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                                            </svg>
+                                                            <p>"{searchTerm}" için sonuç bulunamadı</p>
+                                                            <p className="text-xs mt-1">Farklı bir arama terimi deneyin</p>
+                                                        </div>
+                                                    )}
                                             </div>
                                         )}
                                     </div>
+
+                                    {/* Click outside to close dropdown */}
+                                    {isDropdownOpen && (
+                                        <div
+                                            className="fixed inset-0 z-40"
+                                            onClick={() => setIsDropdownOpen(false)}
+                                        ></div>
+                                    )}
+
+                                    {/* Bilgi mesajı */}
                                     {symbols.length > 0 && (
                                         <p className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                                            {symbols.length} {marketType} çifti mevcut
+                                            {symbols.length} {marketType} çifti mevcut • Dinamik yükleme aktif ✅
                                         </p>
                                     )}
                                 </div>

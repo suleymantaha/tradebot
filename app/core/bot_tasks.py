@@ -115,6 +115,18 @@ def _run_bot(bot_config_id: int):
             except Exception as e:
                 print(f"Fon transferi hatası: {e}")
 
+        # 🆕 Futures için kaldıraç ayarla
+        if not demo_mode and bot_config.position_type == "futures" and client:
+            try:
+                leverage = getattr(bot_config, 'leverage', 10) or 10
+                result = client.set_leverage(bot_config.symbol, leverage)
+                if result:
+                    print(f"{bot_config.symbol} için kaldıraç {leverage}x olarak ayarlandı")
+                else:
+                    print(f"Kaldıraç ayarlanamadı {bot_config.symbol} {leverage}x")
+            except Exception as e:
+                print(f"Kaldıraç ayarlama hatası: {e}")
+
         # Örnek: Fiyat verisi çek
         symbol = bot_config.symbol
         try:
