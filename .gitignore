@@ -1,3 +1,147 @@
+# ========================================
+# TradeBot .gitignore
+# ========================================
+
+# ====================================
+# Environment & Security
+# ====================================
+.env
+.env.local
+.env.production
+.env.backup.*
+*.key
+*.pem
+*.crt
+
+# ====================================
+# Database
+# ====================================
+*.db
+*.sqlite
+*.db-journal
+pgdata/
+postgres_data/
+dump.rdb
+*.sql
+
+# ====================================
+# Logs & Cache
+# ====================================
+logs/
+cache/
+*.log
+*.log.*
+celerybeat-schedule*
+.pytest_cache/
+
+# ====================================
+# Python
+# ====================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+perfcetbot/
+
+# ====================================
+# Node.js / Frontend
+# ====================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+frontend/dist/
+frontend/build/
+.vite/
+
+# ====================================
+# Docker
+# ====================================
+.docker/
+docker-compose.override.yml
+docker-compose.local.yml
+
+# ====================================
+# OS Generated Files
+# ====================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*~
+
+# ====================================
+# IDE & Editors
+# ====================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*.tmp
+.history/
+
+# ====================================
+# Testing
+# ====================================
+.coverage
+.nyc_output
+coverage/
+*.cover
+*.py,cover
+.hypothesis/
+
+# ====================================
+# Backups
+# ====================================
+*.backup
+*.bak
+*.orig
+
+# ====================================
+# SSL Certificates
+# ====================================
+nginx/ssl/*.crt
+nginx/ssl/*.key
+nginx/ssl/*.pem
+
+# ====================================
+# Temporary Files
+# ====================================
+tmp/
+temp/
+.temp/
+*.tmp
+*.temp
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -98,15 +242,6 @@ flower.db
 
 # SageMath parsed files
 *.sage.py
-
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
 
 # Spyder project settings
 .spyderproject

@@ -1,28 +1,44 @@
 #!/bin/bash
 
-# TradeBot Installation Script
-# Bu script uygulamayı tek komutla kurar ve çalıştırır
+# ========================================
+# TradeBot Otomatik Kurulum Script'i
+# ========================================
+# Version: 2.0
+# Bu script TradeBot'u tek komutla kurar ve çalıştırır
 
 set -e  # Hata durumunda script'i durdur
-
-echo "🚀 TradeBot Installation Script"
-echo "================================"
-echo ""
 
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
+CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
-# Function to print colored output
-print_status() {
-    echo -e "${GREEN}✅ $1${NC}"
+# Fancy banner
+print_banner() {
+    echo -e "${PURPLE}"
+    echo "████████╗██████╗  █████╗ ██████╗ ███████╗██████╗  ██████╗ ████████╗"
+    echo "╚══██╔══╝██╔══██╗██╔══██╗██╔══██╗██╔════╝██╔══██╗██╔═══██╗╚══██╔══╝"
+    echo "   ██║   ██████╔╝███████║██║  ██║█████╗  ██████╔╝██║   ██║   ██║   "
+    echo "   ██║   ██╔══██╗██╔══██║██║  ██║██╔══╝  ██╔══██╗██║   ██║   ██║   "
+    echo "   ██║   ██║  ██║██║  ██║██████╔╝███████╗██████╔╝╚██████╔╝   ██║   "
+    echo "   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═════╝ ╚══════╝╚═════╝  ╚═════╝    ╚═╝   "
+    echo -e "${NC}"
+    echo -e "${CYAN}🚀 Professional Trading Bot - Kurulum Script'i v2.0${NC}"
+    echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
 }
 
-print_info() {
+# Print status messages
+print_status() {
     echo -e "${BLUE}ℹ️  $1${NC}"
+}
+
+print_success() {
+    echo -e "${GREEN}✅ $1${NC}"
 }
 
 print_warning() {
@@ -33,128 +49,355 @@ print_error() {
     echo -e "${RED}❌ $1${NC}"
 }
 
-# Check if Docker is installed
-print_info "Checking Docker installation..."
-if ! command -v docker &> /dev/null; then
-    print_error "Docker is not installed!"
-    print_info "Please install Docker from: https://docs.docker.com/get-docker/"
-    exit 1
-fi
-print_status "Docker is installed"
+print_step() {
+    echo ""
+    echo -e "${PURPLE}🔹 $1${NC}"
+    echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+}
 
-# Check if Docker Compose is installed
-print_info "Checking Docker Compose installation..."
-if ! command -v docker-compose &> /dev/null && ! docker compose version &> /dev/null; then
-    print_error "Docker Compose is not installed!"
-    print_info "Please install Docker Compose from: https://docs.docker.com/compose/install/"
-    exit 1
-fi
-print_status "Docker Compose is installed"
+# Check if command exists
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
 
-# Check if ports are available
-print_info "Checking if required ports are available..."
-ports=(3000 8000 5432 6379)
-for port in "${ports[@]}"; do
-    if lsof -Pi :$port -sTCP:LISTEN -t >/dev/null ; then
-        print_warning "Port $port is already in use!"
-        read -p "Do you want to continue anyway? (y/n): " -n 1 -r
-        echo
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-            print_error "Installation cancelled."
-            exit 1
-        fi
-    fi
-done
-print_status "Required ports are available"
+# Check system requirements
+check_requirements() {
+    print_step "Sistem Gereksinimlerini Kontrol Ediliyor"
 
-# Create .env file if not exists
-print_info "Setting up environment configuration..."
-if [ ! -f .env ]; then
-    cp env.example .env
-    print_status "Created .env file from template"
-    print_warning "Please edit .env file with your configuration before running the application"
-else
-    print_info ".env file already exists"
-fi
+    local missing_requirements=()
 
-# Create necessary directories
-print_info "Creating necessary directories..."
-mkdir -p cache logs
-chmod 755 cache logs
-print_status "Directories created"
-
-# Make scripts executable
-print_info "Making scripts executable..."
-chmod +x scripts/*.sh
-print_status "Scripts are now executable"
-
-# Pull and build Docker images
-print_info "Building Docker images... (This may take a few minutes)"
-if docker compose version &> /dev/null; then
-    docker compose build --no-cache
-else
-    docker-compose build --no-cache
-fi
-print_status "Docker images built successfully"
-
-# Start the application
-print_info "Starting TradeBot application..."
-if docker compose version &> /dev/null; then
-    docker compose up -d
-else
-    docker-compose up -d
-fi
-
-# Wait for services to be healthy
-print_info "Waiting for services to be ready..."
-sleep 10
-
-# Check service health
-print_info "Checking service health..."
-max_attempts=30
-attempt=0
-
-while [ $attempt -lt $max_attempts ]; do
-    if curl -f http://localhost:8000/health > /dev/null 2>&1; then
-        print_status "Backend is healthy"
-        break
+    # Check Docker
+    if ! command_exists docker; then
+        missing_requirements+=("Docker")
+    else
+        print_success "Docker kurulu ✓"
     fi
 
-    attempt=$((attempt + 1))
-    if [ $attempt -eq $max_attempts ]; then
-        print_error "Backend health check failed after $max_attempts attempts"
-        print_info "Check logs with: docker compose logs backend"
+    # Check Docker Compose
+    if ! command_exists docker-compose && ! docker compose version >/dev/null 2>&1; then
+        missing_requirements+=("Docker Compose")
+    else
+        print_success "Docker Compose kurulu ✓"
+    fi
+
+    # Check curl
+    if ! command_exists curl; then
+        missing_requirements+=("curl")
+    else
+        print_success "curl kurulu ✓"
+    fi
+
+    # Check git
+    if ! command_exists git; then
+        missing_requirements+=("git")
+    else
+        print_success "git kurulu ✓"
+    fi
+
+    # If any requirements are missing, show install instructions
+    if [ ${#missing_requirements[@]} -ne 0 ]; then
+        print_error "Eksik gereksinimler bulundu: ${missing_requirements[*]}"
+        echo ""
+        print_status "Kurulum talimatları:"
+        echo ""
+        echo "🐧 Ubuntu/Debian için:"
+        echo "  sudo apt update"
+        echo "  sudo apt install -y docker.io docker-compose curl git"
+        echo "  sudo systemctl start docker"
+        echo "  sudo systemctl enable docker"
+        echo "  sudo usermod -aG docker \$USER"
+        echo ""
+        echo "🎩 Arch Linux için:"
+        echo "  sudo pacman -S docker docker-compose curl git"
+        echo "  sudo systemctl start docker"
+        echo "  sudo systemctl enable docker"
+        echo "  sudo usermod -aG docker \$USER"
+        echo ""
+        echo "🍎 macOS için:"
+        echo "  brew install docker docker-compose curl git"
+        echo ""
+        print_warning "Gereksinimler kurulduktan sonra terminal'i yeniden başlatın ve script'i tekrar çalıştırın."
         exit 1
     fi
 
-    print_info "Waiting for backend to be ready... (attempt $attempt/$max_attempts)"
-    sleep 5
-done
+    print_success "Tüm gereksinimler karşılanıyor!"
+}
 
-if curl -f http://localhost:3000/health > /dev/null 2>&1; then
-    print_status "Frontend is healthy"
-else
-    print_warning "Frontend health check failed, but may still be starting"
+# Generate FERNET_KEY
+generate_fernet_key() {
+    print_step "Encryption Anahtarı Oluşturuluyor"
+
+    if command_exists python3; then
+        FERNET_KEY=$(python3 -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())" 2>/dev/null)
+        if [ $? -eq 0 ] && [ ! -z "$FERNET_KEY" ]; then
+            print_success "FERNET_KEY başarıyla oluşturuldu"
+            return 0
+        fi
+    fi
+
+    # Fallback: Use openssl
+    if command_exists openssl; then
+        FERNET_KEY=$(openssl rand -base64 32)
+        print_success "FERNET_KEY openssl ile oluşturuldu"
+        return 0
+    fi
+
+    # Last resort: Use /dev/urandom
+    FERNET_KEY=$(head -c 32 /dev/urandom | base64)
+    print_warning "FERNET_KEY urandom ile oluşturuldu (güvenlik için python3 önerilir)"
+}
+
+# Setup environment file
+setup_environment() {
+    print_step "Environment Dosyası Hazırlanıyor"
+
+    if [ -f .env ]; then
+        print_warning ".env dosyası zaten mevcut"
+        read -p "Mevcut .env dosyasını yedekleyip yenisini oluşturmak istiyor musunuz? (y/N): " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            cp .env .env.backup.$(date +%Y%m%d_%H%M%S)
+            print_status "Mevcut .env dosyası yedeklendi"
+        else
+            print_status "Mevcut .env dosyası korunuyor"
+            return 0
+        fi
+    fi
+
+    # Copy example file
+    cp env.example .env
+
+    # Generate FERNET_KEY
+    generate_fernet_key
+
+    # Update .env file with generated FERNET_KEY
+    if [ ! -z "$FERNET_KEY" ]; then
+        sed -i "s/FERNET_KEY=/FERNET_KEY=$FERNET_KEY/" .env
+        print_success "FERNET_KEY .env dosyasına eklendi"
+    fi
+
+    # Generate random SECRET_KEY
+    SECRET_KEY=$(openssl rand -hex 32)
+    sed -i "s/SECRET_KEY=super_secret_key_change_in_production_12345/SECRET_KEY=$SECRET_KEY/" .env
+    print_success "SECRET_KEY oluşturuldu ve .env dosyasına eklendi"
+
+    print_success "Environment dosyası hazırlandı"
+}
+
+# Create necessary directories
+setup_directories() {
+    print_step "Gerekli Klasörler Oluşturuluyor"
+
+    directories=("logs" "cache" "cache/data" "nginx" "nginx/ssl")
+
+    for dir in "${directories[@]}"; do
+        if [ ! -d "$dir" ]; then
+            mkdir -p "$dir"
+            print_status "Klasör oluşturuldu: $dir"
+        fi
+    done
+
+    # Set permissions
+    chmod 755 logs cache
+    print_success "Klasörler hazırlandı"
+}
+
+# Create nginx config for reverse proxy
+setup_nginx() {
+    print_step "Nginx Konfigürasyonu Hazırlanıyor"
+
+    cat > nginx/nginx.conf << 'EOF'
+events {
+    worker_connections 1024;
+}
+
+http {
+    upstream backend {
+        server backend:8000;
+    }
+
+    upstream frontend {
+        server frontend:80;
+    }
+
+    server {
+        listen 80;
+        server_name localhost;
+
+        # Frontend
+        location / {
+            proxy_pass http://frontend;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        # Backend API
+        location /api/ {
+            proxy_pass http://backend;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        # Health checks
+        location /health {
+            proxy_pass http://backend;
+            proxy_set_header Host $host;
+        }
+    }
+}
+EOF
+
+    print_success "Nginx konfigürasyonu oluşturuldu"
+}
+
+# Check Docker service
+check_docker_service() {
+    print_step "Docker Servisi Kontrol Ediliyor"
+
+    if ! docker info >/dev/null 2>&1; then
+        print_error "Docker servisi çalışmıyor"
+        print_status "Docker'ı başlatmaya çalışıyor..."
+
+        if command_exists systemctl; then
+            sudo systemctl start docker
+            sleep 3
+            if docker info >/dev/null 2>&1; then
+                print_success "Docker servisi başlatıldı"
+            else
+                print_error "Docker servisi başlatılamadı. Manuel olarak başlatmayı deneyin:"
+                echo "  sudo systemctl start docker"
+                exit 1
+            fi
+        else
+            print_error "Docker servisini manuel olarak başlatın"
+            exit 1
+        fi
+    else
+        print_success "Docker servisi çalışıyor"
+    fi
+}
+
+# Clean up existing containers
+cleanup_containers() {
+    print_step "Mevcut Container'lar Temizleniyor"
+
+    # Stop and remove existing containers
+    docker-compose down --remove-orphans >/dev/null 2>&1 || true
+
+    # Remove dangling images
+    docker image prune -f >/dev/null 2>&1 || true
+
+    print_success "Container'lar temizlendi"
+}
+
+# Build and start services
+start_services() {
+    print_step "Servisler Başlatılıyor"
+
+    print_status "Docker images build ediliyor... (Bu işlem birkaç dakika sürebilir)"
+    docker-compose build --no-cache
+
+    print_status "Servisler başlatılıyor..."
+    docker-compose up -d
+
+    print_success "Servisler başlatıldı!"
+}
+
+# Wait for services to be ready
+wait_for_services() {
+    print_step "Servisler Ayağa Kalkması Bekleniyor"
+
+    local max_attempts=60
+    local attempt=1
+
+    while [ $attempt -le $max_attempts ]; do
+        if curl -sf http://localhost:8000/health >/dev/null 2>&1; then
+            print_success "Backend servisi hazır!"
+            break
+        fi
+
+        echo -n "."
+        sleep 5
+        attempt=$((attempt + 1))
+    done
+
+    if [ $attempt -gt $max_attempts ]; then
+        print_error "Backend servisi belirtilen sürede başlamadı"
+        print_status "Logları kontrol edin: docker-compose logs backend"
+        exit 1
+    fi
+
+    # Check frontend
+    sleep 5
+    if curl -sf http://localhost:3000 >/dev/null 2>&1; then
+        print_success "Frontend servisi hazır!"
+    else
+        print_warning "Frontend servisi henüz hazır değil, ancak devam edebilirsiniz"
+    fi
+}
+
+# Show final information
+show_final_info() {
+    echo ""
+    echo -e "${GREEN}🎉 TradeBot Başarıyla Kuruldu! 🎉${NC}"
+    echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    echo -e "${CYAN}📋 ERİŞİM BİLGİLERİ:${NC}"
+    echo -e "   🌐 Frontend (Ana Sayfa): ${GREEN}http://localhost:3000${NC}"
+    echo -e "   🔧 Backend API:          ${GREEN}http://localhost:8000${NC}"
+    echo -e "   📚 API Docs:             ${GREEN}http://localhost:8000/docs${NC}"
+    echo ""
+    echo -e "${CYAN}🚀 SONRAKİ ADIMLAR:${NC}"
+    echo -e "   1️⃣  Tarayıcınızda ${GREEN}http://localhost:3000${NC} adresine gidin"
+    echo -e "   2️⃣  Hesap oluşturun veya giriş yapın"
+    echo -e "   3️⃣  Dashboard'da Binance API anahtarınızı ekleyin"
+    echo -e "   4️⃣  İlk trading botunuzu oluşturun!"
+    echo ""
+    echo -e "${CYAN}🛠️  FAYDALII KOMUTLAR:${NC}"
+    echo -e "   📊 Logları görmek için:        ${YELLOW}docker-compose logs -f${NC}"
+    echo -e "   ⏹️  Servisleri durdurmak için:  ${YELLOW}docker-compose down${NC}"
+    echo -e "   🔄 Servisleri yeniden başlatmak: ${YELLOW}docker-compose restart${NC}"
+    echo -e "   🗑️  Tümünü temizlemek için:     ${YELLOW}docker-compose down -v${NC}"
+    echo ""
+    echo -e "${PURPLE}🔗 YARDIM VE DESTEK:${NC}"
+    echo -e "   📖 README.md dosyasını okuyun"
+    echo -e "   🐛 Sorun bildirimi için GitHub Issues kullanın"
+    echo ""
+    echo -e "${GREEN}İyi Trading'ler! 💰📈${NC}"
+    echo ""
+}
+
+# Main installation process
+main() {
+    print_banner
+
+    check_requirements
+    check_docker_service
+    setup_environment
+    setup_directories
+    setup_nginx
+    cleanup_containers
+    start_services
+    wait_for_services
+    show_final_info
+}
+
+# Handle Ctrl+C gracefully
+trap 'echo -e "\n${RED}Kurulum iptal edildi${NC}"; exit 1' INT
+
+# Check if running as root
+if [ "$EUID" -eq 0 ]; then
+    print_warning "Bu script'i root olarak çalıştırmanız önerilmez"
+    read -p "Devam etmek istiyor musunuz? (y/N): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        exit 1
+    fi
 fi
 
-echo ""
-echo "🎉 TradeBot installation completed successfully!"
-echo "================================"
-echo ""
-print_info "Application URLs:"
-echo "  📱 Frontend: http://localhost:3000"
-echo "  🔧 Backend API: http://localhost:8000"
-echo "  📚 API Docs: http://localhost:8000/docs"
-echo ""
-print_info "Useful commands:"
-echo "  📊 View logs: docker compose logs -f"
-echo "  🔄 Restart: docker compose restart"
-echo "  🛑 Stop: docker compose down"
-echo "  🗑️  Remove all: docker compose down -v"
-echo ""
-print_warning "Remember to:"
-echo "  1. Edit your .env file with proper API keys"
-echo "  2. Change default passwords in production"
-echo "  3. Set up SSL/TLS for production deployment"
-echo ""
-print_status "Happy trading! 🚀"
+# Run main function
+main

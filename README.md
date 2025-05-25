@@ -1,376 +1,516 @@
-# 🚀 TradeBot - Advanced Trading Platform
+# 🚀 TradeBot - Professional Cryptocurrency Trading Bot
 
-A sophisticated trading bot platform with backtesting capabilities, built with modern technologies for cryptocurrency trading automation.
+<div align="center">
 
-![TradeBot](https://img.shields.io/badge/TradeBot-v1.0.0-blue.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
-![Docker](https://img.shields.io/badge/docker-enabled-blue.svg)
-![Python](https://img.shields.io/badge/python-3.13-blue.svg)
-![React](https://img.shields.io/badge/react-18-blue.svg)
+![TradeBot Banner](https://img.shields.io/badge/TradeBot-v2.0-blue?style=for-the-badge&logo=bitcoin)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+![Docker](https://img.shields.io/badge/Docker-Enabled-blue?style=for-the-badge&logo=docker)
+![Python](https://img.shields.io/badge/Python-3.11+-yellow?style=for-the-badge&logo=python)
+![React](https://img.shields.io/badge/React-18+-blue?style=for-the-badge&logo=react)
 
-## ✨ Features
+**🎯 Profesyonel otomatik kripto para trading botu - Tek komutla kurulum!**
 
-### 🤖 Trading Automation
-- **Multiple Strategy Support**: EMA Cross, RSI, MACD, Bollinger Bands
-- **Risk Management**: Stop loss, take profit, trailing stops
-- **Position Management**: Configurable position sizing and capital management
-- **Real-time Monitoring**: Live bot status and performance tracking
+</div>
 
-### 📊 Advanced Backtesting
-- **Historical Data Analysis**: Test strategies on past market data
-- **Technical Indicators**: 20+ built-in indicators
-- **Performance Metrics**: Detailed profit/loss analysis
-- **Smart Caching**: Efficient data storage and retrieval
-- **Test Mode**: Works without API keys using sample data
+---
 
-### 🔐 Security & User Management
-- **JWT Authentication**: Secure user sessions
-- **Password Reset**: Email-based password recovery
-- **API Key Encryption**: Secure storage of exchange credentials
-- **Role-based Access**: User isolation and data protection
+## 📋 İçindekiler
 
-### 🎨 Modern UI/UX
-- **Responsive Design**: Works on desktop and mobile
-- **Dark/Light Mode**: Customizable theme preferences
-- **Real-time Updates**: Live data and notifications
-- **Intuitive Interface**: User-friendly design
+- [✨ Özellikler](#-özellikler)
+- [🛠️ Sistem Gereksinimleri](#️-sistem-gereksinimleri)
+- [🚀 Hızlı Kurulum](#-hızlı-kurulum)
+- [📊 Kullanım](#-kullanım)
+- [⚙️ Konfigürasyon](#️-konfigürasyon)
+- [🐳 Docker](#-docker)
+- [🔧 Geliştirme](#-geliştirme)
+- [🆘 Sorun Giderme](#-sorun-giderme)
+- [📄 Lisans](#-lisans)
 
-## 🛠 Tech Stack
+---
 
-### Backend
-- **FastAPI**: High-performance Python web framework
-- **SQLAlchemy**: ORM with async support
-- **PostgreSQL**: Robust relational database
-- **Redis**: Caching and session storage
-- **Alembic**: Database migrations
-- **Celery**: Background task processing
+## ✨ Özellikler
 
-### Frontend
-- **React 18**: Modern UI library
-- **Vite**: Fast build tool
-- **Tailwind CSS**: Utility-first CSS framework
-- **React Router**: Client-side routing
-- **Zustand**: Lightweight state management
+### 📈 **Trading Özellikleri**
+- 🤖 **Otomatik Trading**: EMA ve RSI stratejileri
+- 📊 **Teknik Analiz**: Çoklu gösterge desteği
+- 💰 **Risk Yönetimi**: Stop-loss, take-profit, trailing stop
+- 🎯 **Position Yönetimi**: Spot ve Futures desteği
+- 🔄 **Backtest**: Geçmiş verilerle strateji testi
+- 📱 **Real-time Monitoring**: Canlı bot izleme
 
-### Infrastructure
-- **Docker**: Containerization
-- **Docker Compose**: Multi-container orchestration
-- **Nginx**: Production web server
-- **Health Checks**: Service monitoring
+### 🎨 **Kullanıcı Arayüzü**
+- 🌓 **Dark/Light Tema**: Modern ve responsive tasarım
+- 📊 **Dashboard**: Kapsamlı bot ve hesap yönetimi
+- 💳 **Bakiye Gösterimi**: Real-time Binance bakiye widget'ı
+- 🔍 **Sembol Arama**: 400+ spot, 422+ futures sembol desteği
+- 📈 **Performans Grafikleri**: Detaylı analiz araçları
 
-## 🚀 Quick Start
+### 🔒 **Güvenlik**
+- 🛡️ **JWT Authentication**: Güvenli kullanıcı doğrulaması
+- 🔐 **API Key Encryption**: Fernet encryption ile güvenli depolama
+- 🚪 **Rate Limiting**: API koruma mekanizmaları
+- 📝 **Audit Logging**: Tüm işlemler loglama
 
-### Prerequisites
-- **Docker** (20.10+)
-- **Docker Compose** (2.0+)
-- **8GB RAM** (recommended)
-- **10GB Free Disk Space**
+### 🏗️ **Teknik Altyapı**
+- ⚡ **FastAPI Backend**: Yüksek performanslı API
+- ⚛️ **React Frontend**: Modern SPA uygulaması
+- 🐘 **PostgreSQL**: Güvenilir veri depolama
+- 🔴 **Redis**: Hızlı cache sistemi
+- 🐳 **Docker**: Kolay deployment ve ölçeklendirme
 
-### One-Command Installation
+---
 
+## 🛠️ Sistem Gereksinimleri
+
+### 📋 **Minimum Gereksinimler**
+- 🖥️ **OS**: Linux, macOS, Windows (WSL2)
+- 💾 **RAM**: 4GB minimum, 8GB önerilen
+- 💿 **Disk**: 10GB boş alan
+- 🌐 **Network**: İnternet bağlantısı
+
+### 📦 **Yazılım Gereksinimleri**
+- 🐳 **Docker**: 20.10+
+- 🔧 **Docker Compose**: 2.0+
+- 📥 **curl**: Web istekleri için
+- 📂 **git**: Kaynak kod indirme
+
+---
+
+## 🚀 Hızlı Kurulum
+
+### 1️⃣ **Proje İndirme**
 ```bash
-# Clone the repository
 git clone https://github.com/yourusername/tradebot.git
 cd tradebot
+```
 
-# Run the installation script
+### 2️⃣ **Otomatik Kurulum**
+```bash
 chmod +x install.sh
 ./install.sh
 ```
 
-That's it! The installation script will:
-- ✅ Check system requirements
-- ✅ Set up environment configuration
-- ✅ Build Docker images
-- ✅ Start all services
-- ✅ Run database migrations
-- ✅ Perform health checks
+### 3️⃣ **İşlem Tamamlandı! 🎉**
+Kurulum script'i otomatik olarak:
+- ✅ Sistem gereksinimlerini kontrol eder
+- ✅ Environment dosyasını oluşturur
+- ✅ Encryption anahtarları üretir
+- ✅ Docker container'larını başlatır
+- ✅ Database migration'larını çalıştırır
+- ✅ Tüm servisleri ayağa kaldırır
 
-### Manual Installation
+### 4️⃣ **Erişim**
+- 🌐 **Frontend**: http://localhost:3000
+- 🔧 **Backend API**: http://localhost:8000
+- 📚 **API Docs**: http://localhost:8000/docs
 
-If you prefer manual setup:
+---
 
-```bash
-# 1. Copy environment template
-cp env.example .env
+## 📊 Kullanım
 
-# 2. Edit configuration (optional)
-nano .env
+### 👤 **İlk Kurulum Adımları**
 
-# 3. Create necessary directories
-mkdir -p cache logs
-chmod 755 cache logs
+1. **Hesap Oluşturma**
+   - http://localhost:3000 adresine gidin
+   - "Kayıt Ol" butonuna tıklayın
+   - Email ve şifrenizi girin
 
-# 4. Build and start services
-docker compose up -d
+2. **API Anahtarı Ekleme**
+   - Dashboard'a gidin
+   - "API Anahtarı Ekle" butonuna tıklayın
+   - Binance API Key ve Secret Key'inizi girin
 
-# 5. Check service health
-docker compose logs -f
-```
+3. **İlk Bot Oluşturma**
+   - "Yeni Bot Oluştur" seçeneğini seçin
+   - Trading parametrelerini ayarlayın
+   - Bot'u başlatın
 
-## 🌐 Access the Application
+### 🔑 **Binance API Anahtarı Alma**
 
-After successful installation:
+1. [Binance](https://www.binance.com) hesabınıza giriş yapın
+2. "API Management" bölümüne gidin
+3. "Create API" butonuna tıklayın
+4. API Key ve Secret Key'i kopyalayın
+5. **Güvenlik**: IP whitelist kullanın
 
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:8000
-- **API Documentation**: http://localhost:8000/docs
-- **Database**: localhost:5432
-- **Redis**: localhost:6379
+### 📈 **Bot Stratejileri**
 
-## ⚙️ Configuration
+#### **EMA Crossover Stratejisi**
+- 🟢 **BUY**: Hızlı EMA > Yavaş EMA
+- 🔴 **SELL**: Hızlı EMA < Yavaş EMA
+- ⚙️ **Parametreler**: EMA Fast (12), EMA Slow (26)
 
-### Environment Variables
+#### **RSI Stratejisi**
+- 🟢 **BUY**: RSI < 30 (Oversold)
+- 🔴 **SELL**: RSI > 70 (Overbought)
+- ⚙️ **Parametreler**: RSI Period (14)
 
-Edit the `.env` file to customize your installation:
+#### **Kombine Strateji**
+- 🤝 **EMA + RSI**: Her iki sinyalin onayı
+- 🎯 **Daha güvenli**: Yanlış sinyal riski azalır
 
+---
+
+## ⚙️ Konfigürasyon
+
+### 🔧 **Environment Variables**
+
+#### 📄 `.env` Dosyası
 ```bash
 # Database
 POSTGRES_PASSWORD=your_secure_password
 
-# Security (IMPORTANT: Change in production!)
-SECRET_KEY=your_super_secret_key_change_this
-
-# Binance API (Optional - leave empty for test mode)
-BINANCE_API_KEY=your_binance_api_key
-BINANCE_SECRET_KEY=your_binance_secret_key
+# Security
+SECRET_KEY=your_generated_secret_key
+FERNET_KEY=auto_generated_encryption_key
 
 # Application
 ENVIRONMENT=production
+LOG_LEVEL=INFO
+VITE_API_URL=http://localhost:8000
 ```
 
-### API Keys Setup
+#### 🚨 **Güvenlik Notları**
+- 🔐 `SECRET_KEY` ve `FERNET_KEY` otomatik oluşturulur
+- 🔄 Production'da bu anahtarları değiştirmeyin
+- 🛡️ `.env` dosyasını version control'e eklemeyin
 
-1. **For Testing**: Leave API keys empty - the system will use sample data
-2. **For Live Trading**:
-   - Get Binance API keys from [Binance API Management](https://www.binance.com/en/my/settings/api-management)
-   - Add them to your `.env` file
-   - Restart the application: `docker compose restart`
+### 📊 **Bot Parametreleri**
 
-## 📖 Usage Guide
+#### 💰 **Risk Yönetimi**
+```javascript
+{
+  "stop_loss_perc": 2.0,        // %2 stop loss
+  "take_profit_perc": 4.0,      // %4 take profit
+  "trailing_stop_perc": 1.0,    // %1 trailing stop
+  "max_daily_loss_perc": 5.0,   // Günlük max kayıp %5
+  "position_size_perc": 10.0    // Sermayenin %10'u
+}
+```
 
-### 1. User Registration
-- Visit http://localhost:3000
-- Click "Register" and create your account
-- Verify your email (development mode shows link in console)
+#### 📈 **Teknik Göstergeler**
+```javascript
+{
+  "ema_fast": 12,               // Hızlı EMA periyodu
+  "ema_slow": 26,               // Yavaş EMA periyodu
+  "rsi_period": 14,             // RSI periyodu
+  "rsi_oversold": 30,           // RSI oversold seviyesi
+  "rsi_overbought": 70          // RSI overbought seviyesi
+}
+```
 
-### 2. API Keys Management
-- Go to "API Keys" section
-- Add your Binance API credentials
-- Test the connection
+---
 
-### 3. Create Trading Bots
-- Navigate to "Bots" section
-- Click "Create New Bot"
-- Configure strategy parameters
-- Set risk management rules
-- Activate the bot
+## 🐳 Docker
 
-### 4. Backtesting
-- Go to "Backtest" section
-- Select trading pair and timeframe
-- Configure strategy parameters
-- Run historical analysis
-- Review performance metrics
+### 📦 **Container'lar**
+- **🐘 postgres**: PostgreSQL database
+- **🔴 redis**: Redis cache
+- **⚡ backend**: FastAPI application
+- **⚛️ frontend**: React application
+- **🌐 nginx**: Reverse proxy (production)
 
-## 🔧 Development
-
-### Local Development Setup
-
+### 🛠️ **Faydalı Komutlar**
 ```bash
-# Backend development
-cd tradebot
-python -m venv venv
-source venv/bin/activate  # or `venv\Scripts\activate` on Windows
+# Servisleri başlatma
+docker-compose up -d
+
+# Logları görme
+docker-compose logs -f backend
+docker-compose logs -f frontend
+
+# Servisleri yeniden başlatma
+docker-compose restart
+
+# Servisleri durdurma
+docker-compose down
+
+# Tüm verileri silme
+docker-compose down -v
+
+# Sadece backend'i yeniden build etme
+docker-compose build --no-cache backend
+docker-compose up -d backend
+
+# Container'a shell ile bağlanma
+docker exec -it tradebot-backend bash
+```
+
+### 🔄 **Development Mode**
+```bash
+# Development ortamı için
+docker-compose -f docker-compose.dev.yml up -d
+
+# Hot reload ile çalıştırma
+cd backend
 pip install -r requirements.txt
 uvicorn app.main:app --reload
 
-# Frontend development
 cd frontend
 npm install
 npm run dev
 ```
 
-### Database Migrations
+---
 
+## 🔧 Geliştirme
+
+### 🏗️ **Proje Yapısı**
+```
+tradebot/
+├── 📁 app/                    # Backend (FastAPI)
+│   ├── 📁 api/               # API routes
+│   ├── 📁 core/              # Core utilities
+│   ├── 📁 models/            # Database models
+│   ├── 📁 schemas/           # Pydantic schemas
+│   └── 📁 services/          # Business logic
+├── 📁 frontend/              # Frontend (React)
+│   ├── 📁 src/
+│   │   ├── 📁 components/    # React components
+│   │   ├── 📁 pages/         # Page components
+│   │   ├── 📁 services/      # API services
+│   │   └── 📁 store/         # State management
+│   └── 📁 public/            # Static files
+├── 📁 alembic/               # Database migrations
+├── 📁 scripts/               # Utility scripts
+├── 📁 docs/                  # Documentation
+├── 🐳 docker-compose.yml     # Docker configuration
+├── 🔧 install.sh             # Installation script
+└── 📄 README.md              # This file
+```
+
+### 🛠️ **Backend Development**
 ```bash
-# Create new migration
-alembic revision -m "description" --autogenerate
+# Virtual environment oluşturma
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# veya
+venv\Scripts\activate     # Windows
 
-# Apply migrations
+# Dependencies kurma
+pip install -r requirements.txt
+
+# Database migration
 alembic upgrade head
 
-# Rollback migration
+# Development server
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+### ⚛️ **Frontend Development**
+```bash
+cd frontend
+
+# Dependencies kurma
+npm install
+
+# Development server
+npm run dev
+
+# Production build
+npm run build
+
+# Preview production build
+npm run preview
+```
+
+### 🗄️ **Database Migration**
+```bash
+# Yeni migration oluşturma
+alembic revision --autogenerate -m "migration description"
+
+# Migration'ları uygulama
+alembic upgrade head
+
+# Migration geri alma
 alembic downgrade -1
 ```
 
-### Testing
+---
 
+## 🆘 Sorun Giderme
+
+### ❓ **Sık Karşılaşılan Sorunlar**
+
+#### 🐳 **Docker İssues**
 ```bash
-# Run backend tests
-pytest
+# Docker servisi çalışmıyor
+sudo systemctl start docker
 
-# Run frontend tests
-cd frontend && npm test
+# Port çakışması
+sudo lsof -i :3000
+sudo lsof -i :8000
 
-# Run integration tests
-docker compose -f docker-compose.test.yml up --abort-on-container-exit
+# Permission denied
+sudo usermod -aG docker $USER
+# Terminal'i yeniden başlatın
 ```
 
-## 📊 Monitoring & Logs
-
-### View Logs
+#### 🔐 **API Key Sorunları**
 ```bash
-# All services
-docker compose logs -f
+# Encryption error
+# .env dosyasında FERNET_KEY kontrol edin
+python3 -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
 
-# Specific service
-docker compose logs -f backend
-docker compose logs -f frontend
-docker compose logs -f postgres
+# API key geçersiz
+# Binance'de API key'in aktif olduğundan emin olun
+# IP whitelist kontrol edin
 ```
 
-### Health Checks
+#### 📊 **Database Sorunları**
 ```bash
-# Backend health
-curl http://localhost:8000/health
+# Connection error
+docker-compose logs postgres
 
-# Frontend health
-curl http://localhost:3000/health
+# Migration hatası
+docker exec -it tradebot-backend alembic upgrade head
 
-# Database health
-docker compose exec postgres pg_isready -U tradebot_user
+# Database reset
+docker-compose down -v
+docker-compose up -d
 ```
 
-### Performance Monitoring
+#### 🌐 **Frontend Sorunları**
 ```bash
-# Resource usage
-docker stats
+# Build hatası
+cd frontend
+npm install
+npm run build
 
-# Service status
-docker compose ps
+# CORS error
+# Backend'de CORS ayarlarını kontrol edin
+
+# API bağlantı sorunu
+# VITE_API_URL environment variable'ını kontrol edin
 ```
 
-## 🛡️ Security
-
-### Production Deployment
-
-**Important security measures for production:**
-
-1. **Change Default Passwords**
-   ```bash
-   # Generate secure passwords
-   openssl rand -base64 32  # For SECRET_KEY
-   openssl rand -base64 16  # For POSTGRES_PASSWORD
-   ```
-
-2. **Enable SSL/TLS**
-   - Use reverse proxy (nginx/traefik)
-   - Install SSL certificates
-   - Force HTTPS redirects
-
-3. **Network Security**
-   - Close unnecessary ports
-   - Use firewall rules
-   - Enable fail2ban
-
-4. **Database Security**
-   - Restrict database access
-   - Regular backups
-   - Enable audit logging
-
-### Backup & Recovery
-
+### 📋 **Log Kontrolü**
 ```bash
-# Database backup
-docker compose exec postgres pg_dump -U tradebot_user tradebot_db > backup.sql
+# Tüm servis logları
+docker-compose logs -f
 
-# Database restore
-docker compose exec -T postgres psql -U tradebot_user tradebot_db < backup.sql
+# Sadece backend logları
+docker-compose logs -f backend
 
-# Full system backup
-docker compose down
-tar -czf tradebot-backup.tar.gz .
+# Sadece frontend logları
+docker-compose logs -f frontend
+
+# Son 100 satır log
+docker-compose logs --tail=100 backend
 ```
 
-## 🐛 Troubleshooting
-
-### Common Issues
-
-#### Port Already in Use
+### 🔍 **Debug Mode**
 ```bash
-# Check which process is using the port
-lsof -i :3000
-lsof -i :8000
+# Backend debug mode
+LOG_LEVEL=DEBUG docker-compose up -d backend
 
-# Kill process or change ports in docker-compose.yml
+# Database query logging
+# .env dosyasına ekleyin:
+SQLALCHEMY_ECHO=true
 ```
-
-#### Database Connection Issues
-```bash
-# Check database logs
-docker compose logs postgres
-
-# Reset database
-docker compose down -v
-docker compose up -d
-```
-
-#### Build Failures
-```bash
-# Clean rebuild
-docker compose down
-docker system prune -a
-docker compose build --no-cache
-docker compose up -d
-```
-
-#### Permission Issues
-```bash
-# Fix directory permissions
-sudo chown -R $USER:$USER cache logs
-chmod 755 cache logs
-```
-
-### Getting Help
-
-- **GitHub Issues**: [Report bugs or request features](https://github.com/yourusername/tradebot/issues)
-- **Documentation**: Check the `/docs` folder for detailed guides
-- **Community**: Join our Discord/Telegram community
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
-### Development Workflow
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Make your changes
-4. Add tests for new functionality
-5. Run the test suite: `npm test && pytest`
-6. Commit your changes: `git commit -m 'Add amazing feature'`
-7. Push to the branch: `git push origin feature/amazing-feature`
-8. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## ⚠️ Disclaimer
-
-**Trading cryptocurrencies involves substantial risk and may result in significant financial losses. This software is provided for educational and research purposes only. The developers are not responsible for any financial losses incurred through the use of this platform. Always do your own research and never invest more than you can afford to lose.**
-
-## 🙏 Acknowledgments
-
-- [Binance API](https://binance-docs.github.io/apidocs/) for market data
-- [FastAPI](https://fastapi.tiangolo.com/) for the excellent web framework
-- [React](https://reactjs.org/) for the frontend library
-- [Docker](https://www.docker.com/) for containerization
-- [PostgreSQL](https://www.postgresql.org/) for the database
 
 ---
 
-**Happy Trading! 🚀📈**
+## 🔒 Güvenlik
 
-Made with ❤️ by the TradeBot Team
+### 🛡️ **En İyi Uygulamalar**
+- 🔐 **API Keys**: Asla git'e commit etmeyin
+- 🌐 **CORS**: Production'da proper CORS ayarlayın
+- 🔑 **Passwords**: Güçlü şifreler kullanın
+- 📱 **2FA**: Binance hesabınızda 2FA aktif edin
+- 💻 **IP Whitelist**: API key'lerde IP kısıtlaması yapın
+
+### 🚨 **Production Deployment**
+```bash
+# SSL/TLS sertifikası
+# nginx/ssl/ klasörüne certificate files koyun
+
+# Environment variables
+ENVIRONMENT=production
+DEBUG=false
+
+# Database backup
+pg_dump tradebot_db > backup.sql
+
+# Firewall rules
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+sudo ufw enable
+```
+
+---
+
+## 🤝 Katkıda Bulunma
+
+### 🎯 **Contribution Guidelines**
+1. 🍴 Fork the repository
+2. 🌿 Create a feature branch
+3. 📝 Make your changes
+4. ✅ Add tests if applicable
+5. 📋 Update documentation
+6. 🔄 Submit a pull request
+
+### 🐛 **Bug Reports**
+[GitHub Issues](https://github.com/yourusername/tradebot/issues) üzerinden:
+- 📝 Detaylı açıklama
+- 🔄 Reproduce steps
+- 📊 Expected vs actual behavior
+- 💻 System information
+
+### 💡 **Feature Requests**
+- 🎯 Use case açıklaması
+- 📈 Expected benefits
+- 🔧 Technical considerations
+
+---
+
+## 📄 Lisans
+
+Bu proje [MIT Lisansı](LICENSE) altında lisanslanmıştır.
+
+```
+MIT License
+
+Copyright (c) 2024 TradeBot
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+---
+
+## 🙏 Teşekkürler
+
+Bu proje aşağıdaki açık kaynak projeleri kullanmaktadır:
+- 🐍 [FastAPI](https://fastapi.tiangolo.com/)
+- ⚛️ [React](https://react.dev/)
+- 🐘 [PostgreSQL](https://www.postgresql.org/)
+- 🔴 [Redis](https://redis.io/)
+- 🐳 [Docker](https://www.docker.com/)
+- 📊 [Binance API](https://binance-docs.github.io/apidocs/)
+
+---
+
+<div align="center">
+
+**🚀 TradeBot ile Happy Trading! 💰📈**
+
+[![GitHub stars](https://img.shields.io/github/stars/yourusername/tradebot?style=social)](https://github.com/yourusername/tradebot)
+[![GitHub forks](https://img.shields.io/github/forks/yourusername/tradebot?style=social)](https://github.com/yourusername/tradebot)
+
+</div>
