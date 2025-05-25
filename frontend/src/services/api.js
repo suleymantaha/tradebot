@@ -105,12 +105,18 @@ class ApiService {
         return this.post('/api/v1/backtest/run', data)
     }
 
+    // Cache yönetimi
     async getCacheInfo() {
         return this.get('/api/v1/backtest/cache/info')
     }
 
     async clearCache() {
-        return this.delete('/api/v1/backtest/cache/clear')
+        return this.post('/api/v1/backtest/cache/clear')
+    }
+
+    // Backtest geçmişi
+    async getBacktestList() {
+        return this.get('/api/v1/backtest/list')
     }
 }
 

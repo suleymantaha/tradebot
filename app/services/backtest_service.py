@@ -14,6 +14,7 @@ import requests
 import time
 from fastapi import HTTPException
 from sqlalchemy import desc
+import json
 
 from app.core.cache import DataCache
 from app.models.api_key import ApiKey
@@ -22,7 +23,9 @@ from app.models.backtest import Backtest
 
 class BacktestService:
     def __init__(self, user_id: Optional[int] = None, db_session: Optional[AsyncSession] = None):
-        self.cache = DataCache()
+        # Use absolute path for cache directory
+        cache_dir = os.path.join(os.getcwd(), "cache", "data")
+        self.cache = DataCache(cache_dir=cache_dir)
         self.user_id = user_id
         self.db_session = db_session
 
@@ -30,7 +33,7 @@ class BacktestService:
         self.client = None
         self.test_mode = True
 
-        print("🔧 BacktestService initialized")
+        print(f"🔧 BacktestService initialized with cache dir: {cache_dir}")
 
     async def setup_binance_client(self):
         """Setup Binance client using user's API keys from database"""
@@ -237,8 +240,19 @@ class BacktestService:
             return await self.generate_sample_data(symbol, interval, start_date, end_date)
 
     async def get_historical_data(self, symbol: str = "BNBUSDT", interval: str = "15m",
-                          start_date: str = "2025-01-01", end_date: str = "2025-04-04") -> pd.DataFrame:
+                          start_date: str = None, end_date: str = None) -> pd.DataFrame:
         """Get historical data with caching"""
+
+        # If no dates provided, use dynamic defaults
+        if end_date is None:
+            end_date = datetime.now().strftime("%Y-%m-%d")
+
+        if start_date is None:
+            # Default to 6 months ago
+            start_dt = datetime.now() - timedelta(days=180)
+            start_date = start_dt.strftime("%Y-%m-%d")
+
+        print(f"📅 Using date range: {start_date} to {end_date}")
 
         # Check cache first
         cached_data = self.cache.get_cached_data(symbol, interval, start_date, end_date)
@@ -317,47 +331,114 @@ class BacktestService:
                           rsi_period: int = 7) -> pd.DataFrame:
         """Add technical indicators to DataFrame"""
         try:
+            print(f"📊 Preparing indicators for {len(df)} rows")
+
+            # Create a copy to avoid modifying original data
+            df_indicators = df.copy()
+
             # EMA indicators
-            df['EMA_fast'] = EMAIndicator(df['close'], ema_fast).ema_indicator()
-            df['EMA_slow'] = EMAIndicator(df['close'], ema_slow).ema_indicator()
+            df_indicators['EMA_fast'] = EMAIndicator(df_indicators['close'], ema_fast).ema_indicator()
+            df_indicators['EMA_slow'] = EMAIndicator(df_indicators['close'], ema_slow).ema_indicator()
 
             # RSI
-            df['RSI'] = RSIIndicator(df['close'], rsi_period).rsi()
+            df_indicators['RSI'] = RSIIndicator(df_indicators['close'], rsi_period).rsi()
 
             # MACD
-            macd = MACD(df['close'])
-            df['MACD'] = macd.macd_diff()
+            macd = MACD(df_indicators['close'])
+            df_indicators['MACD'] = macd.macd_diff()
 
             # Bollinger Bands
-            bb = BollingerBands(df['close'])
-            df['BB_upper'] = bb.bollinger_hband()
-            df['BB_middle'] = bb.bollinger_mavg()
-            df['BB_lower'] = bb.bollinger_lband()
+            bb = BollingerBands(df_indicators['close'])
+            df_indicators['BB_upper'] = bb.bollinger_hband()
+            df_indicators['BB_middle'] = bb.bollinger_mavg()
+            df_indicators['BB_lower'] = bb.bollinger_lband()
 
-            # Volume analysis
-            df['volume_ma'] = df['volume'].rolling(window=20).mean()
-            df['volume_ratio'] = df['volume'] / df['volume_ma']
+            # Volume analysis (check if volume exists and has non-zero values)
+            if 'volume' in df_indicators.columns and df_indicators['volume'].sum() > 0:
+                df_indicators['volume_ma'] = df_indicators['volume'].rolling(window=20).mean()
+                df_indicators['volume_ratio'] = df_indicators['volume'] / df_indicators['volume_ma']
+                # Fill division by zero or NaN with 1.0
+                df_indicators['volume_ratio'] = df_indicators['volume_ratio'].fillna(1.0)
+                df_indicators['volume_ratio'] = df_indicators['volume_ratio'].replace([np.inf, -np.inf], 1.0)
+            else:
+                df_indicators['volume_ma'] = 1000.0  # Default volume
+                df_indicators['volume_ratio'] = 1.0
 
             # Volatility
-            df['volatility'] = df['close'].pct_change().rolling(window=10).std()
-            df['volatility_ma'] = df['volatility'].rolling(window=20).mean()
+            df_indicators['volatility'] = df_indicators['close'].pct_change().rolling(window=10).std()
+            df_indicators['volatility_ma'] = df_indicators['volatility'].rolling(window=20).mean()
 
             # Trend strength
-            df['trend_strength'] = abs(df['EMA_fast'] - df['EMA_slow']) / df['EMA_slow'] * 100
+            df_indicators['trend_strength'] = abs(df_indicators['EMA_fast'] - df_indicators['EMA_slow']) / df_indicators['EMA_slow'] * 100
 
-            # Drop NaN values
-            df.dropna(inplace=True)
+            # Fill any remaining NaN or inf values
+            df_indicators = df_indicators.replace([np.inf, -np.inf], np.nan)
 
-            return df
+            # Fill NaN values with appropriate defaults
+            numeric_columns = ['EMA_fast', 'EMA_slow', 'RSI', 'MACD', 'BB_upper', 'BB_middle', 'BB_lower',
+                             'volume_ma', 'volume_ratio', 'volatility', 'volatility_ma', 'trend_strength']
+
+            for col in numeric_columns:
+                if col in df_indicators.columns:
+                    # For price-based indicators, use the close price as fallback
+                    if col.startswith(('EMA_', 'BB_')):
+                        df_indicators[col] = df_indicators[col].fillna(df_indicators['close'])
+                    # For RSI, use neutral value of 50
+                    elif col == 'RSI':
+                        df_indicators[col] = df_indicators[col].fillna(50.0)
+                    # For others, use 0 or appropriate default
+                    else:
+                        default_value = 1.0 if col in ['volume_ratio'] else 0.0
+                        df_indicators[col] = df_indicators[col].fillna(default_value)
+
+            # Ensure we have minimum required rows after indicator calculation
+            min_rows_needed = max(ema_slow, rsi_period, 20) + 10  # Add some buffer
+
+            if len(df_indicators) < min_rows_needed:
+                print(f"⚠️ Warning: Only {len(df_indicators)} rows available, minimum {min_rows_needed} recommended")
+
+            # Drop rows where critical indicators are still NaN (typically the first few rows)
+            critical_indicators = ['EMA_fast', 'EMA_slow', 'RSI']
+            df_clean = df_indicators.dropna(subset=critical_indicators)
+
+            print(f"✅ Indicators prepared: {len(df_clean)} clean rows from {len(df)} original rows")
+            print(f"📈 Sample indicators - EMA_fast: {df_clean['EMA_fast'].iloc[-1]:.4f}, RSI: {df_clean['RSI'].iloc[-1]:.2f}")
+
+            return df_clean
 
         except Exception as e:
             print(f"❌ Error preparing indicators: {e}")
-            raise
+            # Return DataFrame with basic columns to prevent crash
+            print("🔧 Returning basic DataFrame to prevent crash")
+            df_basic = df.copy()
+            df_basic['EMA_fast'] = df_basic['close']
+            df_basic['EMA_slow'] = df_basic['close']
+            df_basic['RSI'] = 50.0
+            df_basic['MACD'] = 0.0
+            df_basic['BB_upper'] = df_basic['close'] * 1.02
+            df_basic['BB_middle'] = df_basic['close']
+            df_basic['BB_lower'] = df_basic['close'] * 0.98
+            df_basic['volume_ma'] = 1000.0
+            df_basic['volume_ratio'] = 1.0
+            df_basic['volatility'] = 0.01
+            df_basic['volatility_ma'] = 0.01
+            df_basic['trend_strength'] = 0.1
+            return df_basic
 
     def check_entry_signal(self, current: pd.Series, previous: pd.Series,
                           rsi_oversold: float = 35, rsi_overbought: float = 65) -> bool:
         """Check if entry conditions are met"""
         try:
+            # Safety check for NaN values
+            required_columns = ['close', 'EMA_fast', 'EMA_slow', 'RSI', 'MACD', 'BB_middle', 'BB_upper', 'BB_lower']
+            for col in required_columns:
+                if col not in current.index or col not in previous.index:
+                    print(f"⚠️ Missing column {col} in signal check")
+                    return False
+                if pd.isna(current[col]) or pd.isna(previous[col]):
+                    print(f"⚠️ NaN value in {col} - skipping signal")
+                    return False
+
             # Trend analysis
             trend_up = current['close'] > current['EMA_fast'] > current['EMA_slow']
             trend_accelerating = (current['EMA_fast'] - current['EMA_slow']) > (previous['EMA_fast'] - previous['EMA_slow'])
@@ -374,15 +455,24 @@ class BacktestService:
             bb_signal = (current['close'] > current['BB_middle']) and (current['close'] < current['BB_upper'])
             bb_expanding = (current['BB_upper'] - current['BB_lower']) > (previous['BB_upper'] - previous['BB_lower'])
 
-            # Volume analysis
-            volume_surge = current['volume_ratio'] > 1.2
+            # Volume analysis - with safety check
+            volume_surge = False
+            if 'volume_ratio' in current.index and not pd.isna(current['volume_ratio']):
+                volume_surge = current['volume_ratio'] > 1.2
 
             # Momentum and trend strength
             momentum = current['close'] > previous['close'] * 1.0005  # 0.05% minimum increase
-            strong_trend = current['trend_strength'] > 0.2
 
-            # Volatility control
-            volatility_ok = current['volatility'] < current['volatility_ma']
+            # Trend strength with safety check
+            strong_trend = False
+            if 'trend_strength' in current.index and not pd.isna(current['trend_strength']):
+                strong_trend = current['trend_strength'] > 0.2
+
+            # Volatility control with safety check
+            volatility_ok = True
+            if ('volatility' in current.index and 'volatility_ma' in current.index and
+                not pd.isna(current['volatility']) and not pd.isna(current['volatility_ma'])):
+                volatility_ok = current['volatility'] < current['volatility_ma']
 
             # Primary signals (at least 3 required)
             primary_signals = sum([
@@ -456,6 +546,7 @@ class BacktestService:
             print(f"⚙️ Strategy parameters:")
             print(f"   EMA: {ema_fast}/{ema_slow}, RSI: {rsi_period} ({rsi_oversold}-{rsi_overbought})")
             print(f"   Risk: SL={stop_loss}%, TP={take_profit}%, Trailing={trailing_stop}%")
+            print(f"💰 Starting capital: ${current_capital:.2f}")
 
             # Group by day for daily trading limits
             daily_groups = df.groupby(df['timestamp'].dt.date)
@@ -475,13 +566,36 @@ class BacktestService:
                     previous = day_data.iloc[i-1]
 
                     if self.check_entry_signal(current, previous, rsi_oversold, rsi_overbought):
-                        position_size = current_capital * 1.0  # Full capital
+                        # Risk management: Only risk a percentage of capital per trade
+                        risk_per_trade = parameters.get('risk_per_trade', 2.0)  # Default 2% per trade
+                        max_position_size = current_capital * (risk_per_trade / 100)
+
                         entry_price = current['close']
 
-                        # Entry fees
-                        entry_fee = self.calculate_fees(position_size, is_entry=True)
-                        position_size -= entry_fee
+                        # Calculate position size based on stop loss
+                        stop_loss_price = entry_price * (1 - stop_loss/100)
+                        risk_per_unit = entry_price - stop_loss_price
+                        position_units = max_position_size / risk_per_unit if risk_per_unit > 0 else 0
+                        position_value = position_units * entry_price
+
+                        # Don't exceed available capital
+                        if position_value > current_capital * 0.95:  # Leave some buffer
+                            position_value = current_capital * 0.95
+                            position_units = position_value / entry_price
+
+                        # Calculate entry fees
+                        entry_fee = self.calculate_fees(position_value, is_entry=True)
+                        total_entry_cost = position_value + entry_fee
+
+                        # Skip if not enough capital
+                        if total_entry_cost > current_capital:
+                            continue
+
+                        # Execute entry: Deduct full cost from capital
+                        current_capital -= total_entry_cost
                         total_fees += entry_fee
+
+                        print(f"📈 Entry: {position_units:.6f} {symbol} @ ${entry_price:.4f}, Cost: ${total_entry_cost:.2f}, Remaining Capital: ${current_capital:.2f}")
 
                         # Set stops
                         trailing_stop_price = entry_price * (1 - trailing_stop/100)
@@ -491,8 +605,8 @@ class BacktestService:
 
                         # Check remaining candles for exit
                         remaining_data = day_data.iloc[i+1:]
-                        trade_result = 0
-                        exit_fee = 0
+                        exit_price = entry_price
+                        trade_successful = False
 
                         for _, check_price in remaining_data.iterrows():
                             # Update trailing stop
@@ -502,29 +616,48 @@ class BacktestService:
 
                             # Check take profit
                             if check_price['high'] >= take_profit_price:
-                                trade_result = take_profit
-                                winning_trades += 1
-                                exit_fee = self.calculate_fees(position_size * (1 + trade_result/100), is_entry=False)
-                                total_fees += exit_fee
-                                trade_result = trade_result - (exit_fee/position_size * 100)
+                                exit_price = take_profit_price
+                                trade_successful = True
                                 break
 
                             # Check stop loss
                             elif check_price['low'] <= min(stop_loss_price, trailing_stop_price):
-                                loss_price = max(stop_loss_price, trailing_stop_price)
-                                trade_result = -((entry_price - loss_price) / entry_price * 100)
-                                losing_trades += 1
-                                exit_fee = self.calculate_fees(position_size * (1 + trade_result/100), is_entry=False)
-                                total_fees += exit_fee
-                                trade_result = trade_result - (exit_fee/position_size * 100)
+                                exit_price = max(stop_loss_price, trailing_stop_price)
+                                trade_successful = True
                                 break
 
-                        # Update capital
-                        trade_pnl = position_size * (trade_result/100)
-                        current_capital += trade_pnl
-                        daily_pnl += trade_result
+                        # If no exit signal found, close at last price
+                        if not trade_successful:
+                            exit_price = day_data.iloc[-1]['close']
+
+                        # Calculate exit proceeds
+                        position_exit_value = position_units * exit_price
+                        exit_fee = self.calculate_fees(position_exit_value, is_entry=False)
+                        net_proceeds = position_exit_value - exit_fee
+
+                        # Execute exit: Add net proceeds to capital
+                        current_capital += net_proceeds
+                        total_fees += exit_fee
+
+                        # Calculate trade P&L in USDT
+                        trade_pnl_usdt = net_proceeds - position_value  # Net proceeds minus original position value
+                        trade_pnl_percentage = ((exit_price - entry_price) / entry_price) * 100
+
+                        # Update trade counters
+                        if trade_pnl_usdt > 0:
+                            winning_trades += 1
+                        else:
+                            losing_trades += 1
+
+                        daily_pnl += trade_pnl_percentage  # Track daily P&L in percentage
                         daily_trades += 1
                         total_trades += 1
+
+                        print(f"📉 Exit: ${exit_price:.4f}, Proceeds: ${net_proceeds:.2f}, P&L: ${trade_pnl_usdt:.2f} ({trade_pnl_percentage:.2f}%), Capital: ${current_capital:.2f}")
+
+                        # Check daily target
+                        if daily_pnl >= daily_target:
+                            break
 
                 # Record daily results
                 if daily_trades > 0:
@@ -547,6 +680,16 @@ class BacktestService:
             win_rate = (winning_trades / total_trades * 100) if total_trades > 0 else 0
             avg_profit = (current_capital - initial_capital) / total_trades if total_trades > 0 else 0
 
+            print(f"🔍 Final Calculations:")
+            print(f"   Initial Capital: ${initial_capital:.2f}")
+            print(f"   Final Capital: ${current_capital:.2f}")
+            print(f"   Net P&L: ${current_capital - initial_capital:.2f}")
+            print(f"   Total Trades: {total_trades}")
+            print(f"   Winning: {winning_trades}, Losing: {losing_trades}")
+            print(f"   Total Fees: ${total_fees:.2f}")
+            print(f"   Win Rate: {win_rate:.2f}%")
+            print(f"   Total Return: {total_return:.2f}%")
+
             results = {
                 'initial_capital': initial_capital,
                 'final_capital': current_capital,
@@ -566,6 +709,9 @@ class BacktestService:
                 'parameters': parameters,
                 'test_mode': self.test_mode
             }
+
+            # Clean NaN values before returning
+            results = self.clean_nan_values(results)
 
             print(f"✅ Backtest completed!")
             print(f"📊 Total Return: {total_return:.2f}%")
@@ -707,3 +853,20 @@ class BacktestService:
             print(f"❌ Error deleting backtest: {e}")
             await db_session.rollback()
             raise HTTPException(status_code=500, detail=f"Failed to delete backtest: {str(e)}")
+
+    def clean_nan_values(self, obj):
+        """Recursively clean NaN values from any data structure for JSON serialization"""
+        if isinstance(obj, dict):
+            return {key: self.clean_nan_values(value) for key, value in obj.items()}
+        elif isinstance(obj, list):
+            return [self.clean_nan_values(item) for item in obj]
+        elif isinstance(obj, (np.floating, float)) and (np.isnan(obj) or np.isinf(obj)):
+            return 0.0
+        elif isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        elif hasattr(obj, 'item'):  # numpy scalars
+            return obj.item()
+        else:
+            return obj

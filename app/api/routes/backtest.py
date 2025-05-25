@@ -63,8 +63,11 @@ async def get_cache_info(current_user = Depends(get_current_user)):
     Get information about cached data
     """
     try:
+        print(f"🔍 Cache info requested by user: {current_user.email}")
         backtest_service = BacktestService()
         cache_info = backtest_service.cache.get_cache_info()
+
+        print(f"📊 Returning cache info: {cache_info}")
 
         return {
             "status": "success",
@@ -73,12 +76,14 @@ async def get_cache_info(current_user = Depends(get_current_user)):
 
     except Exception as e:
         print(f"❌ Cache info error: {e}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(
             status_code=500,
             detail=f"Failed to get cache info: {str(e)}"
         )
 
-@router.delete("/cache/clear")
+@router.post("/cache/clear")
 async def clear_cache(current_user = Depends(get_current_user)):
     """
     Clear all cached data

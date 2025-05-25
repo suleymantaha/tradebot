@@ -4,6 +4,8 @@ import apiService from '../../services/api'
 import BacktestHistory from '../../components/Backtest/BacktestHistory'
 import useAuthStore from '../../store/authStore'
 import { useNavigate } from 'react-router-dom'
+import DatePicker from 'react-datepicker'
+import "react-datepicker/dist/react-datepicker.css"
 
 const BacktestPage = () => {
     const { isDark } = useTheme()
@@ -15,8 +17,8 @@ const BacktestPage = () => {
     const [interval, setInterval] = useState('15m')
 
     // Tarih aralığı
-    const [startDate, setStartDate] = useState('2025-01-01')
-    const [endDate, setEndDate] = useState('2025-04-04')
+    const [startDate, setStartDate] = useState(null)
+    const [endDate, setEndDate] = useState(null)
 
     // Temel parametreler
     const [parameters, setParameters] = useState({
@@ -25,7 +27,8 @@ const BacktestPage = () => {
         max_daily_loss: 1.0,
         stop_loss: 0.5,
         take_profit: 1.5,
-        trailing_stop: 0.3
+        trailing_stop: 0.3,
+        risk_per_trade: 2.0
     })
 
     // Teknik indikatör parametreleri
@@ -39,6 +42,8 @@ const BacktestPage = () => {
 
     const [results, setResults] = useState(null)
     const [progress, setProgress] = useState(0)
+    const [cacheInfo, setCacheInfo] = useState(null)
+    const [showCacheInfo, setShowCacheInfo] = useState(false)
 
     const symbols = [
         'BNBUSDT', 'BTCUSDT', 'ETHUSDT', 'ADAUSDT', 'DOTUSDT',
@@ -60,6 +65,14 @@ const BacktestPage = () => {
         if (!isAuthenticated || !token) {
             console.warn('⚠️ Not authenticated, redirecting to login')
             navigate('/login')
+        } else {
+            // Set dynamic default dates when component loads
+            const today = new Date()
+            const sixMonthsAgo = new Date()
+            sixMonthsAgo.setMonth(today.getMonth() - 6)
+
+            setEndDate(today)
+            setStartDate(sixMonthsAgo)
         }
     }, [isAuthenticated, token, navigate])
 
@@ -71,6 +84,47 @@ const BacktestPage = () => {
         setTechnicalParams(prev => ({ ...prev, [key]: parseFloat(value) }))
     }
 
+    const fetchCacheInfo = async () => {
+        try {
+            console.log('🔄 Fetching cache info...')
+            const response = await apiService.getCacheInfo()
+            console.log('📡 Cache info response:', response)
+
+            if (response.status === 'success' && response.data) {
+                setCacheInfo(response.data)
+                console.log('✅ Cache info updated:', response.data)
+            } else {
+                console.warn('⚠️ Invalid cache info response:', response)
+                setCacheInfo(null)
+            }
+        } catch (error) {
+            console.error('❌ Cache info hatası:', error)
+            setCacheInfo(null)
+        }
+    }
+
+    const clearCache = async () => {
+        if (!confirm('Tüm cache\'lenmiş data silinecek. Emin misiniz?')) {
+            return
+        }
+
+        try {
+            await apiService.clearCache()
+            setCacheInfo(null)
+            alert('Cache temizlendi!')
+        } catch (error) {
+            console.error('Cache temizleme hatası:', error)
+            alert('Cache temizlenirken hata oluştu')
+        }
+    }
+
+    // Load cache info on component mount
+    useEffect(() => {
+        if (isAuthenticated && token) {
+            fetchCacheInfo()
+        }
+    }, [isAuthenticated, token])
+
     const runBacktest = async () => {
         setIsLoading(true)
         setProgress(0)
@@ -80,8 +134,8 @@ const BacktestPage = () => {
             const requestData = {
                 symbol,
                 interval,
-                start_date: startDate,
-                end_date: endDate,
+                start_date: startDate?.toISOString().split('T')[0],
+                end_date: endDate?.toISOString().split('T')[0],
                 parameters: {
                     ...parameters,
                     ...technicalParams
@@ -143,6 +197,111 @@ const BacktestPage = () => {
                 {/* Tab Content */}
                 {activeTab === 'new' ? (
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        {/* Cache Bilgileri */}
+                        <div className="lg:col-span-3 mb-6">
+                            <div className={`rounded-2xl shadow-xl p-6 ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border`}>
+                                <div className="flex items-center justify-between mb-4">
+                                    <h2 className={`text-xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                        🗄️ Cache Durumu
+                                    </h2>
+                                    <div className="flex space-x-3">
+                                        <button
+                                            onClick={fetchCacheInfo}
+                                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors"
+                                        >
+                                            🔄 Yenile
+                                        </button>
+                                        <button
+                                            onClick={() => setShowCacheInfo(!showCacheInfo)}
+                                            className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm rounded-lg transition-colors"
+                                        >
+                                            {showCacheInfo ? '👁️ Gizle' : '👁️ Göster'}
+                                        </button>
+                                        <button
+                                            onClick={clearCache}
+                                            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded-lg transition-colors"
+                                        >
+                                            🗑️ Temizle
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {cacheInfo && (
+                                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                                        <div className={`p-3 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                                            <div className="text-2xl mb-1">📊</div>
+                                            <div className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Toplam Cache</div>
+                                            <div className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                                {cacheInfo.total_files}
+                                            </div>
+                                        </div>
+
+                                        <div className={`p-3 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                                            <div className="text-2xl mb-1">💽</div>
+                                            <div className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Boyut</div>
+                                            <div className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                                {cacheInfo.total_size_mb} MB
+                                            </div>
+                                        </div>
+
+                                        <div className={`p-3 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                                            <div className="text-2xl mb-1">🪙</div>
+                                            <div className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Coin Sayısı</div>
+                                            <div className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                                {cacheInfo.cached_symbols?.length || 0}
+                                            </div>
+                                        </div>
+
+                                        <div className={`p-3 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                                            <div className="text-2xl mb-1">⚡</div>
+                                            <div className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Durum</div>
+                                            <div className={`text-lg font-bold ${cacheInfo.total_files > 0 ? 'text-green-500' : 'text-yellow-500'}`}>
+                                                {cacheInfo.total_files > 0 ? 'Aktif' : 'Boş'}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {showCacheInfo && cacheInfo && cacheInfo.cache_entries && (
+                                    <div className="mt-4">
+                                        <h3 className={`text-lg font-medium mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                            📋 Cache Detayları
+                                        </h3>
+                                        <div className="max-h-64 overflow-y-auto">
+                                            <div className="space-y-2">
+                                                {cacheInfo.cache_entries.map((entry, index) => (
+                                                    <div key={index} className={`p-3 rounded-lg border ${isDark ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'}`}>
+                                                        <div className="flex justify-between items-start">
+                                                            <div>
+                                                                <div className={`font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                                                    {entry.symbol} - {entry.interval}
+                                                                </div>
+                                                                <div className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                                                                    {entry.start_date} → {entry.end_date}
+                                                                </div>
+                                                                <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                                                                    {entry.rows} satır, {new Date(entry.cached_at).toLocaleString('tr-TR')}
+                                                                </div>
+                                                            </div>
+                                                            <div className="text-xs text-green-500 font-medium">
+                                                                ✅ Cache'li
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {!cacheInfo && (
+                                    <div className={`text-center py-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                        Cache bilgileri yükleniyor...
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
                         {/* Ayarlar Paneli */}
                         <div className="lg:col-span-1 space-y-6">
                             {/* Temel Ayarlar */}
@@ -184,29 +343,91 @@ const BacktestPage = () => {
                                 </div>
 
                                 {/* Tarih Aralığı */}
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="space-y-4">
+                                    {/* Hızlı Tarih Seçimleri */}
                                     <div>
                                         <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                                            Başlangıç Tarihi
+                                            📅 Hızlı Seçim
                                         </label>
-                                        <input
-                                            type="date"
-                                            value={startDate}
-                                            onChange={(e) => setStartDate(e.target.value)}
-                                            className={`w-full px-3 py-2 rounded-lg border transition-colors ${isDark ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:ring-2 focus:ring-indigo-500`}
-                                        />
+                                        <div className="grid grid-cols-3 gap-2">
+                                            {[
+                                                { label: '1 Ay', months: 1 },
+                                                { label: '3 Ay', months: 3 },
+                                                { label: '6 Ay', months: 6 }
+                                            ].map(({ label, months }) => (
+                                                <button
+                                                    key={label}
+                                                    onClick={() => {
+                                                        const today = new Date()
+                                                        const startDate = new Date()
+                                                        startDate.setMonth(today.getMonth() - months)
+                                                        setStartDate(startDate)
+                                                        setEndDate(today)
+                                                    }}
+                                                    className={`px-3 py-2 text-xs rounded-lg border transition-colors ${isDark ? 'bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600' : 'bg-gray-50 border-gray-300 text-gray-700 hover:bg-gray-100'}`}
+                                                >
+                                                    {label}
+                                                </button>
+                                            ))}
+                                        </div>
                                     </div>
-                                    <div>
-                                        <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                                            Bitiş Tarihi
-                                        </label>
-                                        <input
-                                            type="date"
-                                            value={endDate}
-                                            onChange={(e) => setEndDate(e.target.value)}
-                                            className={`w-full px-3 py-2 rounded-lg border transition-colors ${isDark ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:ring-2 focus:ring-indigo-500`}
-                                        />
+
+                                    {/* Date Picker'lar */}
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                                                Başlangıç Tarihi
+                                            </label>
+                                            <DatePicker
+                                                selected={startDate}
+                                                onChange={(date) => setStartDate(date)}
+                                                dateFormat="dd/MM/yyyy"
+                                                placeholderText="Başlangıç tarihi seçin"
+                                                className={`w-full px-3 py-2 rounded-lg border transition-colors ${isDark ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'} focus:ring-2 focus:ring-indigo-500 focus:outline-none`}
+                                                wrapperClassName="w-full"
+                                                calendarClassName={isDark ? 'dark-calendar' : ''}
+                                                showPopperArrow={false}
+                                                maxDate={endDate || new Date()}
+                                                todayButton="Bugün"
+                                                showYearDropdown
+                                                yearDropdownItemNumber={5}
+                                                scrollableYearDropdown
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                                                Bitiş Tarihi
+                                            </label>
+                                            <DatePicker
+                                                selected={endDate}
+                                                onChange={(date) => setEndDate(date)}
+                                                dateFormat="dd/MM/yyyy"
+                                                placeholderText="Bitiş tarihi seçin"
+                                                className={`w-full px-3 py-2 rounded-lg border transition-colors ${isDark ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'} focus:ring-2 focus:ring-indigo-500 focus:outline-none`}
+                                                wrapperClassName="w-full"
+                                                calendarClassName={isDark ? 'dark-calendar' : ''}
+                                                showPopperArrow={false}
+                                                minDate={startDate}
+                                                maxDate={new Date()}
+                                                todayButton="Bugün"
+                                                showYearDropdown
+                                                yearDropdownItemNumber={5}
+                                                scrollableYearDropdown
+                                            />
+                                        </div>
                                     </div>
+
+                                    {/* Seçilen Aralık Bilgisi */}
+                                    {startDate && endDate && (
+                                        <div className={`p-3 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-indigo-50'}`}>
+                                            <div className="flex items-center space-x-2">
+                                                <span className="text-lg">📊</span>
+                                                <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                                                    Seçilen Aralık: <strong>{Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24))} gün</strong>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
@@ -226,6 +447,7 @@ const BacktestPage = () => {
                                                 {key === 'stop_loss' && 'Stop Loss (%)'}
                                                 {key === 'take_profit' && 'Take Profit (%)'}
                                                 {key === 'trailing_stop' && 'Trailing Stop (%)'}
+                                                {key === 'risk_per_trade' && 'Risk Per Trade (%)'}
                                             </label>
                                             <input
                                                 type="number"
@@ -387,7 +609,7 @@ const BacktestPage = () => {
                                                 <div>
                                                     <span className={`${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Test Aralığı:</span>
                                                     <span className={`ml-2 font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                                                        {startDate} - {endDate}
+                                                        {startDate?.toLocaleDateString()} - {endDate?.toLocaleDateString()}
                                                     </span>
                                                 </div>
                                                 <div>

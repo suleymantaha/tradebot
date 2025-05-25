@@ -119,24 +119,51 @@ class DataCache:
         }
 
         try:
-            for file in os.listdir(self.cache_dir):
+            print(f"🔍 Checking cache directory: {self.cache_dir}")
+
+            if not os.path.exists(self.cache_dir):
+                print(f"⚠️ Cache directory does not exist: {self.cache_dir}")
+                return info
+
+            files = os.listdir(self.cache_dir)
+            print(f"📁 Found {len(files)} files in cache directory")
+
+            for file in files:
+                print(f"📄 Processing file: {file}")
+
                 if file.endswith('_meta.json'):
                     info['total_files'] += 1
                     file_path = os.path.join(self.cache_dir, file)
 
-                    with open(file_path, 'r') as f:
-                        metadata = json.load(f)
-                        info['cached_symbols'].add(metadata['symbol'])
-                        info['cache_entries'].append(metadata)
+                    try:
+                        with open(file_path, 'r') as f:
+                            metadata = json.load(f)
+                            info['cached_symbols'].add(metadata['symbol'])
+                            info['cache_entries'].append(metadata)
+                            print(f"✅ Loaded metadata for {metadata['symbol']} {metadata['interval']}")
+                    except Exception as meta_error:
+                        print(f"❌ Error reading metadata file {file}: {meta_error}")
 
                 # Calculate total size
                 file_path = os.path.join(self.cache_dir, file)
-                info['total_size_mb'] += os.path.getsize(file_path) / (1024 * 1024)
+                try:
+                    file_size = os.path.getsize(file_path) / (1024 * 1024)
+                    info['total_size_mb'] += file_size
+                except Exception as size_error:
+                    print(f"❌ Error getting size for {file}: {size_error}")
 
             info['cached_symbols'] = list(info['cached_symbols'])
             info['total_size_mb'] = round(info['total_size_mb'], 2)
 
+            print(f"📊 Cache info summary:")
+            print(f"   Total files: {info['total_files']}")
+            print(f"   Cached symbols: {info['cached_symbols']}")
+            print(f"   Total size: {info['total_size_mb']} MB")
+            print(f"   Cache entries: {len(info['cache_entries'])}")
+
         except Exception as e:
-            print(f"Error getting cache info: {e}")
+            print(f"❌ Error getting cache info: {e}")
+            import traceback
+            traceback.print_exc()
 
         return info
