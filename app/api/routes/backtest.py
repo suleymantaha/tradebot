@@ -18,6 +18,7 @@ class BacktestRequest(BaseModel):
     interval: str
     start_date: str
     end_date: str
+    market_type: str = "spot"  # Default to spot
     parameters: Dict[str, Any]
 
 @router.post("/run")
@@ -37,7 +38,8 @@ async def run_backtest(request: BacktestRequest, current_user = Depends(get_curr
             interval=request.interval,
             start_date=request.start_date,
             end_date=request.end_date,
-            parameters=request.parameters
+            parameters=request.parameters,
+            market_type=request.market_type
         )
 
         # Save results to database
@@ -165,4 +167,33 @@ async def delete_backtest(backtest_id: int, current_user = Depends(get_current_u
         raise HTTPException(
             status_code=500,
             detail=f"Failed to delete backtest: {str(e)}"
+        )
+
+@router.get("/symbols/{market_type}")
+async def get_symbols(market_type: str, current_user = Depends(get_current_user)):
+    """
+    Get available symbols for spot or futures trading
+    """
+    try:
+        if market_type.lower() not in ['spot', 'futures']:
+            raise HTTPException(status_code=400, detail="Market type must be 'spot' or 'futures'")
+
+        print(f"📊 Symbols requested for {market_type} by user: {current_user.email}")
+        backtest_service = BacktestService()
+        symbols = await backtest_service.get_available_symbols(market_type)
+
+        return {
+            "status": "success",
+            "data": {
+                "market_type": market_type.lower(),
+                "symbols": symbols,
+                "count": len(symbols)
+            }
+        }
+
+    except Exception as e:
+        print(f"❌ Symbols fetch error: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to fetch symbols: {str(e)}"
         )

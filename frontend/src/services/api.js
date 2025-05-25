@@ -105,6 +105,11 @@ class ApiService {
         return this.post('/api/v1/backtest/run', data)
     }
 
+    // Symbols
+    async getSymbols(marketType = 'spot') {
+        return this.get(`/api/v1/backtest/symbols/${marketType}`)
+    }
+
     // Cache yönetimi
     async getCacheInfo() {
         return this.get('/api/v1/backtest/cache/info')
@@ -162,6 +167,51 @@ export const authAPI = {
     register: (userData) => api.post('/api/v1/auth/register', userData),
     login: (credentials) => api.post('/api/v1/auth/login', credentials),
     getMe: () => api.get('/api/v1/auth/me'),
+    // 🆕 Şifre sıfırlama fonksiyonları - Özel handling
+    forgotPassword: async (data) => {
+        // Forgot password için token gerekmiyor, doğrudan fetch kullan
+        const response = await fetch(`${API_BASE_URL}/api/v1/auth/forgot-password`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        })
+
+        if (!response.ok) {
+            const errorText = await response.text()
+            throw {
+                response: {
+                    status: response.status,
+                    data: { detail: errorText }
+                }
+            }
+        }
+
+        return { data: await response.json() }
+    },
+    resetPassword: async (data) => {
+        // Reset password için de token gerekmiyor
+        const response = await fetch(`${API_BASE_URL}/api/v1/auth/reset-password`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        })
+
+        if (!response.ok) {
+            const errorText = await response.text()
+            throw {
+                response: {
+                    status: response.status,
+                    data: { detail: errorText }
+                }
+            }
+        }
+
+        return { data: await response.json() }
+    },
 }
 
 // API Key API fonksiyonları

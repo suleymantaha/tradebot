@@ -10,6 +10,7 @@ const LoginPage = () => {
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState('')
     const [showPassword, setShowPassword] = useState(false)
+    const [rememberMe, setRememberMe] = useState(false)
     const navigate = useNavigate()
     const login = useAuthStore((state) => state.login)
 
@@ -23,8 +24,16 @@ const LoginPage = () => {
         setIsLoading(true)
         setError('')
         try {
-            const response = await authAPI.login(data)
+            const loginData = {
+                ...data,
+                remember_me: rememberMe
+            }
+            const response = await authAPI.login(loginData)
             const { access_token, user } = response.data
+
+            // Debug log için token süresi bilgisi
+            console.log(`🔒 Login successful with ${rememberMe ? '30 day' : '7 day'} token`)
+
             login(user, access_token)
             navigate('/dashboard')
         } catch (err) {
@@ -142,6 +151,31 @@ const LoginPage = () => {
                             {errors.password && (
                                 <p className="mt-1 text-sm text-red-500 animate-fade-in">{errors.password.message}</p>
                             )}
+                        </div>
+                    </div>
+
+                    {/* 🆕 Remember Me Checkbox */}
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                            <input
+                                id="remember-me"
+                                name="remember-me"
+                                type="checkbox"
+                                checked={rememberMe}
+                                onChange={(e) => setRememberMe(e.target.checked)}
+                                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded transition-colors"
+                            />
+                            <label htmlFor="remember-me" className={`ml-2 block text-sm cursor-pointer transition-colors ${isDark ? 'text-gray-300 hover:text-white' : 'text-gray-700 hover:text-gray-900'}`}>
+                                🔒 Beni hatırla (1 ay)
+                            </label>
+                        </div>
+                        <div className="text-sm">
+                            <Link
+                                to="/forgot-password"
+                                className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors"
+                            >
+                                Şifrenizi mi unuttunuz?
+                            </Link>
                         </div>
                     </div>
 

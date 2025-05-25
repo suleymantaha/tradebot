@@ -1,9 +1,0 @@
-{
-  "symbol": "BNBUSDT",
-  "interval": "15m",
-  "start_date": "2025-01-01",
-  "end_date": "2025-05-25",
-  "cached_at": "2025-05-25T11:40:40.545201",
-  "rows": 13871,
-  "cache_key": "4da32be58a41b45da9a4374faf8cadc9"
-}

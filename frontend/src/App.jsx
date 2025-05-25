@@ -4,6 +4,8 @@ import MainLayout from './components/Layout/MainLayout'
 import PrivateRoute from './components/Auth/PrivateRoute'
 import LoginPage from './pages/Auth/LoginPage'
 import RegisterPage from './pages/Auth/RegisterPage'
+import ForgotPasswordPage from './pages/Auth/ForgotPasswordPage'
+import ResetPasswordPage from './pages/Auth/ResetPasswordPage'
 import DashboardPage from './pages/Dashboard/DashboardPage'
 import ApiKeysPage from './pages/ApiKeys/ApiKeysPage'
 import BotsPage from './pages/Bots/BotsPage'
@@ -52,6 +54,22 @@ function App() {
                                 isAuthenticated ?
                                     <Navigate to="/dashboard" replace /> :
                                     <RegisterPage />
+                            }
+                        />
+                        <Route
+                            path="forgot-password"
+                            element={
+                                isAuthenticated ?
+                                    <Navigate to="/dashboard" replace /> :
+                                    <ForgotPasswordPage />
+                            }
+                        />
+                        <Route
+                            path="reset-password"
+                            element={
+                                isAuthenticated ?
+                                    <Navigate to="/dashboard" replace /> :
+                                    <ResetPasswordPage />
                             }
                         />
 

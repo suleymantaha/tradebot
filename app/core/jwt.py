@@ -5,13 +5,27 @@ import os
 
 SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30))
+# Token süresini 7 güne çıkardık (10080 dakika = 7 gün)
+# Önceden 30 dakika idi, şimdi kullanıcı 1 hafta login kalmış olacak
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 10080))
+
+# 🆕 Remember Me için 30 günlük token süresi
+REMEMBER_ME_EXPIRE_MINUTES = int(os.getenv("REMEMBER_ME_EXPIRE_MINUTES", 43200))  # 30 gün
 
 # Create JWT access token
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
-    """Create a JWT access token."""
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None, remember_me: bool = False) -> str:
+    """Create a JWT access token with optional remember me functionality."""
     to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    elif remember_me:
+        # Remember Me seçilirse 30 günlük token
+        expire = datetime.utcnow() + timedelta(minutes=REMEMBER_ME_EXPIRE_MINUTES)
+    else:
+        # Normal login için 7 günlük token
+        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt

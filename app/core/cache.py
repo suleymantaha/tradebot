@@ -29,26 +29,47 @@ class DataCache:
         cache_path = self._get_cache_path(cache_key)
         metadata_path = self._get_metadata_path(cache_key)
 
+        print(f"🔍 Cache check for: {symbol} {interval} {start_date} to {end_date}")
+        print(f"🔑 Cache key: {cache_key}")
+        print(f"📁 Cache path: {cache_path}")
+        print(f"📄 Metadata path: {metadata_path}")
+        print(f"📂 Cache file exists: {os.path.exists(cache_path)}")
+        print(f"📋 Metadata file exists: {os.path.exists(metadata_path)}")
+
         if not os.path.exists(cache_path) or not os.path.exists(metadata_path):
+            print(f"❌ Cache files missing")
             return False
 
         try:
             with open(metadata_path, 'r') as f:
                 metadata = json.load(f)
 
+            print(f"📊 Cached metadata: {metadata}")
+
             # Check if cache is less than 24 hours old for recent data
             cache_time = datetime.fromisoformat(metadata['cached_at'])
             now = datetime.now()
 
+            print(f"🕐 Cache time: {cache_time}")
+            print(f"🕐 Current time: {now}")
+            print(f"⏰ Cache age: {(now - cache_time).total_seconds() / 3600:.2f} hours")
+
             # If end_date is today or recent, check cache age
             end_dt = datetime.strptime(end_date, "%Y-%m-%d")
-            if (now - end_dt).days <= 1:  # Recent data
-                return (now - cache_time).hours < 24
+            days_from_now = (now.date() - end_dt.date()).days
+            print(f"📅 End date: {end_dt.date()}")
+            print(f"📅 Days from now: {days_from_now}")
+
+            if days_from_now <= 1:  # Recent data
+                cache_valid = (now - cache_time).total_seconds() < 24 * 3600  # 24 hours in seconds
+                print(f"🔄 Recent data - cache valid (< 24h): {cache_valid}")
+                return cache_valid
             else:  # Historical data never expires
+                print(f"📚 Historical data - cache valid: True")
                 return True
 
         except Exception as e:
-            print(f"Cache metadata error: {e}")
+            print(f"❌ Cache metadata error: {e}")
             return False
 
     def get_cached_data(self, symbol: str, interval: str, start_date: str, end_date: str) -> Optional[pd.DataFrame]:

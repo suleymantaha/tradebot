@@ -34,6 +34,8 @@ class BacktestService:
         self.test_mode = True
 
         print(f"🔧 BacktestService initialized with cache dir: {cache_dir}")
+        print(f"📁 Cache directory exists: {os.path.exists(cache_dir)}")
+        print(f"📂 Cache directory contents: {os.listdir(cache_dir) if os.path.exists(cache_dir) else 'Directory not found'}")
 
     async def setup_binance_client(self):
         """Setup Binance client using user's API keys from database"""
@@ -243,6 +245,8 @@ class BacktestService:
                           start_date: str = None, end_date: str = None) -> pd.DataFrame:
         """Get historical data with caching"""
 
+        print(f"📅 Using date range: {start_date} to {end_date}")
+
         # If no dates provided, use dynamic defaults
         if end_date is None:
             end_date = datetime.now().strftime("%Y-%m-%d")
@@ -255,10 +259,13 @@ class BacktestService:
         print(f"📅 Using date range: {start_date} to {end_date}")
 
         # Check cache first
+        print(f"🔍 Checking cache for: {symbol} {interval} {start_date} to {end_date}")
         cached_data = self.cache.get_cached_data(symbol, interval, start_date, end_date)
         if cached_data is not None:
             print(f"📦 Using cached data: {len(cached_data)} rows")
             return cached_data
+        else:
+            print(f"❌ Cache miss - downloading fresh data")
 
         # Try public API first (no auth required)
         try:
@@ -491,10 +498,17 @@ class BacktestService:
             print(f"❌ Error checking entry signal: {e}")
             return False
 
-    def calculate_fees(self, position_size: float, is_entry: bool = True) -> float:
-        """Calculate trading fees"""
-        maker_fee = 0.0002  # 0.02% maker fee
-        taker_fee = 0.0004  # 0.04% taker fee
+    def calculate_fees(self, position_size: float, market_type: str = "spot", is_entry: bool = True) -> float:
+        """Calculate trading fees based on market type"""
+        if market_type.lower() == "futures":
+            # Futures fees (generally lower)
+            maker_fee = 0.0001  # 0.01% maker fee for futures
+            taker_fee = 0.0004  # 0.04% taker fee for futures
+        else:
+            # Spot fees
+            maker_fee = 0.0002  # 0.02% maker fee for spot
+            taker_fee = 0.0004  # 0.04% taker fee for spot
+
         slippage = 0.0001   # 0.01% slippage
 
         if is_entry:
@@ -506,13 +520,12 @@ class BacktestService:
         return commission + slippage_cost
 
     async def run_backtest(self, symbol: str, interval: str, start_date: str, end_date: str,
-                    parameters: Dict[str, Any]) -> Dict[str, Any]:
-        """Run complete backtest"""
+                    parameters: Dict[str, Any], market_type: str = "spot") -> Dict[str, Any]:
+        """Run complete backtest with leverage support for futures"""
         try:
-            print(f"🚀 Starting backtest for {symbol} {interval}")
-            print(f"📅 Date range: {start_date} to {end_date}")
+            print(f"🚀 Starting {market_type} backtest for {symbol} {interval}")
             if self.test_mode:
-                print("🧪 Running in TEST MODE with sample data")
+                print("🧪 Running in TEST MODE")
 
             # Get parameters
             initial_capital = parameters.get('initial_capital', 1000)
@@ -521,6 +534,16 @@ class BacktestService:
             stop_loss = parameters.get('stop_loss', 0.5)
             take_profit = parameters.get('take_profit', 1.5)
             trailing_stop = parameters.get('trailing_stop', 0.3)
+            leverage = parameters.get('leverage', 1)  # 🆕 Kaldıraç parametresi
+
+            # Validate leverage for futures
+            if market_type.lower() == "futures":
+                if leverage < 1 or leverage > 125:
+                    leverage = 10  # Default futures leverage
+                print(f"⚡ Futures trading with {leverage}x leverage")
+            else:
+                leverage = 1  # Spot always 1x
+                print(f"💰 Spot trading (no leverage)")
 
             # Technical indicator parameters
             ema_fast = int(parameters.get('ema_fast', 8))
@@ -543,9 +566,6 @@ class BacktestService:
             df = self.prepare_indicators(df, ema_fast, ema_slow, rsi_period)
 
             print(f"📊 Data prepared: {len(df)} candles")
-            print(f"⚙️ Strategy parameters:")
-            print(f"   EMA: {ema_fast}/{ema_slow}, RSI: {rsi_period} ({rsi_oversold}-{rsi_overbought})")
-            print(f"   Risk: SL={stop_loss}%, TP={take_profit}%, Trailing={trailing_stop}%")
             print(f"💰 Starting capital: ${current_capital:.2f}")
 
             # Group by day for daily trading limits
@@ -567,7 +587,7 @@ class BacktestService:
 
                     if self.check_entry_signal(current, previous, rsi_oversold, rsi_overbought):
                         # Risk management: Only risk a percentage of capital per trade
-                        risk_per_trade = parameters.get('risk_per_trade', 2.0)  # Default 2% per trade
+                        risk_per_trade = parameters.get('risk_per_trade', 2.0)
                         max_position_size = current_capital * (risk_per_trade / 100)
 
                         entry_price = current['close']
@@ -576,26 +596,48 @@ class BacktestService:
                         stop_loss_price = entry_price * (1 - stop_loss/100)
                         risk_per_unit = entry_price - stop_loss_price
                         position_units = max_position_size / risk_per_unit if risk_per_unit > 0 else 0
-                        position_value = position_units * entry_price
+
+                        # 🆕 Apply leverage for position size calculation
+                        if market_type.lower() == "futures":
+                            # In futures, we can trade larger positions with leverage
+                            leveraged_position_units = position_units * leverage
+                            position_value = leveraged_position_units * entry_price
+                            # But we only use our capital as margin
+                            margin_required = position_value / leverage
+                        else:
+                            # Spot trading
+                            position_value = position_units * entry_price
+                            margin_required = position_value
 
                         # Don't exceed available capital
-                        if position_value > current_capital * 0.95:  # Leave some buffer
-                            position_value = current_capital * 0.95
-                            position_units = position_value / entry_price
+                        if margin_required > current_capital * 0.95:
+                            margin_required = current_capital * 0.95
+                            if market_type.lower() == "futures":
+                                position_value = margin_required * leverage
+                                leveraged_position_units = position_value / entry_price
+                                position_units = leveraged_position_units / leverage
+                            else:
+                                position_value = margin_required
+                                position_units = position_value / entry_price
 
                         # Calculate entry fees
-                        entry_fee = self.calculate_fees(position_value, is_entry=True)
-                        total_entry_cost = position_value + entry_fee
+                        entry_fee = self.calculate_fees(position_value, market_type, is_entry=True)
+                        total_entry_cost = margin_required + entry_fee
 
                         # Skip if not enough capital
                         if total_entry_cost > current_capital:
                             continue
 
-                        # Execute entry: Deduct full cost from capital
+                        # Execute entry: Deduct margin + fees from capital
                         current_capital -= total_entry_cost
                         total_fees += entry_fee
 
-                        print(f"📈 Entry: {position_units:.6f} {symbol} @ ${entry_price:.4f}, Cost: ${total_entry_cost:.2f}, Remaining Capital: ${current_capital:.2f}")
+                        if market_type.lower() == "futures":
+                            actual_units = leveraged_position_units
+                            print(f"📈 Futures Entry: {actual_units:.6f} {symbol} @ ${entry_price:.4f} ({leverage}x), Margin: ${margin_required:.2f}")
+                        else:
+                            actual_units = position_units
+                            print(f"📈 Spot Entry: {actual_units:.6f} {symbol} @ ${entry_price:.4f}, Cost: ${total_entry_cost:.2f}")
 
                         # Set stops
                         trailing_stop_price = entry_price * (1 - trailing_stop/100)
@@ -631,17 +673,29 @@ class BacktestService:
                             exit_price = day_data.iloc[-1]['close']
 
                         # Calculate exit proceeds
-                        position_exit_value = position_units * exit_price
-                        exit_fee = self.calculate_fees(position_exit_value, is_entry=False)
-                        net_proceeds = position_exit_value - exit_fee
+                        position_exit_value = actual_units * exit_price
+                        exit_fee = self.calculate_fees(position_exit_value, market_type, is_entry=False)
+
+                        # 🆕 Calculate P&L for leverage
+                        if market_type.lower() == "futures":
+                            # In futures, profit/loss is amplified by leverage
+                            pnl_raw = (exit_price - entry_price) * actual_units
+                            net_proceeds = margin_required + pnl_raw - exit_fee
+                        else:
+                            # Spot trading
+                            net_proceeds = position_exit_value - exit_fee
 
                         # Execute exit: Add net proceeds to capital
                         current_capital += net_proceeds
                         total_fees += exit_fee
 
-                        # Calculate trade P&L in USDT
-                        trade_pnl_usdt = net_proceeds - position_value  # Net proceeds minus original position value
+                        # Calculate trade P&L
+                        trade_pnl_usdt = net_proceeds - total_entry_cost
                         trade_pnl_percentage = ((exit_price - entry_price) / entry_price) * 100
+
+                        # 🆕 Apply leverage effect to percentage calculation for futures
+                        if market_type.lower() == "futures":
+                            trade_pnl_percentage *= leverage
 
                         # Update trade counters
                         if trade_pnl_usdt > 0:
@@ -649,11 +703,11 @@ class BacktestService:
                         else:
                             losing_trades += 1
 
-                        daily_pnl += trade_pnl_percentage  # Track daily P&L in percentage
+                        daily_pnl += trade_pnl_percentage
                         daily_trades += 1
                         total_trades += 1
 
-                        print(f"📉 Exit: ${exit_price:.4f}, Proceeds: ${net_proceeds:.2f}, P&L: ${trade_pnl_usdt:.2f} ({trade_pnl_percentage:.2f}%), Capital: ${current_capital:.2f}")
+                        print(f"📉 Exit: ${exit_price:.4f}, P&L: ${trade_pnl_usdt:.2f} ({trade_pnl_percentage:.2f}%), Capital: ${current_capital:.2f}")
 
                         # Check daily target
                         if daily_pnl >= daily_target:
@@ -706,18 +760,14 @@ class BacktestService:
                 'interval': interval,
                 'start_date': start_date,
                 'end_date': end_date,
+                'market_type': market_type,
+                'leverage': leverage,
                 'parameters': parameters,
                 'test_mode': self.test_mode
             }
 
             # Clean NaN values before returning
             results = self.clean_nan_values(results)
-
-            print(f"✅ Backtest completed!")
-            print(f"📊 Total Return: {total_return:.2f}%")
-            print(f"🎯 Win Rate: {win_rate:.2f}%")
-            print(f"💰 Final Capital: {current_capital:.2f} USDT")
-
             return results
 
         except Exception as e:
@@ -870,3 +920,78 @@ class BacktestService:
             return obj.item()
         else:
             return obj
+
+    async def get_available_symbols(self, market_type: str = "spot") -> List[Dict]:
+        """Get available symbols from Binance"""
+        try:
+            print(f"📊 Fetching {market_type} symbols from Binance...")
+
+            if market_type.lower() == "futures":
+                # Futures symbols
+                url = "https://fapi.binance.com/fapi/v1/exchangeInfo"
+            else:
+                # Spot symbols
+                url = "https://api.binance.com/api/v3/exchangeInfo"
+
+            response = requests.get(url, timeout=10)
+            if response.status_code != 200:
+                print(f"❌ Failed to fetch symbols: {response.status_code}")
+                return self._get_fallback_symbols(market_type)
+
+            data = response.json()
+            symbols = []
+
+            for symbol_info in data['symbols']:
+                # Filter active USDT pairs
+                if (symbol_info['status'] == 'TRADING' and
+                    symbol_info['symbol'].endswith('USDT') and
+                    symbol_info['symbol'] not in ['USDTUSD', 'BUSDUSDT', 'TUSDUSDT']):
+
+                    symbols.append({
+                        'symbol': symbol_info['symbol'],
+                        'baseAsset': symbol_info['baseAsset'],
+                        'quoteAsset': symbol_info['quoteAsset'],
+                        'status': symbol_info['status'],
+                        'market_type': market_type.lower()
+                    })
+
+            # Sort by trading volume (popular coins first) - approximate by market cap
+            popular_bases = ['BTC', 'ETH', 'BNB', 'ADA', 'DOT', 'XRP', 'LTC', 'LINK', 'MATIC', 'SOL', 'AVAX', 'UNI']
+            symbols.sort(key=lambda x: popular_bases.index(x['baseAsset']) if x['baseAsset'] in popular_bases else 999)
+
+            print(f"✅ Found {len(symbols)} {market_type} symbols")
+            return symbols[:100]  # Limit to top 100
+
+        except Exception as e:
+            print(f"❌ Error fetching symbols: {e}")
+            return self._get_fallback_symbols(market_type)
+
+    def _get_fallback_symbols(self, market_type: str) -> List[Dict]:
+        """Fallback symbol list if API fails"""
+        fallback_symbols = [
+            'BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'ADAUSDT', 'DOTUSDT',
+            'XRPUSDT', 'LTCUSDT', 'BCHUSDT', 'LINKUSDT', 'XLMUSDT',
+            'MATICUSDT', 'SOLUSDT', 'AVAXUSDT', 'UNIUSDT', 'DOGEUSDT'
+        ]
+
+        return [
+            {
+                'symbol': symbol,
+                'baseAsset': symbol.replace('USDT', ''),
+                'quoteAsset': 'USDT',
+                'status': 'TRADING',
+                'market_type': market_type.lower()
+            } for symbol in fallback_symbols
+        ]
+
+    async def get_symbol_info(self, symbol: str, market_type: str = "spot") -> Optional[Dict]:
+        """Get specific symbol information"""
+        try:
+            symbols = await self.get_available_symbols(market_type)
+            for sym in symbols:
+                if sym['symbol'] == symbol:
+                    return sym
+            return None
+        except Exception as e:
+            print(f"❌ Error getting symbol info: {e}")
+            return None

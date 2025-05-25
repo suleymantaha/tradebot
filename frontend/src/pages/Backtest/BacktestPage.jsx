@@ -15,6 +15,9 @@ const BacktestPage = () => {
     const [isLoading, setIsLoading] = useState(false)
     const [symbol, setSymbol] = useState('BNBUSDT')
     const [interval, setInterval] = useState('15m')
+    const [marketType, setMarketType] = useState('spot') // spot or futures
+    const [symbols, setSymbols] = useState([])
+    const [symbolsLoading, setSymbolsLoading] = useState(false)
 
     // Tarih aralığı
     const [startDate, setStartDate] = useState(null)
@@ -28,7 +31,8 @@ const BacktestPage = () => {
         stop_loss: 0.5,
         take_profit: 1.5,
         trailing_stop: 0.3,
-        risk_per_trade: 2.0
+        risk_per_trade: 2.0,
+        leverage: 10  // 🆕 Kaldıraç parametresi
     })
 
     // Teknik indikatör parametreleri
@@ -44,11 +48,6 @@ const BacktestPage = () => {
     const [progress, setProgress] = useState(0)
     const [cacheInfo, setCacheInfo] = useState(null)
     const [showCacheInfo, setShowCacheInfo] = useState(false)
-
-    const symbols = [
-        'BNBUSDT', 'BTCUSDT', 'ETHUSDT', 'ADAUSDT', 'DOTUSDT',
-        'XRPUSDT', 'LTCUSDT', 'BCHUSDT', 'LINKUSDT', 'XLMUSDT'
-    ]
 
     const intervals = [
         { value: '5m', label: '5 Dakika' },
@@ -125,6 +124,50 @@ const BacktestPage = () => {
         }
     }, [isAuthenticated, token])
 
+    const fetchSymbols = async (marketType) => {
+        try {
+            setSymbolsLoading(true)
+            console.log(`🔄 Fetching ${marketType} symbols...`)
+
+            const response = await apiService.getSymbols(marketType)
+            if (response.status === 'success' && response.data.symbols) {
+                setSymbols(response.data.symbols)
+                console.log(`✅ Loaded ${response.data.symbols.length} ${marketType} symbols`)
+
+                // Set default symbol if current one doesn't exist in new list
+                const symbolExists = response.data.symbols.some(s => s.symbol === symbol)
+                if (!symbolExists && response.data.symbols.length > 0) {
+                    setSymbol(response.data.symbols[0].symbol)
+                }
+            } else {
+                console.error('❌ Invalid symbols response:', response)
+                // Fallback to default symbols
+                setSymbols([
+                    { symbol: 'BTCUSDT', baseAsset: 'BTC', quoteAsset: 'USDT' },
+                    { symbol: 'ETHUSDT', baseAsset: 'ETH', quoteAsset: 'USDT' },
+                    { symbol: 'BNBUSDT', baseAsset: 'BNB', quoteAsset: 'USDT' }
+                ])
+            }
+        } catch (error) {
+            console.error('❌ Error fetching symbols:', error)
+            // Fallback to default symbols
+            setSymbols([
+                { symbol: 'BTCUSDT', baseAsset: 'BTC', quoteAsset: 'USDT' },
+                { symbol: 'ETHUSDT', baseAsset: 'ETH', quoteAsset: 'USDT' },
+                { symbol: 'BNBUSDT', baseAsset: 'BNB', quoteAsset: 'USDT' }
+            ])
+        } finally {
+            setSymbolsLoading(false)
+        }
+    }
+
+    // Market type değiştiğinde symbols'ları fetch et
+    useEffect(() => {
+        if (isAuthenticated && token) {
+            fetchSymbols(marketType)
+        }
+    }, [marketType, isAuthenticated, token])
+
     const runBacktest = async () => {
         setIsLoading(true)
         setProgress(0)
@@ -136,6 +179,7 @@ const BacktestPage = () => {
                 interval,
                 start_date: startDate?.toISOString().split('T')[0],
                 end_date: endDate?.toISOString().split('T')[0],
+                market_type: marketType,
                 parameters: {
                     ...parameters,
                     ...technicalParams
@@ -310,20 +354,70 @@ const BacktestPage = () => {
                                     🎛️ Temel Ayarlar
                                 </h2>
 
+                                {/* Market Type Seçimi */}
+                                <div className="mb-4">
+                                    <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                                        📈 Market Türü
+                                    </label>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <button
+                                            onClick={() => setMarketType('spot')}
+                                            className={`px-4 py-2 rounded-lg font-medium transition-colors ${marketType === 'spot'
+                                                ? 'bg-indigo-600 text-white'
+                                                : isDark
+                                                    ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                                }`}
+                                        >
+                                            💰 Spot
+                                        </button>
+                                        <button
+                                            onClick={() => setMarketType('futures')}
+                                            className={`px-4 py-2 rounded-lg font-medium transition-colors ${marketType === 'futures'
+                                                ? 'bg-indigo-600 text-white'
+                                                : isDark
+                                                    ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                                }`}
+                                        >
+                                            ⚡ Futures
+                                        </button>
+                                    </div>
+                                </div>
+
                                 {/* İşlem Çifti */}
                                 <div className="mb-4">
                                     <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                                        İşlem Çifti
+                                        💱 İşlem Çifti
                                     </label>
-                                    <select
-                                        value={symbol}
-                                        onChange={(e) => setSymbol(e.target.value)}
-                                        className={`w-full px-4 py-2 rounded-xl border transition-colors ${isDark ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:ring-2 focus:ring-indigo-500`}
-                                    >
-                                        {symbols.map(sym => (
-                                            <option key={sym} value={sym}>{sym}</option>
-                                        ))}
-                                    </select>
+                                    <div className="relative">
+                                        <select
+                                            value={symbol}
+                                            onChange={(e) => setSymbol(e.target.value)}
+                                            disabled={symbolsLoading}
+                                            className={`w-full px-4 py-2 rounded-xl border transition-colors ${isDark ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:ring-2 focus:ring-indigo-500 disabled:opacity-50`}
+                                        >
+                                            {symbolsLoading ? (
+                                                <option>Yükleniyor...</option>
+                                            ) : (
+                                                symbols.map(sym => (
+                                                    <option key={sym.symbol} value={sym.symbol}>
+                                                        {sym.symbol} {sym.baseAsset && `(${sym.baseAsset})`}
+                                                    </option>
+                                                ))
+                                            )}
+                                        </select>
+                                        {symbolsLoading && (
+                                            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-indigo-500"></div>
+                                            </div>
+                                        )}
+                                    </div>
+                                    {symbols.length > 0 && (
+                                        <p className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                            {symbols.length} {marketType} çifti mevcut
+                                        </p>
+                                    )}
                                 </div>
 
                                 {/* Zaman Dilimi */}
@@ -438,26 +532,41 @@ const BacktestPage = () => {
                                 </h2>
 
                                 <div className="space-y-4">
-                                    {Object.entries(parameters).map(([key, value]) => (
-                                        <div key={key}>
-                                            <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                                                {key === 'initial_capital' && 'Başlangıç Sermayesi (USDT)'}
-                                                {key === 'daily_target' && 'Günlük Hedef (%)'}
-                                                {key === 'max_daily_loss' && 'Maks. Günlük Kayıp (%)'}
-                                                {key === 'stop_loss' && 'Stop Loss (%)'}
-                                                {key === 'take_profit' && 'Take Profit (%)'}
-                                                {key === 'trailing_stop' && 'Trailing Stop (%)'}
-                                                {key === 'risk_per_trade' && 'Risk Per Trade (%)'}
-                                            </label>
-                                            <input
-                                                type="number"
-                                                step="0.1"
-                                                value={value}
-                                                onChange={(e) => handleParameterChange(key, e.target.value)}
-                                                className={`w-full px-3 py-2 rounded-lg border transition-colors ${isDark ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:ring-2 focus:ring-indigo-500`}
-                                            />
-                                        </div>
-                                    ))}
+                                    {Object.entries(parameters).map(([key, value]) => {
+                                        // Kaldıraç sadece futures işlemlerinde gösterilsin
+                                        if (key === 'leverage' && marketType !== 'futures') {
+                                            return null;
+                                        }
+
+                                        return (
+                                            <div key={key}>
+                                                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                                                    {key === 'initial_capital' && 'Başlangıç Sermayesi (USDT)'}
+                                                    {key === 'daily_target' && 'Günlük Hedef (%)'}
+                                                    {key === 'max_daily_loss' && 'Maks. Günlük Kayıp (%)'}
+                                                    {key === 'stop_loss' && 'Stop Loss (%)'}
+                                                    {key === 'take_profit' && 'Take Profit (%)'}
+                                                    {key === 'trailing_stop' && 'Trailing Stop (%)'}
+                                                    {key === 'risk_per_trade' && 'Risk Per Trade (%)'}
+                                                    {key === 'leverage' && '⚡ Kaldıraç (Futures)'}
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    step={key === 'leverage' ? "1" : "0.1"}
+                                                    min={key === 'leverage' ? "1" : undefined}
+                                                    max={key === 'leverage' ? "125" : undefined}
+                                                    value={value}
+                                                    onChange={(e) => handleParameterChange(key, e.target.value)}
+                                                    className={`w-full px-3 py-2 rounded-lg border transition-colors ${isDark ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:ring-2 focus:ring-indigo-500`}
+                                                />
+                                                {key === 'leverage' && marketType === 'futures' && (
+                                                    <p className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                                        1x - 125x arası kaldıraç (Risk dikkat!)
+                                                    </p>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             </div>
 
@@ -616,6 +725,21 @@ const BacktestPage = () => {
                                                     <span className={`${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Strateji:</span>
                                                     <span className={`ml-2 font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                                         EMA({technicalParams.ema_fast}/{technicalParams.ema_slow}) + RSI({technicalParams.rsi_period})
+                                                    </span>
+                                                </div>
+                                                {/* Kaldıraç bilgisi sadece futures için göster */}
+                                                {results.market_type === 'futures' && (
+                                                    <div>
+                                                        <span className={`${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Kaldıraç:</span>
+                                                        <span className={`ml-2 font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                                            {results.leverage}x
+                                                        </span>
+                                                    </div>
+                                                )}
+                                                <div>
+                                                    <span className={`${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Market Türü:</span>
+                                                    <span className={`ml-2 font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                                        {results.market_type === 'futures' ? '⚡ Futures' : '💰 Spot'}
                                                     </span>
                                                 </div>
                                             </div>

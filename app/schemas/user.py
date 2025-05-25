@@ -8,6 +8,7 @@ class UserCreate(BaseModel):
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+    remember_me: Optional[bool] = False
 
 class UserResponse(BaseModel):
     id: int
@@ -17,3 +18,14 @@ class UserResponse(BaseModel):
     model_config = {
         "from_attributes": True
     }
+
+# 🆕 Şifre sıfırlama için yeni schema'lar
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
+
+class PasswordResetResponse(BaseModel):
+    message: str

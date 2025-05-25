@@ -1,9 +1,0 @@
-{
-  "symbol": "BTCUSDT",
-  "interval": "15m",
-  "start_date": "2025-01-01",
-  "end_date": "2025-05-24",
-  "cached_at": "2025-05-25T01:52:27.095585",
-  "rows": 13832,
-  "cache_key": "132769019d6a78d770d34b8392910ca6"
-}
