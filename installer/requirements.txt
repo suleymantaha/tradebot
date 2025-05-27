@@ -4,6 +4,9 @@
 # Core GUI
 tkinter  # Usually comes with Python
 
+# HTTP requests for service checking
+requests>=2.28.0
+
 # Optional: Modern UI components
 # customtkinter>=5.0.0  # Modern tkinter UI
 # ttkbootstrap>=1.0.0   # Bootstrap themed tkinter
