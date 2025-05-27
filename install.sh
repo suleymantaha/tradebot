@@ -181,6 +181,19 @@ setup_environment() {
     sed -i "s/SECRET_KEY=super_secret_key_change_in_production_12345/SECRET_KEY=$SECRET_KEY/" .env
     print_success "SECRET_KEY oluşturuldu ve .env dosyasına eklendi"
 
+    # Generate random PostgreSQL password
+    POSTGRES_PASSWORD=$(openssl rand -base64 24 | tr -d "=+/" | cut -c1-16)
+    sed -i "s/POSTGRES_PASSWORD=tradebot_secure_pass_123/POSTGRES_PASSWORD=$POSTGRES_PASSWORD/" .env
+    print_success "PostgreSQL şifresi oluşturuldu"
+
+    # Generate random pgAdmin password
+    PGADMIN_PASSWORD=$(openssl rand -base64 24 | tr -d "=+/" | cut -c1-12)
+    sed -i "s/PGADMIN_DEFAULT_PASSWORD=admin123/PGADMIN_DEFAULT_PASSWORD=$PGADMIN_PASSWORD/" .env
+    print_success "pgAdmin şifresi oluşturuldu"
+
+    # Update DATABASE_URL with new password
+    sed -i "s|\${POSTGRES_PASSWORD}|$POSTGRES_PASSWORD|g" .env
+
     print_success "Environment dosyası hazırlandı"
 }
 
@@ -351,6 +364,18 @@ show_final_info() {
     echo -e "   🔧 Backend API:          ${GREEN}http://localhost:8000${NC}"
     echo -e "   📚 API Docs:             ${GREEN}http://localhost:8000/docs${NC}"
     echo ""
+    echo -e "${CYAN}🔧 GELIŞTIRME ARAÇLARI:${NC}"
+    echo -e "   🗃️  pgAdmin (Veritabanı):  ${GREEN}http://localhost:5050${NC}"
+    echo -e "   📧 pgAdmin Email:         ${YELLOW}$(grep PGADMIN_DEFAULT_EMAIL .env | cut -d= -f2)${NC}"
+    echo -e "   🔐 pgAdmin Şifre:         ${YELLOW}$(grep PGADMIN_DEFAULT_PASSWORD .env | cut -d= -f2)${NC}"
+    echo ""
+    echo -e "${CYAN}🗄️  POSTGRESQL BAĞLANTI BİLGİLERİ:${NC}"
+    echo -e "   🏠 Host:                 ${YELLOW}localhost${NC} (host.docker.internal)"
+    echo -e "   🚪 Port:                 ${YELLOW}5432${NC}"
+    echo -e "   🗂️  Database:             ${YELLOW}tradebot_db${NC}"
+    echo -e "   👤 Username:             ${YELLOW}tradebot_user${NC}"
+    echo -e "   🔐 Password:             ${YELLOW}$(grep POSTGRES_PASSWORD .env | cut -d= -f2)${NC}"
+    echo ""
     echo -e "${CYAN}🚀 SONRAKİ ADIMLAR:${NC}"
     echo -e "   1️⃣  Tarayıcınızda ${GREEN}http://localhost:3000${NC} adresine gidin"
     echo -e "   2️⃣  Hesap oluşturun veya giriş yapın"
@@ -362,10 +387,12 @@ show_final_info() {
     echo -e "   ⏹️  Servisleri durdurmak için:  ${YELLOW}docker-compose down${NC}"
     echo -e "   🔄 Servisleri yeniden başlatmak: ${YELLOW}docker-compose restart${NC}"
     echo -e "   🗑️  Tümünü temizlemek için:     ${YELLOW}docker-compose down -v${NC}"
+    echo -e "   💾 pgAdmin başlatmak için:     ${YELLOW}docker-compose --profile development up -d pgadmin${NC}"
     echo ""
     echo -e "${PURPLE}🔗 YARDIM VE DESTEK:${NC}"
     echo -e "   📖 README.md dosyasını okuyun"
     echo -e "   🐛 Sorun bildirimi için GitHub Issues kullanın"
+    echo -e "   📋 .env dosyasında tüm şifreler ve ayarlar bulunur"
     echo ""
     echo -e "${GREEN}İyi Trading'ler! 💰📈${NC}"
     echo ""

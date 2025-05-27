@@ -326,6 +326,33 @@ alembic upgrade head
 alembic downgrade -1
 ```
 
+### 🗄️ **Database Yönetimi**
+
+#### **PostgreSQL Bağlantısı**
+```bash
+# Hızlı bağlantı
+./scripts/db_connect.sh
+
+# Manuel bağlantı
+docker exec -it tradebot-postgres psql -U tradebot_user -d tradebot_db
+
+# Database monitoring
+python3 scripts/db_monitor.py
+```
+
+#### **pgAdmin Web Arayüzü**
+```bash
+# pgAdmin'i başlat (development mode)
+docker-compose --profile development up -d pgadmin
+
+# Tarayıcıda aç: http://localhost:5050
+# Email: admin@tradebot.local
+# Password: admin123
+```
+
+#### **Detaylı PostgreSQL Rehberi**
+📚 **[PostgreSQL Kullanım Rehberi](docs/PostgreSQL_KULLANIM_REHBERI.md)**
+
 ---
 
 ## 🆘 Sorun Giderme
@@ -416,9 +443,26 @@ SQLALCHEMY_ECHO=true
 ### 🛡️ **En İyi Uygulamalar**
 - 🔐 **API Keys**: Asla git'e commit etmeyin
 - 🌐 **CORS**: Production'da proper CORS ayarlayın
-- 🔑 **Passwords**: Güçlü şifreler kullanın
+- 🔑 **Passwords**: Güçlü şifreler kullanın (otomatik oluşturulur)
 - 📱 **2FA**: Binance hesabınızda 2FA aktif edin
 - 💻 **IP Whitelist**: API key'lerde IP kısıtlaması yapın
+
+### 🔐 **Dinamik Şifre Oluşturma**
+Install script'i otomatik olarak güvenli şifreler oluşturur:
+
+```bash
+# Oluşturulan şifreleri görme
+echo "PostgreSQL Şifre: $(grep POSTGRES_PASSWORD .env | cut -d= -f2)"
+echo "pgAdmin Şifre: $(grep PGADMIN_DEFAULT_PASSWORD .env | cut -d= -f2)"
+echo "Secret Key: $(grep SECRET_KEY .env | cut -d= -f2)"
+echo "Fernet Key: $(grep FERNET_KEY .env | cut -d= -f2)"
+```
+
+**🔒 Güvenlik Özellikleri:**
+- 🎲 **Rastgele Şifreler**: Her kurulumda farklı şifreler
+- 🔢 **Güçlü Encryption**: 256-bit AES encryption
+- 📝 **Secure Storage**: .env dosyasında korumalı
+- 🔄 **No Hardcoded Secrets**: Kaynak kodda sabit şifre yok
 
 ### 🚨 **Production Deployment**
 ```bash

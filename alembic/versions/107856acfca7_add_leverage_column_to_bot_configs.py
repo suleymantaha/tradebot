@@ -1,7 +1,7 @@
 """Add leverage column to bot_configs
 
 Revision ID: 107856acfca7
-Revises: fd407afd6a7f
+Revises: 3742c83cd3b1
 Create Date: 2025-05-25 21:14:06.603305
 
 """
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision: str = '107856acfca7'
-down_revision: Union[str, None] = 'fd407afd6a7f'
+down_revision: Union[str, None] = '3742c83cd3b1'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
