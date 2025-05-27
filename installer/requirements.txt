@@ -1,0 +1,15 @@
+# TradeBot GUI Installer Dependencies
+# Python GUI dependencies
+
+# Core GUI
+tkinter  # Usually comes with Python
+
+# Optional: Modern UI components
+# customtkinter>=5.0.0  # Modern tkinter UI
+# ttkbootstrap>=1.0.0   # Bootstrap themed tkinter
+
+# Security and cryptography
+cryptography>=3.4.0
+
+# Building executable
+pyinstaller>=5.0.0

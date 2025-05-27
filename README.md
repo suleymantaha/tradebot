@@ -76,9 +76,36 @@
 
 ---
 
-## 🚀 Hızlı Kurulum
+## �� Hızlı Kurulum
 
-### 1️⃣ **Proje İndirme**
+### 🎯 **Seçenek 1: GUI Installer (Önerilen!)**
+
+**🌟 YENI! Grafik Arayüzlü Kurulum**
+
+Teknik olmayan kullanıcılar için kullanıcı dostu, adım adım kurulum deneyimi:
+
+#### 📥 **İndirme & Çalıştırma**
+```bash
+# 1. Proje indirme
+git clone https://github.com/suleymantaha/tradebot.git
+cd tradebot
+
+# 2. GUI Installer'ı başlatma
+cd installer
+python3 main.py
+```
+
+#### ✨ **GUI Installer Özellikleri**
+- 🎯 **5 Adımlı Sihirbaz**: Hoş geldin → Sistem kontrolü → Konfigürasyon → Kurulum → Tamamlandı
+- ✅ **Sistem Gereksinim Kontrolü**: Docker, Docker Compose, Git otomatik kontrolü
+- 🔐 **Güvenli Şifre Oluşturma**: PostgreSQL ve pgAdmin şifreleri otomatik
+- 📊 **Real-time İzleme**: Kurulum ilerlemesi ve logları canlı görüntüleme
+- 🖱️ **Tek Tıkla Servis Açma**: Frontend, API Docs, pgAdmin direkt browser'da
+- ⚙️ **Kolay Konfigürasyon**: Port ayarları, environment seçimi, dizin seçimi
+
+### 🎯 **Seçenek 2: Terminal/Komut Satırı**
+
+#### 1️⃣ **Proje İndirme**
 ```bash
 git clone https://github.com/suleymantaha/tradebot.git
 cd tradebot
