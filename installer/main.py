@@ -12,7 +12,10 @@ import subprocess
 import os
 import sys
 import json
+import shutil
+import datetime
 from pathlib import Path
+import platform
 
 class TradeBotInstaller:
     def __init__(self, root):
@@ -33,6 +36,10 @@ class TradeBotInstaller:
             "pgadmin_port": "5050",
             "environment": "production"
         }
+
+        # Error logging
+        self.error_log = []
+        self.setup_logging()
 
         # Create notebook for pages
         self.notebook = ttk.Notebook(root)
@@ -57,6 +64,49 @@ class TradeBotInstaller:
 
         self.current_page = 0
         self.update_navigation()
+
+    def setup_logging(self):
+        """Error logging sistemini kurar"""
+        self.log_file = os.path.join(self.install_path, "installer.log")
+        try:
+            with open(self.log_file, "w", encoding="utf-8") as f:
+                f.write(f"TradeBot Installer Log - {datetime.datetime.now()}\n")
+                f.write("=" * 50 + "\n\n")
+        except Exception as e:
+            print(f"Log dosyası oluşturulamadı: {e}")
+
+    def log_error(self, message, exception=None):
+        """Hata loglar"""
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        log_entry = f"[ERROR {timestamp}] {message}"
+
+        if exception:
+            log_entry += f"\nException: {str(exception)}"
+
+        self.error_log.append(log_entry)
+
+        # Log dosyasına yaz
+        try:
+            with open(self.log_file, "a", encoding="utf-8") as f:
+                f.write(log_entry + "\n\n")
+        except Exception:
+            pass
+
+        # Console'a da yazdır
+        print(log_entry)
+
+    def log_info(self, message):
+        """Bilgi loglar"""
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        log_entry = f"[INFO {timestamp}] {message}"
+
+        try:
+            with open(self.log_file, "a", encoding="utf-8") as f:
+                f.write(log_entry + "\n")
+        except Exception:
+            pass
+
+        print(log_entry)
 
     def create_welcome_page(self):
         """Hoş geldin sayfası"""
@@ -243,18 +293,46 @@ Kurulum yaklaşık 5-10 dakika sürer.
 
         # Success info frame
         self.success_frame = ttk.LabelFrame(page, text="Erişim Bilgileri", padding=20)
-        self.success_frame.pack(fill="both", expand=True, padx=20, pady=20)
+        self.success_frame.pack(fill="both", expand=True, padx=20, pady=10)
 
-        # Buttons frame
-        button_frame = ttk.Frame(page)
-        button_frame.pack(pady=20)
+        # Desktop shortcut info
+        info_frame = ttk.LabelFrame(page, text="Masaüstü Kısayolu", padding=10)
+        info_frame.pack(fill="x", padx=20, pady=10)
 
-        ttk.Button(button_frame, text="Frontend Aç",
-                  command=self.open_frontend).pack(side="left", padx=10)
-        ttk.Button(button_frame, text="API Docs Aç",
-                  command=self.open_api_docs).pack(side="left", padx=10)
-        ttk.Button(button_frame, text="pgAdmin Aç",
-                  command=self.open_pgadmin).pack(side="left", padx=10)
+        desktop_info = ttk.Label(info_frame,
+                                text="✅ Masaüstünüzde 'TradeBot' ikonu oluşturuldu\n"
+                                     "🖱️  İkona çift tıklayarak projeyi başlatabilirsiniz\n"
+                                     "🔧 start_tradebot.sh/bat ve stop_tradebot.sh/bat scriptleri oluşturuldu",
+                                justify="left", font=("Arial", 10))
+        desktop_info.pack(anchor="w")
+
+        # Buttons frame - Web erişimleri
+        web_button_frame = ttk.LabelFrame(page, text="Web Erişimleri", padding=10)
+        web_button_frame.pack(fill="x", padx=20, pady=10)
+
+        web_buttons = ttk.Frame(web_button_frame)
+        web_buttons.pack()
+
+        ttk.Button(web_buttons, text="🌐 Frontend Aç",
+                  command=self.open_frontend).pack(side="left", padx=5)
+        ttk.Button(web_buttons, text="📚 API Docs Aç",
+                  command=self.open_api_docs).pack(side="left", padx=5)
+        ttk.Button(web_buttons, text="🗃️ pgAdmin Aç",
+                  command=self.open_pgadmin).pack(side="left", padx=5)
+
+        # Utility buttons frame
+        util_button_frame = ttk.LabelFrame(page, text="Araçlar", padding=10)
+        util_button_frame.pack(fill="x", padx=20, pady=10)
+
+        util_buttons = ttk.Frame(util_button_frame)
+        util_buttons.pack()
+
+        ttk.Button(util_buttons, text="📋 Log Dosyası Aç",
+                  command=self.open_log_file).pack(side="left", padx=5)
+        ttk.Button(util_buttons, text="📁 Kurulum Klasörü Aç",
+                  command=self.open_install_directory).pack(side="left", padx=5)
+        ttk.Button(util_buttons, text="🖥️ Masaüstü İkonu Tekrar Oluştur",
+                  command=self.recreate_desktop_shortcut).pack(side="left", padx=5)
 
     def update_navigation(self):
         """Navigasyon butonlarını güncelle"""
@@ -380,49 +458,101 @@ Kurulum yaklaşık 5-10 dakika sürer.
     def run_installation(self):
         """Kurulum işlemini çalıştır - Tam otomatik"""
         try:
+            self.log_info("TradeBot kurulumu başlatılıyor...")
             self.log("🚀 TradeBot kurulumu başlatılıyor...")
 
             # Change to install directory
             os.chdir(self.install_path)
 
             # 1. System requirements check (already done in previous step)
+            self.log_info("Sistem gereksinimleri kontrol edildi")
             self.log("✅ Sistem gereksinimleri kontrol edildi")
 
             # 2. Create .env file
+            self.log_info("Environment dosyası oluşturuluyor...")
             self.log("📝 Environment dosyası oluşturuluyor...")
             self.create_env_file()
 
             # 3. Setup directories
+            self.log_info("Dizinler hazırlanıyor...")
             self.log("📁 Dizinler hazırlanıyor...")
             self.setup_directories()
 
             # 4. Setup nginx configuration
+            self.log_info("Nginx konfigürasyonu oluşturuluyor...")
             self.log("🌐 Nginx konfigürasyonu oluşturuluyor...")
             self.setup_nginx()
 
             # 5. Check and start Docker service
+            self.log_info("Docker servisi kontrol ediliyor...")
             self.log("🐳 Docker servisi kontrol ediliyor...")
             self.check_docker_service()
 
             # 6. Clean up existing containers
+            self.log_info("Mevcut containerlar temizleniyor...")
             self.log("🧹 Mevcut containerlar temizleniyor...")
             self.cleanup_containers()
 
             # 7. Build and start services
+            self.log_info("Docker images build ediliyor...")
             self.log("🏗️ Docker images build ediliyor... (Bu işlem birkaç dakika sürebilir)")
             self.start_services()
 
             # 8. Wait for services to be ready
+            self.log_info("Servisler ayağa kalkması bekleniyor...")
             self.log("⏳ Servisler ayağa kalkması bekleniyor...")
             self.wait_for_services()
 
+            # 9. Create desktop shortcut and startup scripts
+            self.log_info("Masaüstü ikonu ve başlatma scriptleri oluşturuluyor...")
+            self.log("🖥️ Masaüstü ikonu ve başlatma scriptleri oluşturuluyor...")
+            self.create_desktop_shortcut()
+            self.create_startup_scripts()
+
+            self.log_info("Kurulum başarıyla tamamlandı!")
             self.log("🎉 Kurulum başarıyla tamamlandı!")
             self.show_success_info()
 
         except Exception as e:
+            error_msg = f"Kurulum hatası: {str(e)}"
+            self.log_error(error_msg, e)
             self.log(f"❌ Hata: {str(e)}")
+
             import traceback
-            self.log(f"Detay: {traceback.format_exc()}")
+            trace_msg = traceback.format_exc()
+            self.log_error(f"Detaylı hata: {trace_msg}")
+            self.log(f"Detay: {trace_msg}")
+
+            # Hata durumunda kullanıcıya göster
+            def _show_error():
+                error_window = tk.Toplevel(self.root)
+                error_window.title("Kurulum Hatası")
+                error_window.geometry("600x400")
+
+                ttk.Label(error_window, text="Kurulum sırasında hata oluştu:",
+                         font=("Arial", 12, "bold")).pack(pady=10)
+
+                # Error log text widget
+                error_text = tk.Text(error_window, wrap=tk.WORD, height=15, width=70)
+                error_text.pack(pady=10, padx=10, fill="both", expand=True)
+
+                # Show last 10 errors
+                for error in self.error_log[-10:]:
+                    error_text.insert(tk.END, error + "\n\n")
+
+                error_text.config(state="disabled")
+
+                # Button frame
+                btn_frame = ttk.Frame(error_window)
+                btn_frame.pack(pady=10)
+
+                ttk.Button(btn_frame, text="Log Dosyasını Aç",
+                          command=self.open_log_file).pack(side="left", padx=5)
+                ttk.Button(btn_frame, text="Kapat",
+                          command=error_window.destroy).pack(side="left", padx=5)
+
+            self.root.after(0, _show_error)
+
         finally:
             self.progress.stop()
             self.install_btn.config(state="normal")
@@ -490,6 +620,7 @@ http {
             # Docker info check
             result = subprocess.run(['docker', 'info'], capture_output=True, text=True)
             if result.returncode != 0:
+                self.log_info("Docker servisi çalışmıyor, başlatılmaya çalışılıyor...")
                 self.log("⚠️ Docker servisi çalışmıyor, başlatılıyor...")
 
                 # Try to start Docker service
@@ -501,14 +632,21 @@ http {
                     time.sleep(3)
                     check_result = subprocess.run(['docker', 'info'], capture_output=True, text=True)
                     if check_result.returncode == 0:
+                        self.log_info("Docker servisi başarıyla başlatıldı")
                         self.log("✅ Docker servisi başlatıldı")
                     else:
+                        error_msg = f"Docker servisi başlatılamadı. Check result: {check_result.stderr}"
+                        self.log_error(error_msg)
                         raise Exception("Docker servisi başlatılamadı")
                 else:
+                    error_msg = f"Docker servisi başlatılamadı. Start result: {start_result.stderr}"
+                    self.log_error(error_msg)
                     raise Exception("Docker servisi başlatılamadı - manuel olarak başlatın")
             else:
+                self.log_info("Docker servisi zaten çalışıyor")
                 self.log("✅ Docker servisi çalışıyor")
         except Exception as e:
+            self.log_error(f"Docker servisi hatası: {str(e)}", e)
             self.log(f"❌ Docker servisi hatası: {str(e)}")
             raise
 
@@ -516,40 +654,56 @@ http {
         """Mevcut containerları temizle"""
         try:
             # Stop and remove existing containers
-            subprocess.run(['docker-compose', 'down', '--remove-orphans'],
+            down_result = subprocess.run(['docker-compose', 'down', '--remove-orphans'],
                          capture_output=True, text=True)
+            if down_result.returncode != 0:
+                self.log_error(f"Container stop hatası: {down_result.stderr}")
+                # Don't raise, continue anyway
 
             # Remove dangling images
-            subprocess.run(['docker', 'image', 'prune', '-f'],
+            prune_result = subprocess.run(['docker', 'image', 'prune', '-f'],
                          capture_output=True, text=True)
+            if prune_result.returncode != 0:
+                self.log_error(f"Image cleanup hatası: {prune_result.stderr}")
+                # Don't raise, continue anyway
 
+            self.log_info("Containerlar temizlendi")
             self.log("✅ Containerlar temizlendi")
         except Exception as e:
+            self.log_error(f"Container temizleme hatası: {str(e)}", e)
             self.log(f"⚠️ Container temizleme uyarısı: {str(e)}")
 
     def start_services(self):
         """Docker servislerini build et ve başlat"""
         try:
             # Build images
+            self.log_info("Docker images build ediliyor...")
             self.log("🔨 Docker images build ediliyor...")
             build_result = subprocess.run(['docker-compose', 'build', '--no-cache'],
                                         capture_output=True, text=True)
             if build_result.returncode != 0:
+                error_msg = f"Docker build başarısız. Stdout: {build_result.stdout}, Stderr: {build_result.stderr}"
+                self.log_error(error_msg)
                 self.log(f"Build stdout: {build_result.stdout}")
                 self.log(f"Build stderr: {build_result.stderr}")
                 raise Exception("Docker build başarısız")
 
             # Start services
+            self.log_info("Servisler başlatılıyor...")
             self.log("🚀 Servisler başlatılıyor...")
             start_result = subprocess.run(['docker-compose', 'up', '-d'],
                                         capture_output=True, text=True)
             if start_result.returncode != 0:
+                error_msg = f"Servisler başlatılamadı. Stdout: {start_result.stdout}, Stderr: {start_result.stderr}"
+                self.log_error(error_msg)
                 self.log(f"Start stdout: {start_result.stdout}")
                 self.log(f"Start stderr: {start_result.stderr}")
                 raise Exception("Servisler başlatılamadı")
 
+            self.log_info("Servisler başarıyla başlatıldı")
             self.log("✅ Servisler başlatıldı")
         except Exception as e:
+            self.log_error(f"Servis başlatma hatası: {str(e)}", e)
             self.log(f"❌ Servis başlatma hatası: {str(e)}")
             raise
 
@@ -558,6 +712,7 @@ http {
         import time
         import requests
 
+        self.log_info("Backend servisi hazır olması bekleniyor...")
         self.log("⏳ Backend servisi hazır olması bekleniyor...")
         max_attempts = 60
         attempt = 1
@@ -567,30 +722,37 @@ http {
                 response = requests.get(f"http://localhost:{self.port_vars['backend_port'].get()}/health",
                                       timeout=5)
                 if response.status_code == 200:
+                    self.log_info("Backend servisi hazır!")
                     self.log("✅ Backend servisi hazır!")
                     break
-            except:
-                pass
+            except Exception as e:
+                if attempt == 1:  # Sadece ilk hatayi log'la
+                    self.log_error(f"Backend servis kontrol hatası: {str(e)}", e)
 
             self.log(f"⏳ Deneme {attempt}/{max_attempts}...")
             time.sleep(5)
             attempt += 1
 
         if attempt > max_attempts:
+            self.log_error("Backend servisi belirtilen sürede hazır olmadı")
             self.log("⚠️ Backend servisi belirtilen sürede hazır olmadı")
             self.log("ℹ️ Logları kontrol edin: docker-compose logs backend")
 
         # Check frontend
+        self.log_info("Frontend servisi kontrol ediliyor...")
         self.log("⏳ Frontend servisi kontrol ediliyor...")
         time.sleep(5)
         try:
             response = requests.get(f"http://localhost:{self.port_vars['frontend_port'].get()}",
                                   timeout=5)
             if response.status_code == 200:
+                self.log_info("Frontend servisi hazır!")
                 self.log("✅ Frontend servisi hazır!")
             else:
+                self.log_error(f"Frontend servisi yanıt vermiyor: HTTP {response.status_code}")
                 self.log("⚠️ Frontend servisi henüz hazır değil, ancak devam edebilirsiniz")
-        except:
+        except Exception as e:
+            self.log_error(f"Frontend servis kontrol hatası: {str(e)}", e)
             self.log("⚠️ Frontend servisi henüz hazır değil, ancak devam edebilirsiniz")
 
     def create_env_file(self):
@@ -686,6 +848,258 @@ DATABASE_URL=postgresql+asyncpg://tradebot_user:{self.postgres_pass_var.get()}@p
     def close_app(self):
         """Uygulamayı kapat"""
         self.root.quit()
+
+    def create_startup_scripts(self):
+        """Proje başlatma scriptlerini oluştur"""
+        try:
+            # Start script for TradeBot
+            start_script_content = self.get_start_script_content()
+            stop_script_content = self.get_stop_script_content()
+
+            if platform.system() == "Windows":
+                # Windows batch files
+                with open("start_tradebot.bat", "w", encoding="utf-8") as f:
+                    f.write(start_script_content)
+                with open("stop_tradebot.bat", "w", encoding="utf-8") as f:
+                    f.write(stop_script_content)
+
+                # Make executable
+                os.chmod("start_tradebot.bat", 0o755)
+                os.chmod("stop_tradebot.bat", 0o755)
+
+            else:
+                # Linux/macOS shell scripts
+                with open("start_tradebot.sh", "w", encoding="utf-8") as f:
+                    f.write(start_script_content)
+                with open("stop_tradebot.sh", "w", encoding="utf-8") as f:
+                    f.write(stop_script_content)
+
+                # Make executable
+                os.chmod("start_tradebot.sh", 0o755)
+                os.chmod("stop_tradebot.sh", 0o755)
+
+            self.log_info("Başlatma scriptleri oluşturuldu")
+
+        except Exception as e:
+            self.log_error("Başlatma scriptleri oluşturulamadı", e)
+
+    def get_start_script_content(self):
+        """Platform'a göre start script içeriği döndürür"""
+        if platform.system() == "Windows":
+            return f"""@echo off
+echo TradeBot baslatiliyor...
+cd /d "{self.install_path}"
+docker-compose up -d
+echo.
+echo TradeBot baslatildi!
+echo Frontend: http://localhost:{self.config['frontend_port']}
+echo Backend API: http://localhost:{self.config['backend_port']}
+echo pgAdmin: http://localhost:{self.config['pgadmin_port']}
+echo.
+echo Tarayicilar otomatik olarak acilacak...
+timeout /t 5 /nobreak >nul
+start http://localhost:{self.config['frontend_port']}
+pause
+"""
+        else:
+            return f"""#!/bin/bash
+echo "TradeBot başlatılıyor..."
+cd "{self.install_path}"
+docker-compose up -d
+
+echo ""
+echo "TradeBot başlatıldı!"
+echo "Frontend: http://localhost:{self.config['frontend_port']}"
+echo "Backend API: http://localhost:{self.config['backend_port']}"
+echo "pgAdmin: http://localhost:{self.config['pgadmin_port']}"
+echo ""
+echo "Tarayıcılar otomatik olarak açılacak..."
+sleep 3
+
+# Open in default browser
+if command -v xdg-open > /dev/null; then
+    xdg-open "http://localhost:{self.config['frontend_port']}" &
+elif command -v open > /dev/null; then
+    open "http://localhost:{self.config['frontend_port']}" &
+fi
+
+echo "TradeBot hazır!"
+"""
+
+    def get_stop_script_content(self):
+        """Platform'a göre stop script içeriği döndürür"""
+        if platform.system() == "Windows":
+            return f"""@echo off
+echo TradeBot durduruluyor...
+cd /d "{self.install_path}"
+docker-compose down
+echo TradeBot durduruldu!
+pause
+"""
+        else:
+            return f"""#!/bin/bash
+echo "TradeBot durduruluyor..."
+cd "{self.install_path}"
+docker-compose down
+echo "TradeBot durduruldu!"
+"""
+
+    def create_desktop_shortcut(self):
+        """Platform'a göre masaüstü ikonu oluştur"""
+        try:
+            desktop_path = self.get_desktop_path()
+            if not desktop_path or not os.path.exists(desktop_path):
+                self.log_error("Masaüstü klasörü bulunamadı")
+                return
+
+            if platform.system() == "Windows":
+                self.create_windows_shortcut(desktop_path)
+            elif platform.system() == "Darwin":  # macOS
+                self.create_macos_shortcut(desktop_path)
+            else:  # Linux
+                self.create_linux_shortcut(desktop_path)
+
+            self.log_info("Masaüstü ikonu oluşturuldu")
+
+        except Exception as e:
+            self.log_error("Masaüstü ikonu oluşturulamadı", e)
+
+    def get_desktop_path(self):
+        """Platform'a göre masaüstü yolunu döndürür"""
+        if platform.system() == "Windows":
+            return os.path.join(os.path.expanduser("~"), "Desktop")
+        elif platform.system() == "Darwin":  # macOS
+            return os.path.join(os.path.expanduser("~"), "Desktop")
+        else:  # Linux
+            # Try common desktop paths
+            desktop_paths = [
+                os.path.join(os.path.expanduser("~"), "Desktop"),
+                os.path.join(os.path.expanduser("~"), "Masaüstü"),  # Turkish
+                os.path.join(os.path.expanduser("~"), "Bureau"),    # French
+            ]
+            for path in desktop_paths:
+                if os.path.exists(path):
+                    return path
+            return None
+
+    def create_windows_shortcut(self, desktop_path):
+        """Windows için shortcut oluştur"""
+        try:
+            import winshell
+            from win32com.client import Dispatch
+
+            shortcut_path = os.path.join(desktop_path, "TradeBot.lnk")
+            shell = Dispatch('WScript.Shell')
+            shortcut = shell.CreateShortCut(shortcut_path)
+            shortcut.Targetpath = os.path.join(self.install_path, "start_tradebot.bat")
+            shortcut.WorkingDirectory = self.install_path
+            shortcut.IconLocation = os.path.join(self.install_path, "assets", "icon.ico")
+            shortcut.Description = "TradeBot - Kripto Trading Bot"
+            shortcut.save()
+
+        except ImportError:
+            # Fallback: Create batch file
+            shortcut_content = f"""@echo off
+cd /d "{self.install_path}"
+start start_tradebot.bat
+"""
+            shortcut_path = os.path.join(desktop_path, "TradeBot.bat")
+            with open(shortcut_path, "w", encoding="utf-8") as f:
+                f.write(shortcut_content)
+
+    def create_linux_shortcut(self, desktop_path):
+        """Linux için .desktop dosyası oluştur"""
+        shortcut_content = f"""[Desktop Entry]
+Version=1.0
+Type=Application
+Name=TradeBot
+Comment=Kripto Trading Bot
+Exec={os.path.join(self.install_path, "start_tradebot.sh")}
+Icon={os.path.join(self.install_path, "assets", "icon.png")}
+Path={self.install_path}
+Terminal=true
+StartupNotify=false
+Categories=Office;Finance;
+"""
+        shortcut_path = os.path.join(desktop_path, "TradeBot.desktop")
+        with open(shortcut_path, "w", encoding="utf-8") as f:
+            f.write(shortcut_content)
+
+        # Make executable
+        os.chmod(shortcut_path, 0o755)
+
+    def create_macos_shortcut(self, desktop_path):
+        """macOS için app bundle oluştur"""
+        app_path = os.path.join(desktop_path, "TradeBot.app")
+        contents_path = os.path.join(app_path, "Contents")
+        macos_path = os.path.join(contents_path, "MacOS")
+
+        os.makedirs(macos_path, exist_ok=True)
+
+        # Info.plist
+        plist_content = f"""<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleExecutable</key>
+    <string>TradeBot</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.tradebot.app</string>
+    <key>CFBundleName</key>
+    <string>TradeBot</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleShortVersionString</key>
+    <string>2.0</string>
+</dict>
+</plist>
+"""
+        with open(os.path.join(contents_path, "Info.plist"), "w") as f:
+            f.write(plist_content)
+
+        # Executable script
+        exec_content = f"""#!/bin/bash
+cd "{self.install_path}"
+./start_tradebot.sh
+"""
+        exec_path = os.path.join(macos_path, "TradeBot")
+        with open(exec_path, "w") as f:
+            f.write(exec_content)
+        os.chmod(exec_path, 0o755)
+
+    def open_log_file(self):
+        """Log dosyasını aç"""
+        try:
+            if platform.system() == "Windows":
+                os.startfile(self.log_file)
+            elif platform.system() == "Darwin":  # macOS
+                subprocess.run(["open", self.log_file])
+            else:  # Linux
+                subprocess.run(["xdg-open", self.log_file])
+        except Exception as e:
+            self.log_error("Log dosyası açılamadı", e)
+
+    def open_install_directory(self):
+        """Kurulum klasörünü aç"""
+        try:
+            if platform.system() == "Windows":
+                os.startfile(self.install_path)
+            elif platform.system() == "Darwin":  # macOS
+                subprocess.run(["open", self.install_path])
+            else:  # Linux
+                subprocess.run(["xdg-open", self.install_path])
+        except Exception as e:
+            self.log_error("Kurulum klasörü açılamadı", e)
+            messagebox.showerror("Hata", f"Kurulum klasörü açılamadı: {str(e)}")
+
+    def recreate_desktop_shortcut(self):
+        """Masaüstü ikonunu tekrar oluştur"""
+        try:
+            self.create_desktop_shortcut()
+            messagebox.showinfo("Başarılı", "Masaüstü ikonu tekrar oluşturuldu!")
+        except Exception as e:
+            self.log_error("Masaüstü ikonu oluşturulamadı", e)
+            messagebox.showerror("Hata", f"Masaüstü ikonu oluşturulamadı: {str(e)}")
 
 
 def main():
