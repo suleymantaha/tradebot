@@ -13,7 +13,13 @@ from app.models import Base  # Modelleri import et
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-config.set_main_option("sqlalchemy.url", "postgresql://tradebot_user:baba046532@localhost/tradebot_db")
+
+# Set the database URL from environment variable
+database_url = os.getenv("DATABASE_URL", "postgresql://tradebot_user:baba046532@postgres:5432/tradebot_db")
+# Convert asyncpg URL to psycopg2 for alembic
+if database_url and "asyncpg" in database_url:
+    database_url = database_url.replace("postgresql+asyncpg://", "postgresql+psycopg2://")
+config.set_main_option("sqlalchemy.url", database_url)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

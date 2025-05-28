@@ -81,7 +81,7 @@ services:
         alembic upgrade head &&
         echo '✅ Database migration tamamlandı!' &&
         echo '🚀 Backend server başlatılıyor...' &&
-        uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+        /usr/local/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
       "
 
   # Frontend
@@ -100,6 +100,9 @@ services:
         condition: service_healthy
     networks:
       - tradebot-network
+    tmpfs:
+      - /run
+      - /var/cache/nginx
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:80" ]
       interval: 30s
