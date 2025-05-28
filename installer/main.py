@@ -527,13 +527,13 @@ Kurulum yaklaşık 5-10 dakika sürer.
             def _show_error():
                 error_window = tk.Toplevel(self.root)
                 error_window.title("Kurulum Hatası")
-                error_window.geometry("600x400")
+                error_window.geometry("700x500")
 
                 ttk.Label(error_window, text="Kurulum sırasında hata oluştu:",
                          font=("Arial", 12, "bold")).pack(pady=10)
 
                 # Error log text widget
-                error_text = tk.Text(error_window, wrap=tk.WORD, height=15, width=70)
+                error_text = tk.Text(error_window, wrap=tk.WORD, height=15, width=80)
                 error_text.pack(pady=10, padx=10, fill="both", expand=True)
 
                 # Show last 10 errors
@@ -542,13 +542,30 @@ Kurulum yaklaşık 5-10 dakika sürer.
 
                 error_text.config(state="disabled")
 
+                # Quick fixes frame
+                fixes_frame = ttk.LabelFrame(error_window, text="Hızlı Çözümler", padding=10)
+                fixes_frame.pack(fill="x", padx=10, pady=5)
+
+                # Quick fix buttons
+                quick_fixes = ttk.Frame(fixes_frame)
+                quick_fixes.pack()
+
+                ttk.Button(quick_fixes, text="🧹 Docker Temizle",
+                          command=self.quick_fix_docker_cleanup).pack(side="left", padx=3)
+                ttk.Button(quick_fixes, text="🔄 Docker Restart",
+                          command=self.quick_fix_docker_restart).pack(side="left", padx=3)
+                ttk.Button(quick_fixes, text="🗑️ Images Temizle",
+                          command=self.quick_fix_cleanup_images).pack(side="left", padx=3)
+
                 # Button frame
                 btn_frame = ttk.Frame(error_window)
                 btn_frame.pack(pady=10)
 
-                ttk.Button(btn_frame, text="Log Dosyasını Aç",
+                ttk.Button(btn_frame, text="📋 Log Dosyasını Aç",
                           command=self.open_log_file).pack(side="left", padx=5)
-                ttk.Button(btn_frame, text="Kapat",
+                ttk.Button(btn_frame, text="🔄 Tekrar Dene",
+                          command=lambda: [error_window.destroy(), self.start_installation()]).pack(side="left", padx=5)
+                ttk.Button(btn_frame, text="❌ Kapat",
                           command=error_window.destroy).pack(side="left", padx=5)
 
             self.root.after(0, _show_error)
@@ -682,11 +699,25 @@ http {
             build_result = subprocess.run(['docker-compose', 'build', '--no-cache'],
                                         capture_output=True, text=True)
             if build_result.returncode != 0:
-                error_msg = f"Docker build başarısız. Stdout: {build_result.stdout}, Stderr: {build_result.stderr}"
-                self.log_error(error_msg)
-                self.log(f"Build stdout: {build_result.stdout}")
-                self.log(f"Build stderr: {build_result.stderr}")
-                raise Exception("Docker build başarısız")
+                # Yaygın hataları daha anlaşılır hale getir
+                stderr_lower = build_result.stderr.lower()
+                stdout_lower = build_result.stdout.lower()
+
+                if "--no-dev" in stderr_lower or "--no-dev" in stdout_lower:
+                    error_msg = "Docker build hatası: Dockerfile'da geçersiz '--no-dev' seçeneği kullanılıyor. Bu seçenek pip için değil, poetry için geçerlidir."
+                elif "no space left" in stderr_lower:
+                    error_msg = "Docker build hatası: Disk alanı yetersiz. Lütfen disk alanınızı kontrol edin."
+                elif "permission denied" in stderr_lower:
+                    error_msg = "Docker build hatası: İzin hatası. Docker daemon'a erişim izniniz var mı?"
+                elif "network" in stderr_lower and "timeout" in stderr_lower:
+                    error_msg = "Docker build hatası: İnternet bağlantısı sorunu. Lütfen bağlantınızı kontrol edin."
+                else:
+                    error_msg = f"Docker build başarısız"
+
+                self.log_error(f"{error_msg}. Stdout: {build_result.stdout}, Stderr: {build_result.stderr}")
+                self.log(f"❌ {error_msg}")
+                self.log(f"Detaylı hata için log dosyasını inceleyin")
+                raise Exception(error_msg)
 
             # Start services
             self.log_info("Servisler başlatılıyor...")
@@ -694,17 +725,27 @@ http {
             start_result = subprocess.run(['docker-compose', 'up', '-d'],
                                         capture_output=True, text=True)
             if start_result.returncode != 0:
-                error_msg = f"Servisler başlatılamadı. Stdout: {start_result.stdout}, Stderr: {start_result.stderr}"
-                self.log_error(error_msg)
-                self.log(f"Start stdout: {start_result.stdout}")
-                self.log(f"Start stderr: {start_result.stderr}")
-                raise Exception("Servisler başlatılamadı")
+                stderr_lower = start_result.stderr.lower()
+
+                if "port" in stderr_lower and "already" in stderr_lower:
+                    error_msg = "Servis başlatma hatası: Port zaten kullanımda. Lütfen port ayarlarını kontrol edin."
+                elif "network" in stderr_lower:
+                    error_msg = "Servis başlatma hatası: Docker network sorunu."
+                else:
+                    error_msg = "Servisler başlatılamadı"
+
+                self.log_error(f"{error_msg}. Stdout: {start_result.stdout}, Stderr: {start_result.stderr}")
+                self.log(f"❌ {error_msg}")
+                self.log(f"Detaylı hata için log dosyasını inceleyin")
+                raise Exception(error_msg)
 
             self.log_info("Servisler başarıyla başlatıldı")
             self.log("✅ Servisler başlatıldı")
         except Exception as e:
-            self.log_error(f"Servis başlatma hatası: {str(e)}", e)
-            self.log(f"❌ Servis başlatma hatası: {str(e)}")
+            # Eğer exception bizim özel mesajımızdan değilse, genel hata mesajı ver
+            if not str(e).startswith("Docker build hatası") and not str(e).startswith("Servis başlatma hatası"):
+                self.log_error(f"Servis başlatma genel hatası: {str(e)}", e)
+                self.log(f"❌ Beklenmeyen hata: {str(e)}")
             raise
 
     def wait_for_services(self):
@@ -1100,6 +1141,94 @@ cd "{self.install_path}"
         except Exception as e:
             self.log_error("Masaüstü ikonu oluşturulamadı", e)
             messagebox.showerror("Hata", f"Masaüstü ikonu oluşturulamadı: {str(e)}")
+
+    def quick_fix_docker_cleanup(self):
+        """Docker temizleme işlemi"""
+        def _cleanup():
+            try:
+                self.log_info("Docker temizleme işlemi başlatılıyor...")
+                self.log("🧹 Docker temizleme işlemi başlatılıyor...")
+
+                # Docker temizleme komutu
+                cleanup_result = subprocess.run(['docker', 'system', 'prune', '-a', '-f'],
+                                                capture_output=True, text=True)
+                if cleanup_result.returncode != 0:
+                    self.log_error(f"Docker temizleme hatası: {cleanup_result.stderr}")
+                    self.log(f"❌ Docker temizleme hatası: {cleanup_result.stderr}")
+                    return
+
+                self.log_info("Docker temizleme işlemi başarıyla tamamlandı!")
+                self.log("✅ Docker temizleme işlemi başarıyla tamamlandı!")
+                messagebox.showinfo("Başarılı", "Docker temizleme işlemi tamamlandı!")
+
+            except Exception as e:
+                self.log_error(f"Docker temizleme hatası: {str(e)}", e)
+                self.log(f"❌ Docker temizleme hatası: {str(e)}")
+                messagebox.showerror("Hata", f"Docker temizleme hatası: {str(e)}")
+
+        thread = threading.Thread(target=_cleanup)
+        thread.daemon = True
+        thread.start()
+
+    def quick_fix_docker_restart(self):
+        """Docker servisini restart et"""
+        def _restart():
+            try:
+                self.log_info("Docker servisi restart ediliyor...")
+                self.log("🔄 Docker servisi restart ediliyor...")
+
+                # Docker servisi restart
+                restart_result = subprocess.run(['sudo', 'systemctl', 'restart', 'docker'],
+                                                capture_output=True, text=True)
+                if restart_result.returncode != 0:
+                    self.log_error(f"Docker restart hatası: {restart_result.stderr}")
+                    self.log(f"❌ Docker restart hatası: {restart_result.stderr}")
+                    return
+
+                self.log_info("Docker servisi başarıyla restart edildi!")
+                self.log("✅ Docker servisi başarıyla restart edildi!")
+                messagebox.showinfo("Başarılı", "Docker servisi restart edildi!")
+
+            except Exception as e:
+                self.log_error(f"Docker restart hatası: {str(e)}", e)
+                self.log(f"❌ Docker restart hatası: {str(e)}")
+                messagebox.showerror("Hata", f"Docker restart hatası: {str(e)}")
+
+        thread = threading.Thread(target=_restart)
+        thread.daemon = True
+        thread.start()
+
+    def quick_fix_cleanup_images(self):
+        """Docker images temizleme işlemi"""
+        def _cleanup_images():
+            try:
+                self.log_info("Docker images temizleme işlemi başlatılıyor...")
+                self.log("🗑️ Docker images temizleme işlemi başlatılıyor...")
+
+                # Önce containerları durdur
+                down_result = subprocess.run(['docker-compose', 'down'],
+                                            capture_output=True, text=True)
+
+                # Docker images temizleme komutu
+                cleanup_result = subprocess.run(['docker', 'image', 'prune', '-a', '-f'],
+                                                capture_output=True, text=True)
+                if cleanup_result.returncode != 0:
+                    self.log_error(f"Docker images temizleme hatası: {cleanup_result.stderr}")
+                    self.log(f"❌ Docker images temizleme hatası: {cleanup_result.stderr}")
+                    return
+
+                self.log_info("Docker images temizleme işlemi başarıyla tamamlandı!")
+                self.log("✅ Docker images temizleme işlemi başarıyla tamamlandı!")
+                messagebox.showinfo("Başarılı", "Docker images temizleme işlemi tamamlandı!")
+
+            except Exception as e:
+                self.log_error(f"Docker images temizleme hatası: {str(e)}", e)
+                self.log(f"❌ Docker images temizleme hatası: {str(e)}")
+                messagebox.showerror("Hata", f"Docker images temizleme hatası: {str(e)}")
+
+        thread = threading.Thread(target=_cleanup_images)
+        thread.daemon = True
+        thread.start()
 
 
 def main():
