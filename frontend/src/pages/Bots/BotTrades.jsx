@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { botConfigAPI } from '../../services/api'
 import { useTheme } from '../../contexts/ThemeContext'
+import apiServiceInstance from '../../services/api' // Import the ApiService instance
+import useAuthStore from '../../store/authStore' // useAuthStore'u import et
 
 const BotTrades = () => {
     const { isDark } = useTheme()
@@ -10,31 +11,43 @@ const BotTrades = () => {
     const [trades, setTrades] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
+    const isAuthenticated = useAuthStore(state => state.isAuthenticated)
+    console.log('[BotTrades] Component rendered, isAuthenticated from store:', isAuthenticated);
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                // Bot bilgilerini al
-                const botResponse = await botConfigAPI.getById(id)
-                setBot(botResponse.data)
+        console.log('[BotTrades] useEffect triggered, id:', id, 'isAuthenticated:', isAuthenticated);
 
-                // Trade verilerini al
-                const tradesResponse = await fetch(`/api/v1/bots/${id}/trades`)
-                if (tradesResponse.ok) {
-                    const tradesData = await tradesResponse.json()
-                    setTrades(tradesData)
-                } else {
-                    setTrades([])
-                }
+        const fetchData = async () => {
+            console.log('[BotTrades] fetchData called, isAuthenticated check:', isAuthenticated);
+            if (!isAuthenticated) {
+                console.log('[BotTrades] Not authenticated, skipping API calls.');
+                setLoading(false)
+                setError('Lütfen giriş yapınız.')
+                setTrades([])
+                return
+            }
+            setLoading(true)
+            console.log('[BotTrades] Attempting to fetch bot and trades data...')
+            try {
+                const botData = await apiServiceInstance.get(`/api/v1/bot-configs/${id}`)
+                console.log('[BotTrades] Bot data fetched:', botData)
+                setBot(botData)
+
+                const tradesData = await apiServiceInstance.get(`/api/v1/bots/${id}/trades`)
+                console.log('[BotTrades] Trades data fetched:', tradesData)
+                setTrades(tradesData || [])
+                setError('')
+
             } catch (err) {
-                setError('Veriler yüklenirken hata oluştu')
+                console.error("[BotTrades] Error in fetchData:", err)
+                setError('Trade verileri yüklenirken hata oluştu.')
             } finally {
                 setLoading(false)
             }
         }
 
         fetchData()
-    }, [id])
+    }, [id, isAuthenticated])
 
     if (loading) {
         return (
@@ -188,6 +201,20 @@ const BotTrades = () => {
                                 </div>
                             )}
                         </div>
+                    </div>
+                    {/* Back to Bot Detail Button */}
+                    <div className="mt-8 text-center">
+                        <Link
+                            to={`/bots/${id}`}
+                            className={`inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl shadow-sm ${
+                                isDark 
+                                    ? 'text-indigo-300 bg-indigo-700 hover:bg-indigo-800 focus:ring-indigo-500' 
+                                    : 'text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500'
+                            } focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-300`}
+                        >
+                            <svg className="w-5 h-5 mr-2 -ml-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                            Bot Detay Sayfasına Dön
+                        </Link>
                     </div>
                 </div>
             </div>

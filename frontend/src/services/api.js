@@ -17,39 +17,51 @@ class ApiService {
     }
 
     async request(endpoint, options = {}) {
-        const url = `${this.baseURL}${endpoint}`
+        console.log(`[ApiService] Requesting: ${endpoint}`, options);
 
-        // Default headers
+        const url = `${this.baseURL}${endpoint}`
+        const method = options.method || 'GET'
+        const body = options.body ? JSON.stringify(options.body) : null
+
         const defaultHeaders = {
             'Content-Type': 'application/json',
         }
 
-        // Add auth token if available
         const token = this.getToken()
-        console.log('🔑 Auth Debug:', {
+
+        const debugInfo = {
             hasStoreToken: !!useAuthStore.getState().token,
             hasLocalToken: !!localStorage.getItem('token'),
             tokenUsed: !!token,
-            tokenLength: token?.length,
+            tokenLength: token ? token.length : 0,
             endpoint,
-            url
-        })
+            method
+        };
+        console.log('🔑 Auth Debug:', debugInfo);
+
 
         if (token) {
             defaultHeaders['Authorization'] = `Bearer ${token}`
         } else {
-            console.warn('⚠️ No authentication token found!')
+            console.warn('⚠️ No authentication token found for request to:', endpoint)
         }
 
         const config = {
-            ...options,
+            method,
             headers: {
                 ...defaultHeaders,
                 ...options.headers,
             },
+            body,
         }
 
-        console.log('📤 Request Config:', { url, headers: config.headers, method: config.method })
+        // Log için config kopyası oluşturup Authorization başlığını düzenleyelim
+        const configToLog = { ...config, headers: { ...config.headers } };
+        if (configToLog.headers['Authorization']) {
+            configToLog.headers['Authorization'] = 'Bearer [TOKEN_HIDDEN]'; // Token'ı gizle
+        }
+        console.log('📤 Request Config:', configToLog);
+
 
         try {
             const response = await fetch(url, config)
