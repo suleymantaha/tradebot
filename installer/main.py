@@ -1,10 +1,3 @@
-#!/usr/bin/env python3
-"""
-TradeBot GUI Installer
-======================
-Grafik arayüzlü kurulum programı
-"""
-
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 import threading
@@ -16,9 +9,11 @@ import shutil
 import datetime
 from pathlib import Path
 import platform
+import traceback
 
 class TradeBotInstaller:
     def __init__(self, root):
+        print("[DEBUG] TradeBotInstaller __init__ started")
         self.root = root
         self.root.title("TradeBot Installer v2.0")
         self.root.geometry("800x600")
@@ -64,6 +59,7 @@ class TradeBotInstaller:
 
         self.current_page = 0
         self.update_navigation()
+        print("[DEBUG] TradeBotInstaller __init__ finished")
 
     def setup_logging(self):
         """Error logging sistemini kurar"""
@@ -109,6 +105,7 @@ class TradeBotInstaller:
         print(log_entry)
 
     def create_welcome_page(self):
+        print("[DEBUG] create_welcome_page started")
         """Hoş geldin sayfası"""
         page = ttk.Frame(self.notebook)
         self.notebook.add(page, text="Hoş Geldiniz")
@@ -153,6 +150,7 @@ Kurulum yaklaşık 5-10 dakika sürer.
         warning_label = ttk.Label(warning_frame, text=warning_text,
                                  foreground="orange", font=("Arial", 10, "bold"))
         warning_label.pack()
+        print("[DEBUG] create_welcome_page finished")
 
     def create_system_check_page(self):
         """Sistem kontrol sayfası"""
@@ -513,12 +511,18 @@ Kurulum yaklaşık 5-10 dakika sürer.
             self.log("🎉 Kurulum başarıyla tamamlandı!")
             self.show_success_info()
 
+            # Otomatik olarak sonraki sayfaya geç
+            def _go_to_next_page():
+                if self.current_page < len(self.notebook.tabs()) - 1:
+                    self.current_page += 1
+                    self.update_navigation()
+            self.root.after(100, _go_to_next_page) # Kısa bir gecikme ile geçiş yap
+
         except Exception as e:
             error_msg = f"Kurulum hatası: {str(e)}"
             self.log_error(error_msg, e)
             self.log(f"❌ Hata: {str(e)}")
 
-            import traceback
             trace_msg = traceback.format_exc()
             self.log_error(f"Detaylı hata: {trace_msg}")
             self.log(f"Detay: {trace_msg}")
@@ -1232,10 +1236,23 @@ cd "{self.install_path}"
 
 
 def main():
+    print("[DEBUG] main() function started")
     root = tk.Tk()
-    app = TradeBotInstaller(root)
+    print("[DEBUG] tk.Tk() created")
+    try:
+        app = TradeBotInstaller(root)
+        print("[DEBUG] TradeBotInstaller instance created")
+    except Exception as e:
+        print(f"[FATAL ERROR] Could not create TradeBotInstaller instance: {e}")
+        import traceback
+        traceback.print_exc()
+        root.destroy()
+        return
+
     root.mainloop()
+    print("DEBUG: mainloop finished.")
 
 
 if __name__ == "__main__":
+    print("[DEBUG] Script starting via __main__")
     main()

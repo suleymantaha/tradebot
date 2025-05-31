@@ -76,7 +76,7 @@
 
 ---
 
-## �� Hızlı Kurulum
+## 🚀 Hızlı Kurulum
 
 ### 🎯 **Seçenek 1: GUI Installer (Önerilen!)**
 
@@ -278,11 +278,17 @@ npm install
 npm run dev
 ```
 
+### 🐳 **İpuçları**
+- **Logları Takip Etme**: `docker-compose logs -f <servis_adı>` (örn: `backend`, `frontend`)
+- **Container İçinde Komut Çalıştırma**: `docker-compose exec <servis_adı> <komut>` (örn: `docker-compose exec backend bash`)
+- **Tüm Servisleri Durdurma**: `docker-compose down`
+- **Verileri Silerek Durdurma (Dikkat!)**: `docker-compose down -v` (Tüm volumelardaki datayı siler)
+
 ---
 
 ## 🔧 Geliştirme
 
-### 🏗️ **Proje Yapısı**
+### ��️ **Proje Yapısı**
 ```
 tradebot/
 ├── 📁 app/                    # Backend (FastAPI)
@@ -379,6 +385,30 @@ docker-compose --profile development up -d pgadmin
 
 #### **Detaylı PostgreSQL Rehberi**
 📚 **[PostgreSQL Kullanım Rehberi](docs/PostgreSQL_KULLANIM_REHBERI.md)**
+
+### 🧱 **Veritabanı Migration Yönetimi (Alembic)**
+
+SQLAlchemy modellerinizde (örn: `app/models/` altındaki dosyalarda) veritabanı şemasını etkileyecek bir değişiklik yaptığınızda (kolon ekleme/çıkarma, tablo ekleme/çıkarma vb.), aşağıdaki adımları izleyerek veritabanı migration'larını yönetmelisiniz:
+
+1.  **Model Değişikliği**: SQLAlchemy modelinizi güncelleyin.
+2.  **Yeni Revision Oluşturma**:
+    ```bash
+    docker-compose exec backend alembic revision -m "yaptığınız_değişikliğin_kısa_açıklaması"
+    ```
+    Örnek: `docker-compose exec backend alembic revision -m "add_phone_to_users_table"`
+3.  **Revision Dosyasını Düzenleme**:
+    - Oluşturulan yeni revision dosyası `alembic/versions/` altında yer alır.
+    - Bu dosyayı açın. Alembic genellikle basit değişiklikleri otomatik olarak `upgrade()` ve `downgrade()` fonksiyonlarına ekler.
+    - **Mutlaka kontrol edin!** Gerekirse `op.add_column()`, `op.drop_column()` gibi komutları manuel olarak ekleyin veya düzenleyin.
+    - `downgrade()` fonksiyonunun, `upgrade()` fonksiyonundaki değişiklikleri geri alacak şekilde doğru doldurulduğundan emin olun.
+4.  **Migration'ı Uygulama**:
+    ```bash
+    docker-compose exec backend alembic upgrade head
+    ```
+    Bu komut, bekleyen tüm migration'ları veritabanınıza uygular.
+5.  **Test Etme**: Uygulamanızın beklendiği gibi çalıştığından ve veritabanı değişikliklerinin doğru olduğundan emin olun.
+
+Bu adımları takip etmek, veritabanı şemanız ile uygulama kodunuzun senkronize kalmasını sağlar ve "column does not exist" gibi hataların önüne geçer.
 
 ---
 

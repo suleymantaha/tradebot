@@ -7,9 +7,9 @@ Kullanıcının API anahtarını yeniden eklemesi gerekir.
 
 import asyncio
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.core.database import engine
+from app.database import engine
 from app.models.user import User
-from app.models.api_key import APIKey
+from app.models.api_key import ApiKey
 
 async def main():
     print("🔧 API Key Encryption Fix başlatılıyor...")

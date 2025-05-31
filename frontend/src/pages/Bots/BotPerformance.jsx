@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { botConfigAPI } from '../../services/api'
+import apiServiceInstance from '../../services/api'
 import { useTheme } from '../../contexts/ThemeContext'
 
 const BotPerformance = () => {
@@ -14,20 +14,19 @@ const BotPerformance = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
+                setLoading(true)
                 // Bot bilgilerini al
-                const botResponse = await botConfigAPI.getById(id)
-                setBot(botResponse.data)
+                const botResponse = await apiServiceInstance.get(`/api/v1/bot-configs/${id}`)
+                setBot(botResponse)
 
                 // Performans verilerini al
-                const performanceResponse = await fetch(`/api/v1/bots/${id}/performance`)
-                if (performanceResponse.ok) {
-                    const performanceData = await performanceResponse.json()
-                    setPerformance(performanceData)
-                } else {
-                    setPerformance(null)
-                }
+                const performanceData = await apiServiceInstance.get(`/api/v1/bots/${id}/performance`)
+                setPerformance(performanceData)
             } catch (err) {
-                setError('Veriler yüklenirken hata oluştu')
+                console.error("Error fetching bot performance data:", err)
+                setError('Performans verileri yüklenirken hata oluştu. Lütfen daha sonra tekrar deneyiniz.')
+                setPerformance(null)
+                setBot(null)
             } finally {
                 setLoading(false)
             }
