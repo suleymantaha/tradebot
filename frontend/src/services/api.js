@@ -96,7 +96,7 @@ class ApiService {
         return this.request(endpoint, {
             ...options,
             method: 'POST',
-            body: JSON.stringify(data),
+            body: data,
         })
     }
 
@@ -104,7 +104,7 @@ class ApiService {
         return this.request(endpoint, {
             ...options,
             method: 'PUT',
-            body: JSON.stringify(data),
+            body: data,
         })
     }
 
