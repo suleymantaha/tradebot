@@ -62,6 +62,7 @@ Grafik arayüzlü TradeBot kurulum programı. Kullanıcı dostu arayüz ile tüm
 ### 🛠️ Kullanım
 
 #### Gereksinimler
+
 - Python 3.8+
 - tkinter (çoğu Python kurulumunda mevcut)
 - Docker & Docker Compose
@@ -159,15 +160,18 @@ stop_tradebot.bat
 ### 🐛 Hata Giderme
 
 #### Log Dosyaları
+
 - `installer.log`: Kurulum logları
 - `docker-compose logs`: Container logları
 
 #### Yaygın Hatalar
+
 1. **Docker başlatılamıyor**: `sudo systemctl start docker`
 2. **Port çakışması**: Port numaralarını değiştirin
 3. **İzin hatası**: Script'leri executable yapın: `chmod +x *.sh`
 
 #### Masaüstü İkonu Sorunları
+
 - **Linux**: `.desktop` dosyasını executable yapın
 - **Windows**: İcon path'ini kontrol edin
 - **macOS**: App bundle permissions kontrol edin
@@ -175,6 +179,7 @@ stop_tradebot.bat
 ### 📞 Destek
 
 Sorun yaşarsanız:
+
 1. `installer.log` dosyasını kontrol edin
 2. "Log Dosyası Aç" butonunu kullanın
 3. GitHub Issues'da rapor edin

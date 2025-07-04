@@ -19,8 +19,8 @@ class TradeBotInstaller:
         self.root.geometry("800x600")
         self.root.resizable(False, False)
 
-        # Installer state
-        self.install_path = os.getcwd()
+        # Installer state - Set smart default install path
+        self.install_path = self.get_default_install_path()
         self.config = {
             "postgres_password": "",
             "pgadmin_email": "admin@tradebot.local",
@@ -61,6 +61,26 @@ class TradeBotInstaller:
         self.update_navigation()
         print("[DEBUG] TradeBotInstaller __init__ finished")
 
+    def get_default_install_path(self):
+        """Platform'a göre akıllı varsayılan kurulum dizini belirle"""
+        try:
+            home_dir = os.path.expanduser("~")
+
+            if platform.system() == "Darwin":  # macOS
+                default_path = os.path.join(home_dir, "TradeBot")
+            elif platform.system() == "Windows":
+                default_path = os.path.join(home_dir, "TradeBot")
+            else:  # Linux
+                default_path = os.path.join(home_dir, "TradeBot")
+
+            print(f"[DEBUG] Varsayılan kurulum dizini: {default_path}")
+            return default_path
+
+        except Exception as e:
+            print(f"[DEBUG] Default path hatası: {e}")
+            # Fallback to current directory
+            return os.getcwd()
+
     def setup_logging(self):
         """Error logging sistemini kurar"""
         self.log_file = os.path.join(self.install_path, "installer.log")
@@ -70,6 +90,52 @@ class TradeBotInstaller:
                 f.write("=" * 50 + "\n\n")
         except Exception as e:
             print(f"Log dosyası oluşturulamadı: {e}")
+
+    def find_docker_command(self):
+        """Docker komutunun tam yolunu bul - macOS için özel"""
+        # Yaygın Docker konumları (macOS öncelikli)
+        possible_paths = [
+            "/usr/local/bin/docker",
+            "/opt/homebrew/bin/docker",
+            "/Applications/Docker.app/Contents/Resources/bin/docker",
+            "/usr/bin/docker",
+            "docker"  # PATH'teki varsayılan
+        ]
+
+        for docker_path in possible_paths:
+            try:
+                result = subprocess.run([docker_path, "--version"],
+                                     capture_output=True, text=True, timeout=5)
+                if result.returncode == 0:
+                    self.log_info(f"Docker bulundu: {docker_path}")
+                    return docker_path
+            except (FileNotFoundError, subprocess.TimeoutExpired):
+                continue
+
+        return None
+
+    def find_docker_compose_command(self):
+        """Docker Compose komutunun tam yolunu bul"""
+        # Yaygın Docker Compose konumları
+        possible_paths = [
+            "/usr/local/bin/docker-compose",
+            "/opt/homebrew/bin/docker-compose",
+            "/Applications/Docker.app/Contents/Resources/bin/docker-compose",
+            "/usr/bin/docker-compose",
+            "docker-compose"  # PATH'teki varsayılan
+        ]
+
+        for compose_path in possible_paths:
+            try:
+                result = subprocess.run([compose_path, "--version"],
+                                     capture_output=True, text=True, timeout=5)
+                if result.returncode == 0:
+                    self.log_info(f"Docker Compose bulundu: {compose_path}")
+                    return compose_path
+            except (FileNotFoundError, subprocess.TimeoutExpired):
+                continue
+
+        return None
 
     def log_error(self, message, exception=None):
         """Hata loglar"""
@@ -396,11 +462,46 @@ Kurulum yaklaşık 5-10 dakika sürer.
                 widget.destroy()
 
         checks = [
-            ("Docker", "docker --version"),
-            ("Docker Compose", "docker-compose --version"),
             ("curl", "curl --version"),
             ("git", "git --version")
         ]
+
+        # Check Docker separately with path finding
+        docker_cmd = self.find_docker_command()
+        if docker_cmd:
+            try:
+                result = subprocess.run([docker_cmd, "--version"], capture_output=True, text=True, timeout=5)
+                docker_status = "✅ Kurulu" if result.returncode == 0 else "❌ Eksik"
+                docker_color = "green" if result.returncode == 0 else "red"
+            except Exception:
+                docker_status = "❌ Eksik"
+                docker_color = "red"
+        else:
+            docker_status = "❌ Eksik"
+            docker_color = "red"
+
+        # Check Docker Compose separately
+        compose_cmd = self.find_docker_compose_command()
+        if compose_cmd:
+            try:
+                result = subprocess.run([compose_cmd, "--version"], capture_output=True, text=True, timeout=5)
+                compose_status = "✅ Kurulu" if result.returncode == 0 else "❌ Eksik"
+                compose_color = "green" if result.returncode == 0 else "red"
+            except Exception:
+                compose_status = "❌ Eksik"
+                compose_color = "red"
+        else:
+            compose_status = "❌ Eksik"
+            compose_color = "red"
+
+        # Display Docker checks
+        docker_label = ttk.Label(self.check_frame, text=f"Docker: {docker_status}", foreground=docker_color)
+        docker_label.check_result = docker_status
+        docker_label.pack(anchor="w", pady=2)
+
+        compose_label = ttk.Label(self.check_frame, text=f"Docker Compose: {compose_status}", foreground=compose_color)
+        compose_label.check_result = compose_status
+        compose_label.pack(anchor="w", pady=2)
 
         for name, command in checks:
             try:
@@ -459,8 +560,14 @@ Kurulum yaklaşık 5-10 dakika sürer.
             self.log_info("TradeBot kurulumu başlatılıyor...")
             self.log("🚀 TradeBot kurulumu başlatılıyor...")
 
-            # Change to install directory
+            # Ensure install directory exists and is writable
+            os.makedirs(self.install_path, exist_ok=True)
+
+            # Change to install directory - CRITICAL for macOS .app bundles
+            self.log_info(f"Kurulum dizinine geçiliyor: {self.install_path}")
+            original_cwd = os.getcwd()
             os.chdir(self.install_path)
+            self.log_info(f"Çalışma dizini: {os.getcwd()}")
 
             # 1. System requirements check (already done in previous step)
             self.log_info("Sistem gereksinimleri kontrol edildi")
@@ -579,10 +686,123 @@ Kurulum yaklaşık 5-10 dakika sürer.
             self.install_btn.config(state="normal")
 
     def setup_directories(self):
-        """Gerekli dizinleri oluştur"""
-        directories = ['logs', 'cache/data', 'scripts']
-        for directory in directories:
-            os.makedirs(directory, exist_ok=True)
+        """Gerekli dizinleri oluştur ve proje dosyalarını kopyala"""
+        try:
+            # Temel dizinleri oluştur
+            directories = ['logs', 'cache/data', 'scripts', 'alembic/versions']
+            for directory in directories:
+                os.makedirs(directory, exist_ok=True)
+
+            # PyInstaller ile paketlenmiş dosyalara erişim için kaynak dizini belirle
+            if getattr(sys, 'frozen', False):
+                # PyInstaller ile paketlenmiş durumda - gömülen dosyaları kullan
+                bundle_dir = sys._MEIPASS
+                self.log_info(f"PyInstaller bundle'ından dosyalar kopyalanıyor: {bundle_dir}")
+
+                # Gömülen dosyaları kopyala
+                files_to_copy = [
+                    'docker-compose.yml',
+                    'Dockerfile.backend',
+                    'requirements.txt',
+                    'alembic.ini'
+                ]
+
+                for file_name in files_to_copy:
+                    src_path = os.path.join(bundle_dir, file_name)
+                    if os.path.exists(src_path):
+                        shutil.copy2(src_path, file_name)
+                        self.log_info(f"✅ {file_name} kopyalandı")
+                    else:
+                        self.log_info(f"⚠️ {file_name} bundle'da bulunamadı")
+
+                # Alembic dosyalarını kopyala
+                src_alembic = os.path.join(bundle_dir, 'alembic')
+                if os.path.exists(src_alembic):
+                    if os.path.exists('alembic'):
+                        shutil.rmtree('alembic')
+                    shutil.copytree(src_alembic, 'alembic')
+                    self.log_info("✅ alembic/ dizini kopyalandı")
+
+                # App dizinini kopyala
+                src_app = os.path.join(bundle_dir, 'app')
+                if os.path.exists(src_app):
+                    if os.path.exists('app'):
+                        shutil.rmtree('app')
+                    shutil.copytree(src_app, 'app')
+                    self.log_info("✅ app/ dizini kopyalandı")
+
+                # Frontend dizinini kopyala (node_modules hariç)
+                src_frontend = os.path.join(bundle_dir, 'frontend')
+                if os.path.exists(src_frontend):
+                    if os.path.exists('frontend'):
+                        shutil.rmtree('frontend')
+
+                    # node_modules ve diğer gereksiz dizinleri ignore et
+                    def ignore_patterns(dir, files):
+                        return [f for f in files if f in ['node_modules', '.git', '__pycache__', '.DS_Store']]
+
+                    shutil.copytree(src_frontend, 'frontend', ignore=ignore_patterns)
+                    self.log_info("✅ frontend/ dizini kopyalandı (node_modules hariç)")
+
+            else:
+                # Development modunda - ana proje dizininden kopyala
+                installer_dir = os.path.dirname(os.path.abspath(__file__))
+                project_root = os.path.dirname(installer_dir)
+
+                self.log_info(f"Development modunda proje dosyaları kopyalanıyor: {project_root}")
+
+                # Gerekli dosyaları kopyala
+                files_to_copy = [
+                    'docker-compose.yml',
+                    'Dockerfile.backend',
+                    'requirements.txt',
+                    'alembic.ini'
+                ]
+
+                for file_name in files_to_copy:
+                    src_path = os.path.join(project_root, file_name)
+                    if os.path.exists(src_path):
+                        shutil.copy2(src_path, file_name)
+                        self.log_info(f"✅ {file_name} kopyalandı")
+                    else:
+                        self.log_info(f"⚠️ {file_name} bulunamadı, atlandı")
+
+                # Alembic migration dosyalarını kopyala
+                src_migrations = os.path.join(project_root, 'alembic', 'versions')
+                if os.path.exists(src_migrations):
+                    for migration_file in os.listdir(src_migrations):
+                        if migration_file.endswith('.py'):
+                            src_file = os.path.join(src_migrations, migration_file)
+                            dst_file = os.path.join('alembic', 'versions', migration_file)
+                            shutil.copy2(src_file, dst_file)
+                            self.log_info(f"✅ Migration {migration_file} kopyalandı")
+
+                # Alembic env.py dosyasını kopyala
+                src_env = os.path.join(project_root, 'alembic', 'env.py')
+                if os.path.exists(src_env):
+                    os.makedirs('alembic', exist_ok=True)
+                    shutil.copy2(src_env, 'alembic/env.py')
+                    self.log_info("✅ alembic/env.py kopyalandı")
+
+                # App dizinini kopyala
+                src_app = os.path.join(project_root, 'app')
+                if os.path.exists(src_app):
+                    if os.path.exists('app'):
+                        shutil.rmtree('app')
+                    shutil.copytree(src_app, 'app')
+                    self.log_info("✅ app/ dizini kopyalandı")
+
+                # Frontend dizinini kopyala
+                src_frontend = os.path.join(project_root, 'frontend')
+                if os.path.exists(src_frontend):
+                    if os.path.exists('frontend'):
+                        shutil.rmtree('frontend')
+                    shutil.copytree(src_frontend, 'frontend')
+                    self.log_info("✅ frontend/ dizini kopyalandı")
+
+        except Exception as e:
+            self.log_error(f"Dizin kurulumu hatası: {str(e)}", e)
+            raise
 
     def setup_nginx(self):
         """Nginx konfigürasyonu oluştur"""
@@ -638,34 +858,89 @@ http {
     def check_docker_service(self):
         """Docker servisini kontrol et ve başlat"""
         try:
+            # Find Docker command first
+            docker_cmd = self.find_docker_command()
+            if not docker_cmd:
+                error_msg = "Docker komutu bulunamadı! Docker Desktop kurulu ve PATH'te olduğundan emin olun."
+                self.log_error(error_msg)
+                raise Exception(error_msg)
+
             # Docker info check
-            result = subprocess.run(['docker', 'info'], capture_output=True, text=True)
+            result = subprocess.run([docker_cmd, 'info'], capture_output=True, text=True)
             if result.returncode != 0:
                 self.log_info("Docker servisi çalışmıyor, başlatılmaya çalışılıyor...")
                 self.log("⚠️ Docker servisi çalışmıyor, başlatılıyor...")
 
-                # Try to start Docker service
-                start_result = subprocess.run(['sudo', 'systemctl', 'start', 'docker'],
-                                            capture_output=True, text=True)
-                if start_result.returncode == 0:
-                    # Wait a bit and check again
-                    import time
-                    time.sleep(3)
-                    check_result = subprocess.run(['docker', 'info'], capture_output=True, text=True)
-                    if check_result.returncode == 0:
-                        self.log_info("Docker servisi başarıyla başlatıldı")
-                        self.log("✅ Docker servisi başlatıldı")
-                    else:
-                        error_msg = f"Docker servisi başlatılamadı. Check result: {check_result.stderr}"
+                # Platform-specific Docker startup
+                if platform.system() == "Darwin":  # macOS
+                    self.log_info("macOS Docker Desktop başlatılıyor...")
+                    # Try to open Docker Desktop
+                    try:
+                        subprocess.run(['open', '-a', 'Docker'], check=False)
+                        self.log("🚀 Docker Desktop açılıyor...")
+
+                        # Wait for Docker to start up
+                        import time
+                        max_wait = 60  # 60 seconds max wait
+                        wait_time = 0
+
+                        while wait_time < max_wait:
+                            time.sleep(5)
+                            wait_time += 5
+                            check_result = subprocess.run([docker_cmd, 'info'], capture_output=True, text=True)
+                            if check_result.returncode == 0:
+                                self.log_info("Docker Desktop başarıyla başlatıldı")
+                                self.log("✅ Docker Desktop başlatıldı")
+                                break
+                            else:
+                                self.log(f"⏳ Docker başlatılıyor... ({wait_time}/{max_wait}s)")
+
+                        if wait_time >= max_wait:
+                            error_msg = "Docker Desktop belirtilen sürede başlatılamadı. Lütfen manuel olarak Docker Desktop'ı açın ve tekrar deneyin."
+                            self.log_error(error_msg)
+                            raise Exception(error_msg)
+
+                    except Exception as e:
+                        error_msg = f"Docker Desktop başlatılamadı: {str(e)}. Lütfen Docker Desktop'ı manuel olarak açın."
                         self.log_error(error_msg)
-                        raise Exception("Docker servisi başlatılamadı")
-                else:
-                    error_msg = f"Docker servisi başlatılamadı. Start result: {start_result.stderr}"
-                    self.log_error(error_msg)
-                    raise Exception("Docker servisi başlatılamadı - manuel olarak başlatın")
+                        raise Exception(error_msg)
+
+                elif platform.system() == "Linux":
+                    # Linux systemctl
+                    start_result = subprocess.run(['sudo', 'systemctl', 'start', 'docker'],
+                                                capture_output=True, text=True)
+                    if start_result.returncode == 0:
+                        # Wait a bit and check again
+                        import time
+                        time.sleep(3)
+                        check_result = subprocess.run(['docker', 'info'], capture_output=True, text=True)
+                        if check_result.returncode == 0:
+                            self.log_info("Docker servisi başarıyla başlatıldı")
+                            self.log("✅ Docker servisi başlatıldı")
+                        else:
+                            error_msg = f"Docker servisi başlatılamadı. Check result: {check_result.stderr}"
+                            self.log_error(error_msg)
+                            raise Exception("Docker servisi başlatılamadı")
+                    else:
+                        error_msg = f"Docker servisi başlatılamadı. Start result: {start_result.stderr}"
+                        self.log_error(error_msg)
+                        raise Exception("Docker servisi başlatılamadı - manuel olarak başlatın")
+
+                elif platform.system() == "Windows":
+                    # Windows Docker Desktop
+                    try:
+                        subprocess.run(['docker', 'run', '--rm', 'hello-world'],
+                                     capture_output=True, text=True, check=True)
+                        self.log_info("Docker servisi zaten çalışıyor")
+                        self.log("✅ Docker servisi çalışıyor")
+                    except subprocess.CalledProcessError:
+                        error_msg = "Docker Desktop başlatılamadı. Lütfen Docker Desktop'ı manuel olarak açın."
+                        self.log_error(error_msg)
+                        raise Exception(error_msg)
             else:
                 self.log_info("Docker servisi zaten çalışıyor")
                 self.log("✅ Docker servisi çalışıyor")
+
         except Exception as e:
             self.log_error(f"Docker servisi hatası: {str(e)}", e)
             self.log(f"❌ Docker servisi hatası: {str(e)}")
@@ -674,15 +949,26 @@ http {
     def cleanup_containers(self):
         """Mevcut containerları temizle"""
         try:
+            # Find Docker commands
+            docker_cmd = self.find_docker_command()
+            compose_cmd = self.find_docker_compose_command()
+
+            if not docker_cmd:
+                self.log_error("Docker komutu bulunamadı - temizleme atlanıyor")
+                return
+
             # Stop and remove existing containers
-            down_result = subprocess.run(['docker-compose', 'down', '--remove-orphans'],
-                         capture_output=True, text=True)
-            if down_result.returncode != 0:
-                self.log_error(f"Container stop hatası: {down_result.stderr}")
-                # Don't raise, continue anyway
+            if compose_cmd:
+                down_result = subprocess.run([compose_cmd, 'down', '--remove-orphans'],
+                             capture_output=True, text=True)
+                if down_result.returncode != 0:
+                    self.log_error(f"Container stop hatası: {down_result.stderr}")
+                    # Don't raise, continue anyway
+            else:
+                self.log_info("Docker Compose bulunamadı - container stop atlanıyor")
 
             # Remove dangling images
-            prune_result = subprocess.run(['docker', 'image', 'prune', '-f'],
+            prune_result = subprocess.run([docker_cmd, 'image', 'prune', '-f'],
                          capture_output=True, text=True)
             if prune_result.returncode != 0:
                 self.log_error(f"Image cleanup hatası: {prune_result.stderr}")
@@ -694,13 +980,58 @@ http {
             self.log_error(f"Container temizleme hatası: {str(e)}", e)
             self.log(f"⚠️ Container temizleme uyarısı: {str(e)}")
 
+    def fix_docker_credentials(self):
+        """Docker credential helper sorununu çöz"""
+        try:
+            # Docker config dosyasının yolunu bul
+            home_dir = os.path.expanduser("~")
+            docker_config_dir = os.path.join(home_dir, '.docker')
+            config_file = os.path.join(docker_config_dir, 'config.json')
+
+            # Docker config dizinini oluştur
+            os.makedirs(docker_config_dir, exist_ok=True)
+
+            # Mevcut config'i oku veya boş dict oluştur
+            config = {}
+            if os.path.exists(config_file):
+                try:
+                    with open(config_file, 'r') as f:
+                        config = json.load(f)
+                except:
+                    config = {}
+
+            # Credential helper'ı geçici olarak kaldır
+            if 'credsStore' in config:
+                config.pop('credsStore')
+            if 'credHelpers' in config:
+                config.pop('credHelpers')
+
+            # Config'i kaydet
+            with open(config_file, 'w') as f:
+                json.dump(config, f, indent=2)
+
+            self.log_info("Docker credential helper ayarı düzeltildi")
+
+        except Exception as e:
+            self.log_error(f"Docker credential fix hatası: {str(e)}")
+
     def start_services(self):
         """Docker servislerini build et ve başlat"""
         try:
+            # Docker credential sorununu çöz
+            self.fix_docker_credentials()
+
+            # Find Docker Compose command
+            compose_cmd = self.find_docker_compose_command()
+            if not compose_cmd:
+                error_msg = "Docker Compose komutu bulunamadı! Docker Desktop kurulu ve çalışır durumda olduğundan emin olun."
+                self.log_error(error_msg)
+                raise Exception(error_msg)
+
             # Build images
             self.log_info("Docker images build ediliyor...")
             self.log("🔨 Docker images build ediliyor...")
-            build_result = subprocess.run(['docker-compose', 'build', '--no-cache'],
+            build_result = subprocess.run([compose_cmd, 'build', '--no-cache'],
                                         capture_output=True, text=True)
             if build_result.returncode != 0:
                 # Yaygın hataları daha anlaşılır hale getir
@@ -726,7 +1057,7 @@ http {
             # Start services
             self.log_info("Servisler başlatılıyor...")
             self.log("🚀 Servisler başlatılıyor...")
-            start_result = subprocess.run(['docker-compose', 'up', '-d'],
+            start_result = subprocess.run([compose_cmd, 'up', '-d'],
                                         capture_output=True, text=True)
             if start_result.returncode != 0:
                 stderr_lower = start_result.stderr.lower()
@@ -812,7 +1143,7 @@ PGADMIN_DEFAULT_PASSWORD={self.pgadmin_pass_var.get()}
 SECRET_KEY={self.generate_secret_key()}
 FERNET_KEY={self.generate_fernet_key()}
 ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=30
+ACCESS_TOKEN_EXPIRE_MINUTES=525600
 
 ENVIRONMENT={self.env_var.get()}
 LOG_LEVEL=INFO
@@ -932,43 +1263,168 @@ DATABASE_URL=postgresql+asyncpg://tradebot_user:{self.postgres_pass_var.get()}@p
         """Platform'a göre start script içeriği döndürür"""
         if platform.system() == "Windows":
             return f"""@echo off
-echo TradeBot baslatiliyor...
+echo 🚀 TradeBot baslatiliyor...
 cd /d "{self.install_path}"
+
+:: Check if Docker is running
+docker info >nul 2>&1
+if errorlevel 1 (
+    echo ⚠️ Docker çalışmıyor, Docker Desktop başlatılıyor...
+    start /wait "" "C:\\Program Files\\Docker\\Docker\\Docker Desktop.exe"
+    timeout /t 10 /nobreak >nul
+
+    :: Check again after starting
+    docker info >nul 2>&1
+    if errorlevel 1 (
+        echo ❌ Docker Desktop başlatılamadı!
+        echo Lütfen Docker Desktop'ı manuel olarak açın ve tekrar deneyin.
+        pause
+        exit /b 1
+    )
+    echo ✅ Docker Desktop başlatıldı!
+) else (
+    echo ✅ Docker servisi çalışıyor!
+)
+
+echo.
+echo 🔨 TradeBot servisleri başlatılıyor...
 docker-compose up -d
+
+if errorlevel 1 (
+    echo.
+    echo ❌ TradeBot başlatılırken hata oluştu!
+    echo 🔍 Hata detayları için: docker-compose logs
+    pause
+    exit /b 1
+)
+
 echo.
-echo TradeBot baslatildi!
-echo Frontend: http://localhost:{self.config['frontend_port']}
-echo Backend API: http://localhost:{self.config['backend_port']}
-echo pgAdmin: http://localhost:{self.config['pgadmin_port']}
+echo 🎉 TradeBot başarıyla başlatıldı!
 echo.
-echo Tarayicilar otomatik olarak acilacak...
+echo 📊 Erişim Linkleri:
+echo    Frontend:    http://localhost:{self.config['frontend_port']}
+echo    Backend API: http://localhost:{self.config['backend_port']}
+echo    pgAdmin:     http://localhost:{self.config['pgadmin_port']}
+echo.
+echo ⏳ Servislerin tam olarak hazır olması 30-60 saniye sürebilir...
+echo 🌐 Tarayıcı otomatik olarak açılacak...
 timeout /t 5 /nobreak >nul
 start http://localhost:{self.config['frontend_port']}
+echo.
+echo ✅ TradeBot hazır!
+echo 💡 Durdurma için: stop_tradebot.bat komutunu kullanın
 pause
 """
         else:
             return f"""#!/bin/bash
-echo "TradeBot başlatılıyor..."
-cd "{self.install_path}"
-docker-compose up -d
 
-echo ""
-echo "TradeBot başlatıldı!"
-echo "Frontend: http://localhost:{self.config['frontend_port']}"
-echo "Backend API: http://localhost:{self.config['backend_port']}"
-echo "pgAdmin: http://localhost:{self.config['pgadmin_port']}"
-echo ""
-echo "Tarayıcılar otomatik olarak açılacak..."
-sleep 3
+echo "🚀 TradeBot başlatılıyor..."
 
-# Open in default browser
-if command -v xdg-open > /dev/null; then
-    xdg-open "http://localhost:{self.config['frontend_port']}" &
-elif command -v open > /dev/null; then
-    open "http://localhost:{self.config['frontend_port']}" &
+# Change to script directory
+SCRIPT_DIR="$(cd "$(dirname "${{BASH_SOURCE[0]}}")" && pwd)"
+cd "$SCRIPT_DIR"
+
+# Function to check if Docker is running
+check_docker() {{
+    if docker info >/dev/null 2>&1; then
+        return 0
+    else
+        return 1
+    fi
+}}
+
+# Function to start Docker Desktop on macOS
+start_docker_macos() {{
+    echo "⚠️  Docker çalışmıyor, Docker Desktop başlatılıyor..."
+    open -a Docker
+
+    echo "⏳ Docker Desktop'ın başlaması bekleniyor..."
+    local max_wait=60
+    local wait_time=0
+
+    while [ $wait_time -lt $max_wait ]; do
+        sleep 5
+        wait_time=$((wait_time + 5))
+
+        if check_docker; then
+            echo "✅ Docker Desktop başarıyla başlatıldı!"
+            return 0
+        fi
+
+        echo "⏳ Docker başlatılıyor... (${{wait_time}}/${{max_wait}}s)"
+    done
+
+    echo "❌ Docker Desktop belirtilen sürede başlatılamadı!"
+    echo "Lütfen Docker Desktop'ı manuel olarak açın ve tekrar deneyin."
+    return 1
+}}
+
+# Check if Docker is running
+if ! check_docker; then
+    echo "⚠️  Docker servisi çalışmıyor..."
+
+    # Detect platform and try to start Docker
+    case "$(uname -s)" in
+        Darwin*)
+            if ! start_docker_macos; then
+                exit 1
+            fi
+            ;;
+        Linux*)
+            echo "Linux sistemde Docker servisini başlatmak için sudo gerekebilir..."
+            sudo systemctl start docker
+            sleep 3
+            if ! check_docker; then
+                echo "❌ Docker servisi başlatılamadı!"
+                echo "Lütfen 'sudo systemctl start docker' komutunu çalıştırın."
+                exit 1
+            fi
+            echo "✅ Docker servisi başlatıldı!"
+            ;;
+        *)
+            echo "❌ Desteklenmeyen platform. Lütfen Docker'ı manuel olarak başlatın."
+            exit 1
+            ;;
+    esac
+else
+    echo "✅ Docker servisi çalışıyor!"
 fi
 
-echo "TradeBot hazır!"
+# Start TradeBot services
+echo ""
+echo "🔨 TradeBot servisleri başlatılıyor..."
+docker-compose up -d
+
+if [ $? -eq 0 ]; then
+    echo ""
+    echo "🎉 TradeBot başarıyla başlatıldı!"
+    echo ""
+    echo "📊 Erişim Linkleri:"
+    echo "   Frontend:    http://localhost:{self.config['frontend_port']}"
+    echo "   Backend API: http://localhost:{self.config['backend_port']}"
+    echo "   pgAdmin:     http://localhost:{self.config['pgadmin_port']}"
+    echo ""
+    echo "⏳ Servislerin tam olarak hazır olması 30-60 saniye sürebilir..."
+    echo "🌐 Tarayıcı otomatik olarak açılacak..."
+
+    sleep 3
+
+    # Open in default browser
+    if command -v open > /dev/null; then
+        open "http://localhost:{self.config['frontend_port']}" &
+    elif command -v xdg-open > /dev/null; then
+        xdg-open "http://localhost:{self.config['frontend_port']}" &
+    fi
+
+    echo ""
+    echo "✅ TradeBot hazır!"
+    echo "💡 Durdurma için: ./stop_tradebot.sh komutunu kullanın"
+else
+    echo ""
+    echo "❌ TradeBot başlatılırken hata oluştu!"
+    echo "🔍 Hata detayları için: docker-compose logs"
+    exit 1
+fi
 """
 
     def get_stop_script_content(self):
@@ -1096,16 +1552,77 @@ Categories=Office;Finance;
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
     <string>2.0</string>
+    <key>CFBundleVersion</key>
+    <string>2.0</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>10.14</string>
+    <key>LSUIElement</key>
+    <false/>
 </dict>
 </plist>
 """
         with open(os.path.join(contents_path, "Info.plist"), "w") as f:
             f.write(plist_content)
 
-        # Executable script
+        # Enhanced executable script with Docker auto-start
         exec_content = f"""#!/bin/bash
+
+# Function to check if Docker is running
+check_docker() {{
+    if docker info >/dev/null 2>&1; then
+        return 0
+    else
+        return 1
+    fi
+}}
+
+# Function to start Docker Desktop
+start_docker_desktop() {{
+    echo "Docker çalışmıyor, Docker Desktop başlatılıyor..."
+    open -a Docker
+
+    # Wait for Docker to start
+    local max_wait=60
+    local wait_time=0
+
+    while [ $wait_time -lt $max_wait ]; do
+        sleep 5
+        wait_time=$((wait_time + 5))
+
+        if check_docker; then
+            echo "Docker Desktop başarıyla başlatıldı!"
+            return 0
+        fi
+
+        echo "Docker başlatılıyor... (${{wait_time}}/${{max_wait}}s)"
+    done
+
+    # Show dialog if Docker didn't start
+    osascript -e 'display dialog "Docker Desktop başlatılamadı. Lütfen Docker Desktop'ı manuel olarak açın ve tekrar deneyin." buttons {{"Tamam"}} default button "Tamam" with icon caution'
+    return 1
+}}
+
+# Check if Docker is running
+if ! check_docker; then
+    if ! start_docker_desktop; then
+        exit 1
+    fi
+fi
+
+# Change to TradeBot directory and run startup script
 cd "{self.install_path}"
-./start_tradebot.sh
+
+# Check if start script exists
+if [ ! -f "./start_tradebot.sh" ]; then
+    osascript -e 'display dialog "TradeBot başlatma script'i bulunamadı. Lütfen kurulumu kontrol edin." buttons {{"Tamam"}} default button "Tamam" with icon stop'
+    exit 1
+fi
+
+# Make sure script is executable
+chmod +x "./start_tradebot.sh"
+
+# Run the startup script in Terminal
+osascript -e 'tell application "Terminal" to do script "cd \\"{self.install_path}\\" && ./start_tradebot.sh"'
 """
         exec_path = os.path.join(macos_path, "TradeBot")
         with open(exec_path, "w") as f:
@@ -1181,17 +1698,78 @@ cd "{self.install_path}"
                 self.log_info("Docker servisi restart ediliyor...")
                 self.log("🔄 Docker servisi restart ediliyor...")
 
-                # Docker servisi restart
-                restart_result = subprocess.run(['sudo', 'systemctl', 'restart', 'docker'],
-                                                capture_output=True, text=True)
-                if restart_result.returncode != 0:
-                    self.log_error(f"Docker restart hatası: {restart_result.stderr}")
-                    self.log(f"❌ Docker restart hatası: {restart_result.stderr}")
-                    return
+                if platform.system() == "Darwin":  # macOS
+                    # macOS'ta Docker Desktop'ı restart et
+                    self.log("🍎 macOS Docker Desktop restart ediliyor...")
 
-                self.log_info("Docker servisi başarıyla restart edildi!")
-                self.log("✅ Docker servisi başarıyla restart edildi!")
-                messagebox.showinfo("Başarılı", "Docker servisi restart edildi!")
+                    # First try to quit Docker Desktop
+                    quit_result = subprocess.run(['osascript', '-e', 'quit app "Docker"'],
+                                                capture_output=True, text=True)
+                    if quit_result.returncode == 0:
+                        self.log("Docker Desktop kapatıldı...")
+                        import time
+                        time.sleep(5)  # Wait a bit
+
+                    # Start Docker Desktop again
+                    start_result = subprocess.run(['open', '-a', 'Docker'],
+                                                capture_output=True, text=True)
+                    if start_result.returncode != 0:
+                        self.log_error(f"Docker Desktop başlatılamadı: {start_result.stderr}")
+                        self.log(f"❌ Docker Desktop başlatılamadı: {start_result.stderr}")
+                        messagebox.showerror("Hata", f"Docker Desktop başlatılamadı: {start_result.stderr}")
+                        return
+
+                    # Wait for Docker to be ready
+                    self.log("⏳ Docker Desktop'ın hazır olması bekleniyor...")
+                    max_wait = 60
+                    wait_time = 0
+
+                    while wait_time < max_wait:
+                        time.sleep(5)
+                        wait_time += 5
+
+                        check_result = subprocess.run(['docker', 'info'], capture_output=True, text=True)
+                        if check_result.returncode == 0:
+                            self.log_info("Docker Desktop başarıyla restart edildi!")
+                            self.log("✅ Docker Desktop başarıyla restart edildi!")
+                            messagebox.showinfo("Başarılı", "Docker Desktop restart edildi!")
+                            return
+
+                        self.log(f"⏳ Docker başlatılıyor... ({wait_time}/{max_wait}s)")
+
+                    self.log_error("Docker Desktop belirtilen sürede hazır olmadı")
+                    self.log("⚠️ Docker Desktop belirtilen sürede hazır olmadı")
+                    messagebox.showwarning("Uyarı", "Docker Desktop belirtilen sürede hazır olmadı. Manuel kontrol edin.")
+
+                elif platform.system() == "Linux":
+                    # Linux systemctl restart
+                    restart_result = subprocess.run(['sudo', 'systemctl', 'restart', 'docker'],
+                                                    capture_output=True, text=True)
+                    if restart_result.returncode != 0:
+                        self.log_error(f"Docker restart hatası: {restart_result.stderr}")
+                        self.log(f"❌ Docker restart hatası: {restart_result.stderr}")
+                        messagebox.showerror("Hata", f"Docker restart hatası: {restart_result.stderr}")
+                        return
+
+                    self.log_info("Docker servisi başarıyla restart edildi!")
+                    self.log("✅ Docker servisi başarıyla restart edildi!")
+                    messagebox.showinfo("Başarılı", "Docker servisi restart edildi!")
+
+                elif platform.system() == "Windows":
+                    # Windows Docker Desktop restart
+                    self.log("🪟 Windows Docker Desktop restart ediliyor...")
+                    restart_result = subprocess.run(['powershell', '-Command',
+                                                   'Stop-Process -Name "Docker Desktop" -Force; Start-Sleep 5; Start-Process "Docker Desktop"'],
+                                                   capture_output=True, text=True)
+                    if restart_result.returncode != 0:
+                        self.log_error(f"Docker Desktop restart hatası: {restart_result.stderr}")
+                        self.log(f"❌ Docker Desktop restart hatası: {restart_result.stderr}")
+                        messagebox.showerror("Hata", f"Docker Desktop restart hatası: {restart_result.stderr}")
+                        return
+
+                    self.log_info("Docker Desktop restart edildi!")
+                    self.log("✅ Docker Desktop restart edildi!")
+                    messagebox.showinfo("Başarılı", "Docker Desktop restart edildi!")
 
             except Exception as e:
                 self.log_error(f"Docker restart hatası: {str(e)}", e)

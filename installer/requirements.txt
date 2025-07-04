@@ -2,7 +2,7 @@
 # Python GUI dependencies
 
 # Core GUI
-tkinter  # Usually comes with Python
+# tkinter  # Usually comes with Python - included in standard library
 
 # HTTP requests for service checking
 requests>=2.28.0

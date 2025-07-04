@@ -30,7 +30,8 @@
 
 ## ✨ Özellikler
 
-### 📈 **Trading Özellikleri**
+### 📈 **Trading Özellikleri**s
+
 - 🤖 **Otomatik Trading**: EMA ve RSI stratejileri
 - 📊 **Teknik Analiz**: Çoklu gösterge desteği
 - 💰 **Risk Yönetimi**: Stop-loss, take-profit, trailing stop
@@ -39,6 +40,7 @@
 - 📱 **Real-time Monitoring**: Canlı bot izleme
 
 ### 🎨 **Kullanıcı Arayüzü**
+
 - 🌓 **Dark/Light Tema**: Modern ve responsive tasarım
 - 📊 **Dashboard**: Kapsamlı bot ve hesap yönetimi
 - 💳 **Bakiye Gösterimi**: Real-time Binance bakiye widget'ı
@@ -46,12 +48,14 @@
 - 📈 **Performans Grafikleri**: Detaylı analiz araçları
 
 ### 🔒 **Güvenlik**
+
 - 🛡️ **JWT Authentication**: Güvenli kullanıcı doğrulaması
 - 🔐 **API Key Encryption**: Fernet encryption ile güvenli depolama
 - 🚪 **Rate Limiting**: API koruma mekanizmaları
 - 📝 **Audit Logging**: Tüm işlemler loglama
 
 ### 🏗️ **Teknik Altyapı**
+
 - ⚡ **FastAPI Backend**: Yüksek performanslı API
 - ⚛️ **React Frontend**: Modern SPA uygulaması
 - 🐘 **PostgreSQL**: Güvenilir veri depolama
@@ -63,12 +67,14 @@
 ## 🛠️ Sistem Gereksinimleri
 
 ### 📋 **Minimum Gereksinimler**
+
 - 🖥️ **OS**: Linux, macOS, Windows (WSL2)
 - 💾 **RAM**: 4GB minimum, 8GB önerilen
 - 💿 **Disk**: 10GB boş alan
 - 🌐 **Network**: İnternet bağlantısı
 
 ### 📦 **Yazılım Gereksinimleri**
+
 - 🐳 **Docker**: 20.10+
 - 🔧 **Docker Compose**: 2.0+
 - 📥 **curl**: Web istekleri için
@@ -85,6 +91,7 @@
 Teknik olmayan kullanıcılar için kullanıcı dostu, adım adım kurulum deneyimi:
 
 #### 📥 **İndirme & Çalıştırma**
+
 ```bash
 # 1. Proje indirme
 git clone https://github.com/suleymantaha/tradebot.git
@@ -96,30 +103,49 @@ python3 main.py
 ```
 
 #### ✨ **GUI Installer Özellikleri**
+
 - 🎯 **5 Adımlı Sihirbaz**: Hoş geldin → Sistem kontrolü → Konfigürasyon → Kurulum → Tamamlandı
 - ✅ **Sistem Gereksinim Kontrolü**: Docker, Docker Compose, Git otomatik kontrolü
+- 🐳 **Docker Otomatik Başlatma**: Docker çalışmıyorsa otomatik olarak başlatır (macOS/Windows/Linux)
 - 🔐 **Güvenli Şifre Oluşturma**: PostgreSQL ve pgAdmin şifreleri otomatik
 - 📊 **Real-time İzleme**: Kurulum ilerlemesi ve logları canlı görüntüleme
 - 🖱️ **Tek Tıkla Servis Açma**: Frontend, API Docs, pgAdmin direkt browser'da
 - ⚙️ **Kolay Konfigürasyon**: Port ayarları, environment seçimi, dizin seçimi
+- 🍎 **macOS App Bundle**: Masaüstü ikonu ile tek tıkla başlatma
 
 ### 🎯 **Seçenek 2: Terminal/Komut Satırı**
 
 #### 1️⃣ **Proje İndirme**
+
 ```bash
 git clone https://github.com/suleymantaha/tradebot.git
 cd tradebot
 ```
 
 ### 2️⃣ **Otomatik Kurulum**
+
 ```bash
 chmod +x install.sh
 ./install.sh
 ```
 
+**🚀 Gelişmiş Başlatma Özelliği:**
+
+TradeBot başlatma script'i artık Docker'ı otomatik olarak kontrol eder ve başlatır:
+
+- 🐳 **Docker Kontrolü**: Her başlatmada Docker'ın çalışıp çalışmadığını kontrol eder
+- 🍎 **macOS Desteği**: Docker Desktop otomatik başlatma
+- 🐧 **Linux Desteği**: systemctl ile Docker servis başlatma
+- 🪟 **Windows Desteği**: Docker Desktop otomatik başlatma
+- ⏱️ **Akıllı Bekleme**: Docker başlatılırken 60 saniyelik timeout
+- 💬 **Kullanıcı Dostu Mesajlar**: İşlem durumu hakkında detaylı bilgilendirme
+
 ### 3️⃣ **İşlem Tamamlandı! 🎉**
+
 Kurulum script'i otomatik olarak:
+
 - ✅ Sistem gereksinimlerini kontrol eder
+- 🐳 **Docker'ı otomatik başlatır** (gerekirse)
 - ✅ Environment dosyasını oluşturur
 - ✅ Encryption anahtarları üretir
 - ✅ Docker container'larını başlatır
@@ -127,9 +153,10 @@ Kurulum script'i otomatik olarak:
 - ✅ Tüm servisleri ayağa kaldırır
 
 ### 4️⃣ **Erişim**
-- 🌐 **Frontend**: http://localhost:3000
-- 🔧 **Backend API**: http://localhost:8000
-- 📚 **API Docs**: http://localhost:8000/docs
+
+- 🌐 **Frontend**: <http://localhost:3000>
+- 🔧 **Backend API**: <http://localhost:8000>
+- 📚 **API Docs**: <http://localhost:8000/docs>
 
 ---
 
@@ -138,7 +165,7 @@ Kurulum script'i otomatik olarak:
 ### 👤 **İlk Kurulum Adımları**
 
 1. **Hesap Oluşturma**
-   - http://localhost:3000 adresine gidin
+   - <http://localhost:3000> adresine gidin
    - "Kayıt Ol" butonuna tıklayın
    - Email ve şifrenizi girin
 
@@ -163,16 +190,19 @@ Kurulum script'i otomatik olarak:
 ### 📈 **Bot Stratejileri**
 
 #### **EMA Crossover Stratejisi**
+
 - 🟢 **BUY**: Hızlı EMA > Yavaş EMA
 - 🔴 **SELL**: Hızlı EMA < Yavaş EMA
 - ⚙️ **Parametreler**: EMA Fast (12), EMA Slow (26)
 
 #### **RSI Stratejisi**
+
 - 🟢 **BUY**: RSI < 30 (Oversold)
 - 🔴 **SELL**: RSI > 70 (Overbought)
 - ⚙️ **Parametreler**: RSI Period (14)
 
 #### **Kombine Strateji**
+
 - 🤝 **EMA + RSI**: Her iki sinyalin onayı
 - 🎯 **Daha güvenli**: Yanlış sinyal riski azalır
 
@@ -183,6 +213,7 @@ Kurulum script'i otomatik olarak:
 ### 🔧 **Environment Variables**
 
 #### 📄 `.env` Dosyası
+
 ```bash
 # Database
 POSTGRES_PASSWORD=your_secure_password
@@ -198,6 +229,7 @@ VITE_API_URL=http://localhost:8000
 ```
 
 #### 🚨 **Güvenlik Notları**
+
 - 🔐 `SECRET_KEY` ve `FERNET_KEY` otomatik oluşturulur
 - 🔄 Production'da bu anahtarları değiştirmeyin
 - 🛡️ `.env` dosyasını version control'e eklemeyin
@@ -205,6 +237,7 @@ VITE_API_URL=http://localhost:8000
 ### 📊 **Bot Parametreleri**
 
 #### 💰 **Risk Yönetimi**
+
 ```javascript
 {
   "stop_loss_perc": 2.0,        // %2 stop loss
@@ -216,6 +249,7 @@ VITE_API_URL=http://localhost:8000
 ```
 
 #### 📈 **Teknik Göstergeler**
+
 ```javascript
 {
   "ema_fast": 12,               // Hızlı EMA periyodu
@@ -231,6 +265,7 @@ VITE_API_URL=http://localhost:8000
 ## 🐳 Docker
 
 ### 📦 **Container'lar**
+
 - **🐘 postgres**: PostgreSQL database
 - **🔴 redis**: Redis cache
 - **⚡ backend**: FastAPI application
@@ -238,6 +273,7 @@ VITE_API_URL=http://localhost:8000
 - **🌐 nginx**: Reverse proxy (production)
 
 ### 🛠️ **Faydalı Komutlar**
+
 ```bash
 # Servisleri başlatma
 docker-compose up -d
@@ -264,6 +300,7 @@ docker exec -it tradebot-backend bash
 ```
 
 ### 🔄 **Development Mode**
+
 ```bash
 # Development ortamı için
 docker-compose -f docker-compose.dev.yml up -d
@@ -279,6 +316,7 @@ npm run dev
 ```
 
 ### 🐳 **İpuçları**
+
 - **Logları Takip Etme**: `docker-compose logs -f <servis_adı>` (örn: `backend`, `frontend`)
 - **Container İçinde Komut Çalıştırma**: `docker-compose exec <servis_adı> <komut>` (örn: `docker-compose exec backend bash`)
 - **Tüm Servisleri Durdurma**: `docker-compose down`
@@ -289,6 +327,7 @@ npm run dev
 ## 🔧 Geliştirme
 
 ### ��️ **Proje Yapısı**
+
 ```
 tradebot/
 ├── 📁 app/                    # Backend (FastAPI)
@@ -313,6 +352,7 @@ tradebot/
 ```
 
 ### 🛠️ **Backend Development**
+
 ```bash
 # Virtual environment oluşturma
 python -m venv venv
@@ -331,6 +371,7 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 ### ⚛️ **Frontend Development**
+
 ```bash
 cd frontend
 
@@ -348,6 +389,7 @@ npm run preview
 ```
 
 ### 🗄️ **Database Migration**
+
 ```bash
 # Yeni migration oluşturma
 alembic revision --autogenerate -m "migration description"
@@ -362,6 +404,7 @@ alembic downgrade -1
 ### 🗄️ **Database Yönetimi**
 
 #### **PostgreSQL Bağlantısı**
+
 ```bash
 # Hızlı bağlantı
 ./scripts/db_connect.sh
@@ -374,6 +417,7 @@ python3 scripts/db_monitor.py
 ```
 
 #### **pgAdmin Web Arayüzü**
+
 ```bash
 # pgAdmin'i başlat (development mode)
 docker-compose --profile development up -d pgadmin
@@ -384,29 +428,34 @@ docker-compose --profile development up -d pgadmin
 ```
 
 #### **Detaylı PostgreSQL Rehberi**
+
 📚 **[PostgreSQL Kullanım Rehberi](docs/PostgreSQL_KULLANIM_REHBERI.md)**
 
 ### 🧱 **Veritabanı Migration Yönetimi (Alembic)**
 
 SQLAlchemy modellerinizde (örn: `app/models/` altındaki dosyalarda) veritabanı şemasını etkileyecek bir değişiklik yaptığınızda (kolon ekleme/çıkarma, tablo ekleme/çıkarma vb.), aşağıdaki adımları izleyerek veritabanı migration'larını yönetmelisiniz:
 
-1.  **Model Değişikliği**: SQLAlchemy modelinizi güncelleyin.
-2.  **Yeni Revision Oluşturma**:
+1. **Model Değişikliği**: SQLAlchemy modelinizi güncelleyin.
+2. **Yeni Revision Oluşturma**:
+
     ```bash
     docker-compose exec backend alembic revision -m "yaptığınız_değişikliğin_kısa_açıklaması"
     ```
+
     Örnek: `docker-compose exec backend alembic revision -m "add_phone_to_users_table"`
-3.  **Revision Dosyasını Düzenleme**:
+3. **Revision Dosyasını Düzenleme**:
     - Oluşturulan yeni revision dosyası `alembic/versions/` altında yer alır.
     - Bu dosyayı açın. Alembic genellikle basit değişiklikleri otomatik olarak `upgrade()` ve `downgrade()` fonksiyonlarına ekler.
     - **Mutlaka kontrol edin!** Gerekirse `op.add_column()`, `op.drop_column()` gibi komutları manuel olarak ekleyin veya düzenleyin.
     - `downgrade()` fonksiyonunun, `upgrade()` fonksiyonundaki değişiklikleri geri alacak şekilde doğru doldurulduğundan emin olun.
-4.  **Migration'ı Uygulama**:
+4. **Migration'ı Uygulama**:
+
     ```bash
     docker-compose exec backend alembic upgrade head
     ```
+
     Bu komut, bekleyen tüm migration'ları veritabanınıza uygular.
-5.  **Test Etme**: Uygulamanızın beklendiği gibi çalıştığından ve veritabanı değişikliklerinin doğru olduğundan emin olun.
+5. **Test Etme**: Uygulamanızın beklendiği gibi çalıştığından ve veritabanı değişikliklerinin doğru olduğundan emin olun.
 
 Bu adımları takip etmek, veritabanı şemanız ile uygulama kodunuzun senkronize kalmasını sağlar ve "column does not exist" gibi hataların önüne geçer.
 
@@ -417,6 +466,7 @@ Bu adımları takip etmek, veritabanı şemanız ile uygulama kodunuzun senkroni
 ### ❓ **Sık Karşılaşılan Sorunlar**
 
 #### 🐳 **Docker İssues**
+
 ```bash
 # Docker servisi çalışmıyor
 sudo systemctl start docker
@@ -431,6 +481,7 @@ sudo usermod -aG docker $USER
 ```
 
 #### 🔐 **API Key Sorunları**
+
 ```bash
 # Encryption error
 # .env dosyasında FERNET_KEY kontrol edin
@@ -442,6 +493,7 @@ python3 -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().
 ```
 
 #### 📊 **Database Sorunları**
+
 ```bash
 # Connection error
 docker-compose logs postgres
@@ -455,6 +507,7 @@ docker-compose up -d
 ```
 
 #### 🌐 **Frontend Sorunları**
+
 ```bash
 # Build hatası
 cd frontend
@@ -469,6 +522,7 @@ npm run build
 ```
 
 ### 📋 **Log Kontrolü**
+
 ```bash
 # Tüm servis logları
 docker-compose logs -f
@@ -484,6 +538,7 @@ docker-compose logs --tail=100 backend
 ```
 
 ### 🔍 **Debug Mode**
+
 ```bash
 # Backend debug mode
 LOG_LEVEL=DEBUG docker-compose up -d backend
@@ -498,6 +553,7 @@ SQLALCHEMY_ECHO=true
 ## 🔒 Güvenlik
 
 ### 🛡️ **En İyi Uygulamalar**
+
 - 🔐 **API Keys**: Asla git'e commit etmeyin
 - 🌐 **CORS**: Production'da proper CORS ayarlayın
 - 🔑 **Passwords**: Güçlü şifreler kullanın (otomatik oluşturulur)
@@ -505,6 +561,7 @@ SQLALCHEMY_ECHO=true
 - 💻 **IP Whitelist**: API key'lerde IP kısıtlaması yapın
 
 ### 🔐 **Dinamik Şifre Oluşturma**
+
 Install script'i otomatik olarak güvenli şifreler oluşturur:
 
 ```bash
@@ -516,12 +573,14 @@ echo "Fernet Key: $(grep FERNET_KEY .env | cut -d= -f2)"
 ```
 
 **🔒 Güvenlik Özellikleri:**
+
 - 🎲 **Rastgele Şifreler**: Her kurulumda farklı şifreler
 - 🔢 **Güçlü Encryption**: 256-bit AES encryption
 - 📝 **Secure Storage**: .env dosyasında korumalı
 - 🔄 **No Hardcoded Secrets**: Kaynak kodda sabit şifre yok
 
 ### 🚨 **Production Deployment**
+
 ```bash
 # SSL/TLS sertifikası
 # nginx/ssl/ klasörüne certificate files koyun
@@ -544,6 +603,7 @@ sudo ufw enable
 ## 🤝 Katkıda Bulunma
 
 ### 🎯 **Contribution Guidelines**
+
 1. 🍴 Fork the repository
 2. 🌿 Create a feature branch
 3. 📝 Make your changes
@@ -552,13 +612,16 @@ sudo ufw enable
 6. 🔄 Submit a pull request
 
 ### 🐛 **Bug Reports**
+
 [GitHub Issues](https://github.com/suleymantaha/tradebot/issues) üzerinden:
+
 - 📝 Detaylı açıklama
 - 🔄 Reproduce steps
 - 📊 Expected vs actual behavior
 - 💻 System information
 
 ### 💡 **Feature Requests**
+
 - 🎯 Use case açıklaması
 - 📈 Expected benefits
 - 🔧 Technical considerations
@@ -598,6 +661,7 @@ SOFTWARE.
 ## 🙏 Teşekkürler
 
 Bu proje aşağıdaki açık kaynak projeleri kullanmaktadır:
+
 - 🐍 [FastAPI](https://fastapi.tiangolo.com/)
 - ⚛️ [React](https://react.dev/)
 - 🐘 [PostgreSQL](https://www.postgresql.org/)
