@@ -26,10 +26,12 @@ grep PGADMIN_DEFAULT_EMAIL .env | cut -d= -f2
 ```
 
 ### Server Bilgileri
+
 - **Name**: TradeBot DB
 - **Server Group**: Servers
 
 ### Connection Bilgileri
+
 - **Host name/address**: `host.docker.internal`
 - **Port**: `5432`
 - **Maintenance database**: `tradebot_db`
@@ -37,12 +39,14 @@ grep PGADMIN_DEFAULT_EMAIL .env | cut -d= -f2
 - **Password**: `.env` dosyasından `POSTGRES_PASSWORD` değeri
 
 ### Diğer Ayarlar
+
 - **SSL mode**: Prefer
 - **Save password**: ✅ (İsterseniz işaretleyebilirsiniz)
 
 ## 🛠️ Adım Adım Bağlantı
 
 1. **pgAdmin şifrelerini öğrenin**:
+
    ```bash
    # Terminal'de proje klasöründe çalıştırın
    echo "pgAdmin URL: http://localhost:5050"
@@ -51,7 +55,7 @@ grep PGADMIN_DEFAULT_EMAIL .env | cut -d= -f2
    echo "PostgreSQL Şifre: $(grep POSTGRES_PASSWORD .env | cut -d= -f2)"
    ```
 
-2. **pgAdmin'e gidin**: http://localhost:5050
+2. **pgAdmin'e gidin**: <http://localhost:5050>
 
 3. **Giriş yapın**:
    - Email: `.env` dosyasındaki `PGADMIN_DEFAULT_EMAIL`
@@ -76,6 +80,7 @@ grep PGADMIN_DEFAULT_EMAIL .env | cut -d= -f2
 **Son Durum**: pgAdmin port 5050'de çalışıyor ve `host.docker.internal` ile host makineye erişebiliyor.
 
 ### Güncel pgAdmin Container'ı
+
 pgAdmin artık `docker-compose.yml` içinde tanımlanmış ve environment variable'larını `.env` dosyasından alıyor:
 
 ```bash
@@ -84,6 +89,7 @@ docker-compose --profile development up -d pgadmin
 ```
 
 ### Önemli Parametreler
+
 - `host.docker.internal` → Container'dan host makineye erişim
 - Port 5050 → pgAdmin web arayüzü
 - Environment variable'lar `.env` dosyasından geliyor
@@ -91,6 +97,7 @@ docker-compose --profile development up -d pgadmin
 ## 🔍 Sorunun Kök Nedeni
 
 PostgreSQL'in `pg_hba.conf` dosyası sadece localhost bağlantılarını kabul ediyordu:
+
 ```
 host    tradebot_db     tradebot_user   127.0.0.1/32            scram-sha-256
 ```
@@ -100,6 +107,7 @@ host    tradebot_db     tradebot_user   127.0.0.1/32            scram-sha-256
 ## 🧪 Bağlantı Test
 
 Terminal'den bağlantıyı test etmek için:
+
 ```bash
 # Doğrudan bağlantı testi (.env'den şifre alarak)
 POSTGRES_PASSWORD=$(grep POSTGRES_PASSWORD .env | cut -d= -f2)
@@ -112,6 +120,7 @@ docker exec tradebot-pgadmin ping -c 1 host.docker.internal
 ## 📚 Veritabanı Yapısı
 
 Bağlandıktan sonra göreceğiniz tablolar:
+
 - `users` - Kullanıcı hesapları
 - `api_keys` - Binance API anahtarları
 - `bot_configs` - Bot konfigürasyonları
@@ -122,7 +131,7 @@ Bağlandıktan sonra göreceğiniz tablolar:
 
 ## 🎯 Özet
 
-✅ **URL**: http://localhost:5050
+✅ **URL**: <http://localhost:5050>
 ✅ **Login**: `.env` dosyasındaki email/şifre
 ✅ **Host**: `host.docker.internal` kullanın
 ✅ **Şifreler**: `.env` dosyasında otomatik oluşturulur
