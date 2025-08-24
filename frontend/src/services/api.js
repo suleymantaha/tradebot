@@ -17,7 +17,9 @@ class ApiService {
     }
 
     async request(endpoint, options = {}) {
-        console.log(`[ApiService] Requesting: ${endpoint}`, options);
+        if (import.meta.env.MODE !== 'production') {
+            console.log(`[ApiService] Requesting: ${endpoint}`, options);
+        }
 
         const url = `${this.baseURL}${endpoint}`
         const method = options.method || 'GET'
@@ -29,15 +31,17 @@ class ApiService {
 
         const token = this.getToken()
 
-        const debugInfo = {
-            hasStoreToken: !!useAuthStore.getState().token,
-            hasLocalToken: !!localStorage.getItem('token'),
-            tokenUsed: !!token,
-            tokenLength: token ? token.length : 0,
-            endpoint,
-            method
-        };
-        console.log('🔑 Auth Debug:', debugInfo);
+        if (import.meta.env.MODE !== 'production') {
+            const debugInfo = {
+                hasStoreToken: !!useAuthStore.getState().token,
+                hasLocalToken: !!localStorage.getItem('token'),
+                tokenUsed: !!token,
+                tokenLength: token ? token.length : 0,
+                endpoint,
+                method
+            };
+            console.log('🔑 Auth Debug:', debugInfo);
+        }
 
 
         if (token) {
@@ -55,12 +59,14 @@ class ApiService {
             body,
         }
 
-        // Log için config kopyası oluşturup Authorization başlığını düzenleyelim
-        const configToLog = { ...config, headers: { ...config.headers } };
-        if (configToLog.headers['Authorization']) {
-            configToLog.headers['Authorization'] = 'Bearer [TOKEN_HIDDEN]'; // Token'ı gizle
+        if (import.meta.env.MODE !== 'production') {
+            // Log için config kopyası oluşturup Authorization başlığını düzenleyelim
+            const configToLog = { ...config, headers: { ...config.headers } };
+            if (configToLog.headers['Authorization']) {
+                configToLog.headers['Authorization'] = 'Bearer [TOKEN_HIDDEN]';
+            }
+            console.log('📤 Request Config:', configToLog);
         }
-        console.log('📤 Request Config:', configToLog);
 
 
         try {
@@ -68,7 +74,9 @@ class ApiService {
 
             if (!response.ok) {
                 const errorText = await response.text()
-                console.error('❌ Request failed:', { status: response.status, errorText })
+                if (import.meta.env.MODE !== 'production') {
+                    console.error('❌ Request failed:', { status: response.status, errorText })
+                }
 
                 // Handle 401 errors
                 if (response.status === 401) {
@@ -82,7 +90,9 @@ class ApiService {
 
             return await response.json()
         } catch (error) {
-            console.error('API Request failed:', error)
+            if (import.meta.env.MODE !== 'production') {
+                console.error('API Request failed:', error)
+            }
             throw error
         }
     }

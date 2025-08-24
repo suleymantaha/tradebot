@@ -1486,8 +1486,8 @@ echo "TradeBot durduruldu!"
     def create_windows_shortcut(self, desktop_path):
         """Windows için shortcut oluştur"""
         try:
-            import winshell
-            from win32com.client import Dispatch
+            import winshell  # type: ignore[reportMissingImports]
+            from win32com.client import Dispatch  # type: ignore[reportMissingImports]
 
             shortcut_path = os.path.join(desktop_path, "TradeBot.lnk")
             shell = Dispatch('WScript.Shell')
@@ -1564,43 +1564,68 @@ Categories=Office;Finance;
         with open(os.path.join(contents_path, "Info.plist"), "w") as f:
             f.write(plist_content)
 
-        # Enhanced executable script with Docker auto-start
-        exec_content = f"""#!/bin/bash
+        # Enhanced executable script with Docker auto-start (no f-string to avoid brace issues)
+        exec_content = """#!/bin/bash
+
+# Ensure common binary paths are available when launched from Finder
+export PATH="/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:$PATH"
+
+# Resolve docker binary in common locations
+resolve_docker_cmd() {
+    local candidates=(/usr/local/bin/docker /opt/homebrew/bin/docker /Applications/Docker.app/Contents/Resources/bin/docker /usr/bin/docker docker)
+    for p in "${candidates[@]}"; do
+        if "$p" --version >/dev/null 2>&1; then
+            echo "$p"
+            return 0
+        fi
+    done
+    return 1
+}
+
+DOCKER_CMD="$(resolve_docker_cmd)"
 
 # Function to check if Docker is running
-check_docker() {{
-    if docker info >/dev/null 2>&1; then
+check_docker() {
+    if [ -z "$DOCKER_CMD" ]; then
+        DOCKER_CMD="$(resolve_docker_cmd)"
+    fi
+    if [ -n "$DOCKER_CMD" ] && "$DOCKER_CMD" info >/dev/null 2>&1; then
         return 0
     else
         return 1
     fi
-}}
+}
 
 # Function to start Docker Desktop
-start_docker_desktop() {{
+start_docker_desktop() {
     echo "Docker çalışmıyor, Docker Desktop başlatılıyor..."
     open -a Docker
 
-    # Wait for Docker to start
-    local max_wait=60
+    # Wait for Docker to start (up to 120s)
+    local max_wait=120
     local wait_time=0
 
     while [ $wait_time -lt $max_wait ]; do
         sleep 5
         wait_time=$((wait_time + 5))
 
+        # Re-resolve docker after Docker Desktop starts
+        if [ -z "$DOCKER_CMD" ]; then
+            DOCKER_CMD="$(resolve_docker_cmd)"
+        fi
+
         if check_docker; then
             echo "Docker Desktop başarıyla başlatıldı!"
             return 0
         fi
 
-        echo "Docker başlatılıyor... (${{wait_time}}/${{max_wait}}s)"
+        echo "Docker başlatılıyor... (${wait_time}/${max_wait}s)"
     done
 
     # Show dialog if Docker didn't start
-    osascript -e 'display dialog "Docker Desktop başlatılamadı. Lütfen Docker Desktop'ı manuel olarak açın ve tekrar deneyin." buttons {{"Tamam"}} default button "Tamam" with icon caution'
+    osascript -e "display dialog \"Docker Desktop başlatılamadı. Lütfen Docker Desktop'ı manuel olarak açın ve tekrar deneyin.\" buttons {\"Tamam\"} default button \"Tamam\" with icon caution"
     return 1
-}}
+}
 
 # Check if Docker is running
 if ! check_docker; then
@@ -1610,11 +1635,11 @@ if ! check_docker; then
 fi
 
 # Change to TradeBot directory and run startup script
-cd "{self.install_path}"
+cd "__INSTALL_PATH__"
 
 # Check if start script exists
 if [ ! -f "./start_tradebot.sh" ]; then
-    osascript -e 'display dialog "TradeBot başlatma script'i bulunamadı. Lütfen kurulumu kontrol edin." buttons {{"Tamam"}} default button "Tamam" with icon stop'
+    osascript -e "display dialog \"TradeBot başlatma script'i bulunamadı. Lütfen kurulumu kontrol edin.\" buttons {\"Tamam\"} default button \"Tamam\" with icon stop"
     exit 1
 fi
 
@@ -1622,8 +1647,9 @@ fi
 chmod +x "./start_tradebot.sh"
 
 # Run the startup script in Terminal
-osascript -e 'tell application "Terminal" to do script "cd \\"{self.install_path}\\" && ./start_tradebot.sh"'
+osascript -e 'tell application "Terminal" to do script "cd \"__INSTALL_PATH__\" && ./start_tradebot.sh"'
 """
+        exec_content = exec_content.replace("__INSTALL_PATH__", self.install_path)
         exec_path = os.path.join(macos_path, "TradeBot")
         with open(exec_path, "w") as f:
             f.write(exec_content)

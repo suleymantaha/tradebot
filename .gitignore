@@ -5,7 +5,7 @@
 # ====================================
 # Environment & Security
 # ====================================
-.env
+
 .cursor/
 .env.local
 .env.production

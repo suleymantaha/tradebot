@@ -4,6 +4,25 @@ export default {
         "./index.html",
         "./src/**/*.{js,ts,jsx,tsx}",
     ],
+    safelist: [
+        // Text colors used dinamik olarak: success/warn/error/neutral
+        'text-green-500',
+        'text-red-500',
+        'text-yellow-500',
+        'text-gray-500',
+        // Background badges/labels
+        'bg-green-100',
+        'bg-red-100',
+        'bg-yellow-100',
+        'bg-gray-100',
+        // Dark mode variants might be composed at runtime
+        'dark:bg-green-900',
+        'dark:bg-red-900',
+        'dark:bg-yellow-900',
+        'dark:text-green-300',
+        'dark:text-red-300',
+        'dark:text-yellow-200',
+    ],
     darkMode: 'class', // Enable class-based dark mode
     theme: {
         extend: {

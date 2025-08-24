@@ -89,6 +89,31 @@ class BinanceClientWrapper:
             logger.error(f"{symbol} historik veriler alınamadı: {e}")
             return None
 
+    def get_symbol_filters_spot(self, symbol: str) -> Optional[Dict[str, Any]]:
+        """Spot için sembol filtrelerini döndürür (LOT_SIZE, MIN_NOTIONAL vb.)"""
+        try:
+            info = self.client.get_symbol_info(symbol)
+            if not info:
+                return None
+            filters = {f['filterType']: f for f in info.get('filters', [])}
+            return filters
+        except Exception as e:
+            logger.error(f"Spot sembol filtreleri alınamadı {symbol}: {e}")
+            return None
+
+    def get_symbol_filters_futures(self, symbol: str) -> Optional[Dict[str, Any]]:
+        """Futures için sembol filtrelerini döndürür (LOT_SIZE, MIN_NOTIONAL vb.)"""
+        try:
+            info = self.client.futures_exchange_info()
+            for s in info.get('symbols', []):
+                if s.get('symbol') == symbol:
+                    filters = {f['filterType']: f for f in s.get('filters', [])}
+                    return filters
+            return None
+        except Exception as e:
+            logger.error(f"Futures sembol filtreleri alınamadı {symbol}: {e}")
+            return None
+
     def place_market_buy_order(self, symbol: str, quantity: float) -> Optional[Dict[str, Any]]:
         """Market alış emri verir"""
         try:

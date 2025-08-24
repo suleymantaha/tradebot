@@ -17,8 +17,8 @@ COPY . .
 ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL
 
-# Build the application
-RUN npm run build
+# Build the application (explicit CLI path to avoid ESM resolution issues)
+RUN node ./node_modules/vite/bin/vite.js build
 
 # Production stage with Nginx
 FROM nginx:alpine

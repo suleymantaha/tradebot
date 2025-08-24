@@ -11,6 +11,9 @@ from app.core.binance_client import BinanceClientWrapper
 from app.models.trade import Trade
 from datetime import datetime
 from datetime import date
+import requests
+from app.core.email import send_trade_notification
+from app.models.user import User
 
 # Sync database connection for Celery tasks
 SYNC_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://tradebot_user:baba046532@localhost/tradebot_db")
@@ -20,7 +23,10 @@ SyncSessionLocal = sessionmaker(bind=sync_engine)
 # Binance client helper
 
 def get_binance_client(api_key: str, api_secret: str) -> BinanceClientWrapper:
-    return BinanceClientWrapper(api_key, api_secret, testnet=False)
+    # Güvenlik: Varsayılan testnet. ENV ile canlı açılır.
+    live_trading = os.getenv("LIVE_TRADING_ENABLED", "false").lower() in ["1", "true", "yes"]
+    testnet = not live_trading
+    return BinanceClientWrapper(api_key, api_secret, testnet=testnet)
 
 def _handle_fund_transfer(client: BinanceClientWrapper, bot_config: BotConfig):
     """Pozisyon türüne göre fon transferi yapar"""
@@ -133,9 +139,12 @@ def _run_bot(bot_config_id: int):
             if not demo_mode:
                 if bot_config.position_type == "futures":
                     ticker = client.client.futures_symbol_ticker(symbol=symbol)
+                    price = float(ticker['price'])
                 else:
-                    ticker = client.get_symbol_ticker(symbol=symbol)
-                price = float(ticker['price'])
+                    current_price = client.get_current_price(symbol)
+                    if current_price is None:
+                        raise Exception("Fiyat alınamadı")
+                    price = float(current_price)
             else:
                 raise Exception("Demo mode")
         except Exception as e:
@@ -164,20 +173,34 @@ def _run_bot(bot_config_id: int):
 
         if strategy == "simple":
             if price < 100:
+                side = "BUY"
+                quantity = 1.0
+
+                binance_order = None
+                if not demo_mode and client:
+                    try:
+                        if bot_config.position_type == "futures":
+                            binance_order = client.place_futures_market_buy_order(symbol, quantity)
+                        else:
+                            binance_order = client.place_market_buy_order(symbol, quantity)
+                    except Exception as e:
+                        print(f"Emir hatası: {e}")
+
                 realized_pnl = None
                 trade = Trade(
                     bot_config_id=bot_config_id,
                     user_id=bot_config.user_id,
                     symbol=symbol,
-                    side="BUY",
+                    side=side,
                     order_type="MARKET",
                     price=price,
-                    quantity_filled=1,
-                    quote_quantity_filled=price,
+                    quantity_filled=quantity,
+                    quote_quantity_filled=price * quantity,
                     commission_amount=None,
                     commission_asset=None,
                     pnl=None,
-                    realized_pnl=realized_pnl
+                    realized_pnl=realized_pnl,
+                    binance_order_id=(str(binance_order.get('orderId')) if binance_order else None)
                 )
                 session.add(trade)
 
@@ -208,6 +231,22 @@ def _run_bot(bot_config_id: int):
                     bot_state.daily_trades_count = today_trades_count
 
                 session.commit()
+
+                # E-posta bildirimi (opsiyonel): Bot sahibine
+                try:
+                    owner: User = session.query(User).filter(User.id == bot_config.user_id).first()
+                    if owner and owner.email:
+                        send_trade_notification(
+                            to_email=owner.email,
+                            symbol=symbol,
+                            side=side,
+                            price=float(price),
+                            quantity=float(quantity),
+                            order_id=trade.binance_order_id,
+                        )
+                except Exception:
+                    pass
+
                 return f"BUY order placed at {price}"
             else:
                 # BotState güncelle
@@ -306,6 +345,24 @@ def _run_bot(bot_config_id: int):
                 stop_loss_price = price * (1 + stop_loss / 100)
                 take_profit_price = price * (1 - take_profit / 100)
 
+            # Miktar: şimdilik sabit 1.0 (TODO: min qty/step size ile normalize)
+            order_quantity = 1.0
+            binance_order = None
+            if not demo_mode and client:
+                try:
+                    if bot_config.position_type == "futures":
+                        if side == "BUY":
+                            binance_order = client.place_futures_market_buy_order(symbol, order_quantity)
+                        else:
+                            binance_order = client.place_futures_market_sell_order(symbol, order_quantity)
+                    else:
+                        if side == "BUY":
+                            binance_order = client.place_market_buy_order(symbol, order_quantity)
+                        else:
+                            binance_order = client.place_market_sell_order(symbol, order_quantity)
+                except Exception as e:
+                    print(f"Emir hatası: {e}")
+
             trade = Trade(
                 bot_config_id=bot_config_id,
                 user_id=bot_config.user_id,
@@ -313,12 +370,13 @@ def _run_bot(bot_config_id: int):
                 side=side,
                 order_type="MARKET",
                 price=price,
-                quantity_filled=1,
-                quote_quantity_filled=price,
+                quantity_filled=order_quantity,
+                quote_quantity_filled=price * order_quantity,
                 commission_amount=None,
                 commission_asset=None,
                 pnl=None,
-                realized_pnl=realized_pnl
+                realized_pnl=realized_pnl,
+                binance_order_id=(str(binance_order.get('orderId')) if binance_order else None)
             )
             session.add(trade)
 
@@ -352,6 +410,39 @@ def _run_bot(bot_config_id: int):
                 bot_state.daily_trades_count = today_trades_count
 
             session.commit()
+
+            # Basit webhook bildirimi (opsiyonel)
+            try:
+                webhook_url = os.getenv("TRADE_WEBHOOK_URL")
+                if webhook_url:
+                    payload = {
+                        "bot_config_id": bot_config_id,
+                        "symbol": symbol,
+                        "side": side,
+                        "price": price,
+                        "quantity": order_quantity,
+                        "order_id": trade.binance_order_id,
+                        "timestamp": datetime.utcnow().isoformat(),
+                    }
+                    requests.post(webhook_url, json=payload, timeout=5)
+            except Exception:
+                pass
+
+            # E-posta bildirimi (opsiyonel): Bot sahibine
+            try:
+                owner: User = session.query(User).filter(User.id == bot_config.user_id).first()
+                if owner and owner.email:
+                    send_trade_notification(
+                        to_email=owner.email,
+                        symbol=symbol,
+                        side=side,
+                        price=float(price),
+                        quantity=float(order_quantity),
+                        order_id=trade.binance_order_id,
+                    )
+            except Exception:
+                pass
+
             return f"{side} order placed at {price} (EMA Fast: {ema_fast_val:.2f}, EMA Slow: {ema_slow_val:.2f}, RSI: {rsi:.2f})"
 
         else:
