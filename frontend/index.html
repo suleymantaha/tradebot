@@ -1,13 +1,18 @@
 <!doctype html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React</title>
-  </head>
-  <body>
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self' https: http: data: blob:; script-src 'self' https://s3.tradingview.com https://s.tradingview.com https://*.tradingview.com 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https: http: ws: wss: wss://stream.binance.com:9443 wss://stream.binance.com wss://ws-feed.exchange.coinbase.com https://*.tradingview.com wss://*.tradingview.com; img-src 'self' data: https: blob:; style-src 'self' 'unsafe-inline' https:; frame-src https://s.tradingview.com https://www.tradingview.com https://*.tradingview.com; child-src https://s.tradingview.com https://www.tradingview.com https://*.tradingview.com; font-src 'self' https: data:; media-src 'self' https: data: blob:; worker-src 'self' blob:;" />
+    <title>TradeBot - Piyasalar</title>
+</head>
+
+<body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
-  </body>
+</body>
+
 </html>
