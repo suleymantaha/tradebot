@@ -4,11 +4,16 @@ FROM node:20-alpine AS builder
 # Set working directory
 WORKDIR /app
 
+# Ensure esbuild installs correct musl binary on Alpine
+ENV npm_config_platform=linux \
+    npm_config_arch=x64 \
+    npm_config_libc=musl
+
 # Copy package files
 COPY package*.json ./
 
 # Install all dependencies (including devDependencies for build)
-RUN npm ci
+RUN npm ci && npm i -D esbuild@0.25.9 && npm rebuild esbuild --force
 
 # Copy source code
 COPY . .
