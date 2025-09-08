@@ -1,9 +1,15 @@
 from binance.client import Client
 from binance.exceptions import BinanceAPIException, BinanceOrderException
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Callable
 import logging
 import requests
 import os
+import time
+import math
+import random
+from decimal import Decimal, ROUND_DOWN, getcontext
+
+getcontext().prec = 28
 
 logger = logging.getLogger(__name__)
 
@@ -21,11 +27,105 @@ class BinanceClientWrapper:
             self.client = Client(
                 api_key=api_key,
                 api_secret=api_secret,
-                testnet=testnet
+                testnet=testnet,
+                requests_params={"timeout": 10}
             )
+            # Saat farkını senkronize et (timestamp hataları -1021 için)
+            self._sync_time_offset()
         except Exception as e:
             logger.error(f"Binance client oluşturulurken hata: {e}")
             raise
+
+    def _sync_time_offset(self):
+        """Sunucu saatine göre zaman ofsetini ayarla (timestamp drift önleme)."""
+        try:
+            server_time = self.client.get_server_time()
+            if server_time and 'serverTime' in server_time:
+                local_time = int(time.time() * 1000)
+                self.client.TIME_OFFSET = server_time['serverTime'] - local_time
+        except Exception:
+            # Sessizce geç, başarısızlık kritik değil; retry mekanizması da korur
+            pass
+
+    def _with_retry(self, fn: Callable, *args, **kwargs):
+        """Geçici hatalar için exponential backoff ile tekrar dene."""
+        max_attempts = kwargs.pop('_max_attempts', 5)
+        base_delay = kwargs.pop('_base_delay', 0.3)
+        for attempt in range(1, max_attempts + 1):
+            try:
+                return fn(*args, **kwargs)
+            except BinanceAPIException as e:
+                # Oran limiti (-1003, -1015), timestamp (-1021), service unavailable (-1001)
+                transient_codes = {-1003, -1015, -1021, -1001}
+                if e.code in transient_codes and attempt < max_attempts:
+                    # Zaman ofsetini yeniden senkronize et ve bekle
+                    if e.code == -1021:
+                        self._sync_time_offset()
+                    sleep_s = base_delay * (2 ** (attempt - 1)) + random.uniform(0, 0.25)
+                    time.sleep(sleep_s)
+                    continue
+                raise
+            except (requests.exceptions.RequestException, Exception) as e:
+                # Ağ veya geçici hatalarda yeniden dene
+                if attempt < max_attempts:
+                    sleep_s = base_delay * (2 ** (attempt - 1)) + random.uniform(0, 0.25)
+                    time.sleep(sleep_s)
+                    continue
+                raise
+
+    @staticmethod
+    def _round_step(value: Decimal, step: Decimal) -> Decimal:
+        if step == 0:
+            return value
+        # Adımın katlarına aşağı yuvarla
+        quant = (value / step).to_integral_value(rounding=ROUND_DOWN)
+        return quant * step
+
+    def normalize_market_quantity(self, symbol: str, quantity: float, price: float, is_futures: bool = False) -> Optional[float]:
+        """Sembol filtrelerine göre miktarı normalize eder; min notional ve adım uygular."""
+        try:
+            filters = self.get_symbol_filters_futures(symbol) if is_futures else self.get_symbol_filters_spot(symbol)
+            if not filters:
+                return quantity
+
+            # Adım boyutu ve min/max qty
+            lot_filter = filters.get('MARKET_LOT_SIZE') or filters.get('LOT_SIZE')
+            min_qty = Decimal(str(lot_filter.get('minQty'))) if lot_filter and lot_filter.get('minQty') else None
+            max_qty = Decimal(str(lot_filter.get('maxQty'))) if lot_filter and lot_filter.get('maxQty') else None
+            step_size = Decimal(str(lot_filter.get('stepSize'))) if lot_filter and lot_filter.get('stepSize') else None
+
+            qty = Decimal(str(quantity))
+            if step_size and step_size != 0:
+                qty = self._round_step(qty, step_size)
+            if min_qty and qty < min_qty:
+                qty = min_qty
+            if max_qty and qty > max_qty:
+                qty = max_qty
+
+            # Min notional (piyasa değeri) kontrolü
+            notional_filter = filters.get('MIN_NOTIONAL')
+            if notional_filter:
+                # Spot: minNotional, Futures: notional
+                min_notional_str = notional_filter.get('minNotional') or notional_filter.get('notional')
+                if min_notional_str:
+                    min_notional = Decimal(str(min_notional_str))
+                    notional = Decimal(str(price)) * qty
+                    if notional < min_notional:
+                        # Min notional'i sağlayacak kadar artır
+                        required_qty = (min_notional / Decimal(str(price)))
+                        if step_size and step_size != 0:
+                            required_qty = self._round_step(required_qty, step_size)
+                        if min_qty and required_qty < min_qty:
+                            required_qty = min_qty
+                        qty = required_qty
+
+            # Sıfırın üstünde mi?
+            if qty <= 0:
+                return None
+            return float(qty)
+        except Exception as e:
+            logger.error(f"Miktar normalizasyon hatası {symbol}: {e}")
+            return None
 
     def validate_api_credentials(self) -> Dict[str, Any]:
         """
@@ -35,7 +135,7 @@ class BinanceClientWrapper:
             Dict: {"valid": bool, "error": str|None, "account_info": dict|None}
         """
         try:
-            account_info = self.client.get_account()
+            account_info = self._with_retry(self.client.get_account)
             return {
                 "valid": True,
                 "error": None,
@@ -62,7 +162,7 @@ class BinanceClientWrapper:
     def get_account_info(self) -> Optional[Dict[str, Any]]:
         """Hesap bilgilerini döndürür"""
         try:
-            return self.client.get_account()
+            return self._with_retry(self.client.get_account)
         except Exception as e:
             logger.error(f"Hesap bilgileri alınamadı: {e}")
             return None
@@ -70,7 +170,7 @@ class BinanceClientWrapper:
     def get_current_price(self, symbol: str) -> Optional[float]:
         """Belirtilen sembolün güncel fiyatını döndürür"""
         try:
-            ticker = self.client.get_symbol_ticker(symbol=symbol)
+            ticker = self._with_retry(self.client.get_symbol_ticker, symbol=symbol)
             return float(ticker['price'])
         except Exception as e:
             logger.error(f"{symbol} fiyatı alınamadı: {e}")
@@ -79,22 +179,45 @@ class BinanceClientWrapper:
     def get_historical_klines(self, symbol: str, interval: str, limit: int = 100) -> Optional[list]:
         """Historik candlestick verilerini döndürür"""
         try:
-            klines = self.client.get_klines(
-                symbol=symbol,
-                interval=interval,
-                limit=limit
-            )
+            klines = self._with_retry(self.client.get_klines, symbol=symbol, interval=interval, limit=limit)
             return klines
         except Exception as e:
             logger.error(f"{symbol} historik veriler alınamadı: {e}")
             return None
 
-    def place_market_buy_order(self, symbol: str, quantity: float) -> Optional[Dict[str, Any]]:
+    def get_symbol_filters_spot(self, symbol: str) -> Optional[Dict[str, Any]]:
+        """Spot için sembol filtrelerini döndürür (LOT_SIZE, MIN_NOTIONAL vb.)"""
+        try:
+            info = self._with_retry(self.client.get_symbol_info, symbol=symbol)
+            if not info:
+                return None
+            filters = {f['filterType']: f for f in info.get('filters', [])}
+            return filters
+        except Exception as e:
+            logger.error(f"Spot sembol filtreleri alınamadı {symbol}: {e}")
+            return None
+
+    def get_symbol_filters_futures(self, symbol: str) -> Optional[Dict[str, Any]]:
+        """Futures için sembol filtrelerini döndürür (LOT_SIZE, MIN_NOTIONAL vb.)"""
+        try:
+            info = self._with_retry(self.client.futures_exchange_info)
+            for s in info.get('symbols', []):
+                if s.get('symbol') == symbol:
+                    filters = {f['filterType']: f for f in s.get('filters', [])}
+                    return filters
+            return None
+        except Exception as e:
+            logger.error(f"Futures sembol filtreleri alınamadı {symbol}: {e}")
+            return None
+
+    def place_market_buy_order(self, symbol: str, quantity: float, new_client_order_id: Optional[str] = None) -> Optional[Dict[str, Any]]:
         """Market alış emri verir"""
         try:
-            order = self.client.order_market_buy(
+            order = self._with_retry(
+                self.client.order_market_buy,
                 symbol=symbol,
-                quantity=quantity
+                quantity=quantity,
+                newClientOrderId=new_client_order_id
             )
             logger.info(f"Market alış emri verildi: {order}")
             return order
@@ -105,12 +228,14 @@ class BinanceClientWrapper:
             logger.error(f"Beklenmeyen alış emri hatası: {e}")
             return None
 
-    def place_market_sell_order(self, symbol: str, quantity: float) -> Optional[Dict[str, Any]]:
+    def place_market_sell_order(self, symbol: str, quantity: float, new_client_order_id: Optional[str] = None) -> Optional[Dict[str, Any]]:
         """Market satış emri verir"""
         try:
-            order = self.client.order_market_sell(
+            order = self._with_retry(
+                self.client.order_market_sell,
                 symbol=symbol,
-                quantity=quantity
+                quantity=quantity,
+                newClientOrderId=new_client_order_id
             )
             logger.info(f"Market satış emri verildi: {order}")
             return order
@@ -121,10 +246,18 @@ class BinanceClientWrapper:
             logger.error(f"Beklenmeyen satış emri hatası: {e}")
             return None
 
+    def get_spot_order_by_client_order_id(self, symbol: str, client_order_id: str) -> Optional[Dict[str, Any]]:
+        try:
+            order = self._with_retry(self.client.get_order, symbol=symbol, origClientOrderId=client_order_id)
+            return order
+        except Exception as e:
+            logger.error(f"Spot order sorgusu hatası {symbol} {client_order_id}: {e}")
+            return None
+
     def get_balance(self, asset: str = "USDT") -> Optional[float]:
         """Belirtilen varlığın bakiyesini döndürür"""
         try:
-            account = self.client.get_account()
+            account = self._with_retry(self.client.get_account)
             for balance in account['balances']:
                 if balance['asset'] == asset:
                     return float(balance['free'])
@@ -136,7 +269,7 @@ class BinanceClientWrapper:
     def get_all_symbols(self) -> Optional[list]:
         """Tüm aktif sembolleri döndürür"""
         try:
-            exchange_info = self.client.get_exchange_info()
+            exchange_info = self._with_retry(self.client.get_exchange_info)
             symbols = []
             for symbol_info in exchange_info['symbols']:
                 if symbol_info['status'] == 'TRADING':
@@ -185,7 +318,7 @@ class BinanceClientWrapper:
     def get_futures_symbols(self) -> Optional[list]:
         """Futures sembolleri döndürür"""
         try:
-            exchange_info = self.client.futures_exchange_info()
+            exchange_info = self._with_retry(self.client.futures_exchange_info)
             symbols = []
             for symbol_info in exchange_info['symbols']:
                 if symbol_info['status'] == 'TRADING':
@@ -271,14 +404,16 @@ class BinanceClientWrapper:
             logger.error(f"Futures {asset} bakiyesi alınamadı: {e}")
             return None
 
-    def place_futures_market_buy_order(self, symbol: str, quantity: float) -> Optional[Dict[str, Any]]:
+    def place_futures_market_buy_order(self, symbol: str, quantity: float, new_client_order_id: Optional[str] = None) -> Optional[Dict[str, Any]]:
         """Futures market alış emri"""
         try:
-            order = self.client.futures_create_order(
+            order = self._with_retry(
+                self.client.futures_create_order,
                 symbol=symbol,
                 side='BUY',
                 type='MARKET',
-                quantity=quantity
+                quantity=quantity,
+                newClientOrderId=new_client_order_id
             )
             logger.info(f"Futures market alış emri verildi: {order}")
             return order
@@ -286,19 +421,29 @@ class BinanceClientWrapper:
             logger.error(f"Futures alış emri hatası: {e}")
             return None
 
-    def place_futures_market_sell_order(self, symbol: str, quantity: float) -> Optional[Dict[str, Any]]:
+    def place_futures_market_sell_order(self, symbol: str, quantity: float, new_client_order_id: Optional[str] = None) -> Optional[Dict[str, Any]]:
         """Futures market satış emri"""
         try:
-            order = self.client.futures_create_order(
+            order = self._with_retry(
+                self.client.futures_create_order,
                 symbol=symbol,
                 side='SELL',
                 type='MARKET',
-                quantity=quantity
+                quantity=quantity,
+                newClientOrderId=new_client_order_id
             )
             logger.info(f"Futures market satış emri verildi: {order}")
             return order
         except Exception as e:
             logger.error(f"Futures satış emri hatası: {e}")
+            return None
+
+    def get_futures_order_by_client_order_id(self, symbol: str, client_order_id: str) -> Optional[Dict[str, Any]]:
+        try:
+            order = self._with_retry(self.client.futures_get_order, symbol=symbol, origClientOrderId=client_order_id)
+            return order
+        except Exception as e:
+            logger.error(f"Futures order sorgusu hatası {symbol} {client_order_id}: {e}")
             return None
 
     def set_leverage(self, symbol: str, leverage: int) -> Optional[Dict[str, Any]]:

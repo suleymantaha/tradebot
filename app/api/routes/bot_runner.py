@@ -6,6 +6,7 @@ from app.models.user import User
 from app.models.bot_config import BotConfig
 from app.models.bot_state import BotState
 from app.core.bot_tasks import run_bot_task
+from sqlalchemy import text
 
 router = APIRouter(prefix="/api/v1/bots", tags=["bot-runner"])
 

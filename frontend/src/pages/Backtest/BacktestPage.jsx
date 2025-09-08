@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useTheme } from '../../contexts/ThemeContext'
 import apiService, { symbolsAPI } from '../../services/api'
+import BacktestInsights from '../../components/Backtest/BacktestInsights'
 import BacktestHistory from '../../components/Backtest/BacktestHistory'
 import useAuthStore from '../../store/authStore'
 import { useNavigate } from 'react-router-dom'
@@ -823,6 +824,9 @@ const BacktestPage = () => {
                                                 </div>
                                             </div>
                                         </div>
+
+                                        {/* AI benzeri özet ve grafik okuma (heuristik) */}
+                                        <BacktestInsights results={results} />
 
                                         {/* Aylık Performans */}
                                         {results.monthly_results && Object.keys(results.monthly_results).length > 0 && (

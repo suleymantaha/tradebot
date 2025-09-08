@@ -1,4 +1,4 @@
-from pydantic import BaseModel, field_serializer
+from pydantic import BaseModel, field_serializer, field_validator
 from typing import Optional
 from datetime import datetime
 
@@ -44,6 +44,22 @@ class BotConfigBase(BaseModel):
     transfer_amount: Optional[float] = None  # Belirli miktar, None ise tüm bakiye
     auto_transfer_funds: Optional[bool] = True  # Otomatik fon transferi
     leverage: Optional[int] = 10  # 🆕 Kaldıraç (futures için)
+
+    @field_validator('leverage')
+    @classmethod
+    def validate_leverage(cls, v):
+        if v is None:
+            return v
+        if v < 1 or v > 125:
+            raise ValueError('leverage 1-125 aralığında olmalıdır')
+        return v
+
+    @field_validator('position_type')
+    @classmethod
+    def validate_position_type(cls, v):
+        if v not in (None, 'spot', 'futures'):
+            raise ValueError("position_type 'spot' veya 'futures' olmalıdır")
+        return v
 
 class BotConfigCreate(BotConfigBase):
     pass

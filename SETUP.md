@@ -21,12 +21,13 @@ Kurulum sırasında **güvenli rastgele şifreler** otomatik oluşturulur:
 ## 📋 Kurulum Sonrası Erişim
 
 ### 🌐 Web Arayüzleri
+
 | Servis | URL | Açıklama |
 |--------|-----|----------|
-| 🎯 **Frontend** | http://localhost:3000 | Ana uygulama |
-| 🔧 **Backend API** | http://localhost:8000 | REST API |
-| 📚 **API Docs** | http://localhost:8000/docs | Swagger/OpenAPI |
-| 🗃️ **pgAdmin** | http://localhost:5050 | Veritabanı yönetimi |
+| 🎯 **Frontend** | <http://localhost:3000> | Ana uygulama |
+| 🔧 **Backend API** | <http://localhost:8000> | REST API |
+| 📚 **API Docs** | <http://localhost:8000/docs> | Swagger/OpenAPI |
+| 🗃️ **pgAdmin** | <http://localhost:5050> | Veritabanı yönetimi |
 
 ### 🔐 Şifreleri Öğrenme
 
@@ -50,11 +51,13 @@ echo "pgAdmin Şifre: $(grep PGADMIN_DEFAULT_PASSWORD .env | cut -d= -f2)"
 pgAdmin'de PostgreSQL'e bağlanmak için:
 
 ### 1️⃣ pgAdmin'i Başlat
+
 ```bash
 docker-compose --profile development up -d pgadmin
 ```
 
 ### 2️⃣ Bağlantı Bilgileri
+
 - **Host**: `host.docker.internal`
 - **Port**: `5432`
 - **Database**: `tradebot_db`
@@ -87,6 +90,7 @@ docker-compose up -d
 ## ❓ Sorun Giderme
 
 ### 🐳 Docker Çalışmıyor
+
 ```bash
 # Docker'ı başlat
 sudo systemctl start docker
@@ -99,6 +103,7 @@ newgrp docker
 ```
 
 ### 🔄 Yeniden Kurulum
+
 ```bash
 # Tümünü temizle
 docker-compose down -v
@@ -109,6 +114,7 @@ docker system prune -f
 ```
 
 ### 📊 Port Çakışması
+
 ```bash
 # Hangi portlar kullanılıyor kontrol et
 sudo lsof -i :3000
@@ -122,7 +128,7 @@ sudo kill -9 PID_NUMBER
 
 ## 🎯 İlk Adımlar
 
-1. **Frontend'e git**: http://localhost:3000
+1. **Frontend'e git**: <http://localhost:3000>
 2. **Hesap oluştur**: Email ve şifre ile kayıt ol
 3. **API Key ekle**: Binance API anahtarınızı ekleyin
 4. **Bot oluştur**: İlk trading botunuzu yapılandırın

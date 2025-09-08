@@ -12,11 +12,22 @@ celery_app = Celery(
     include=['app.core.bot_tasks']
 )
 
+# Güvenli görev ayarları
+celery_app.conf.update(
+    task_acks_late=True,            # Worker çökmeden önce tamamlanmayan işler yeniden kuyruğa döner
+    worker_prefetch_multiplier=1,   # Aşırı prefetch ile patlama etkisini azalt
+    task_reject_on_worker_lost=True,
+)
+
 # Celery Beat schedule ayarları
 celery_app.conf.beat_schedule = {
     'run-all-active-bots-every-minute': {
         'task': 'app.core.bot_tasks.run_bot_task_for_all',
         'schedule': crontab(minute='*'),
+    },
+    'reactivate-bots-daily-at-utc-midnight': {
+        'task': 'app.core.bot_tasks.reactivate_bots_after_reset',
+        'schedule': crontab(minute=0, hour=0),
     },
 }
 

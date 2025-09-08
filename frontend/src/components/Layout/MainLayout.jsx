@@ -24,11 +24,12 @@ const MainLayout = () => {
         { name: 'Dashboard', href: '/dashboard', icon: '📊' },
         { name: 'Botlar', href: '/bots', icon: '🤖' },
         { name: 'Backtest', href: '/backtest', icon: '📈' },
+        { name: 'Piyasalar', href: '/markets', icon: '📉' },
         { name: 'API Anahtarları', href: '/api-keys', icon: '🔑' },
     ]
 
     return (
-        <div className={`min-h-screen transition-colors duration-300 ${isDark ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
+        <div className={`min-h-screen flex flex-col transition-colors duration-300 ${isDark ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
             {/* Modern Navbar */}
             <nav className={`${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} shadow-lg border-b backdrop-blur-lg bg-opacity-95 sticky top-0 z-50 transition-all duration-300`}>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

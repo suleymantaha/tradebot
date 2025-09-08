@@ -31,8 +31,10 @@ const LoginPage = () => {
             const response = await authAPI.login(loginData)
             const { access_token, user } = response.data
 
-            // Debug log için token süresi bilgisi
-            console.log(`🔒 Login successful with ${rememberMe ? '30 day' : '7 day'} token`)
+            // Prod ortamında debug log bastırma
+            if (import.meta.env.MODE !== 'production') {
+                console.log(`🔒 Login successful with ${rememberMe ? '30 day' : '7 day'} token`)
+            }
 
             login(user, access_token)
             navigate('/dashboard')

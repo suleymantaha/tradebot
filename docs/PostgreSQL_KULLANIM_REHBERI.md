@@ -21,7 +21,8 @@ PostgreSQL, TradeBot uygulamasının **beyin** ve **hafızası** gibi çalışı
 
 ### 1️⃣ **Veritabanına Bağlanma**
 
-#### Docker ile bağlanma (Önerilen):
+#### Docker ile bağlanma (Önerilen)
+
 ```bash
 # PostgreSQL container'ına giriş
 docker exec -it tradebot-postgres psql -U tradebot_user -d tradebot_db
@@ -30,7 +31,8 @@ docker exec -it tradebot-postgres psql -U tradebot_user -d tradebot_db
 ./scripts/db_connect.sh
 ```
 
-#### Manuel bağlanma:
+#### Manuel bağlanma
+
 ```bash
 # Sistem PostgreSQL'i kullanıyorsanız
 psql -h localhost -p 5432 -U tradebot_user -d tradebot_db
@@ -56,6 +58,7 @@ psql -h localhost -p 5432 -U tradebot_user -d tradebot_db
 ### 3️⃣ **Kullanışlı Sorgular**
 
 #### **📊 Genel İstatistikler**
+
 ```sql
 -- Toplam kullanıcı sayısı
 SELECT COUNT(*) as kullanici_sayisi FROM users;
@@ -72,6 +75,7 @@ WHERE DATE(timestamp) = CURRENT_DATE;
 ```
 
 #### **🤖 Bot Performansları**
+
 ```sql
 -- Tüm botların günlük performansı
 SELECT
@@ -86,6 +90,7 @@ WHERE bc.is_active = true;
 ```
 
 #### **💰 İşlem Analizi**
+
 ```sql
 -- En karlı işlemler (son 10)
 SELECT
@@ -112,6 +117,7 @@ ORDER BY toplam_kar_zarar DESC;
 ```
 
 #### **📈 Trend Analizi**
+
 ```sql
 -- Günlük işlem hacmi
 SELECT
@@ -127,6 +133,7 @@ ORDER BY tarih DESC;
 ### 4️⃣ **Veri Yönetimi**
 
 #### **💾 Yedekleme**
+
 ```bash
 # Tüm veritabanını yedekle
 docker exec tradebot-postgres pg_dump -U tradebot_user tradebot_db > backup_$(date +%Y%m%d).sql
@@ -136,12 +143,14 @@ docker exec tradebot-postgres pg_dump -U tradebot_user -t trades tradebot_db > t
 ```
 
 #### **🔄 Geri Yükleme**
+
 ```bash
 # Yedekten geri yükle
 docker exec -i tradebot-postgres psql -U tradebot_user tradebot_db < backup_20240527.sql
 ```
 
 #### **🧹 Temizlik**
+
 ```sql
 -- Eski işlem kayıtlarını sil (30 günden eski)
 DELETE FROM trades
@@ -156,6 +165,7 @@ WHERE last_error_message IS NOT NULL;
 ### 5️⃣ **Monitoring ve Debugging**
 
 #### **📊 Database Monitor Script'i**
+
 ```bash
 # Otomatik istatistik raporu
 python3 scripts/db_monitor.py
@@ -165,6 +175,7 @@ pip install tabulate asyncpg
 ```
 
 #### **🔍 Performans İzleme**
+
 ```sql
 -- Yavaş çalışan sorgular
 SELECT
@@ -187,6 +198,7 @@ WHERE datname = 'tradebot_db';
 ```
 
 #### **📋 Tablo Boyutları**
+
 ```sql
 -- En büyük tablolar
 SELECT
@@ -213,6 +225,7 @@ echo "PostgreSQL Şifre: $(grep POSTGRES_PASSWORD .env | cut -d= -f2)"
 ```
 
 **pgAdmin'de TradeBot veritabanını ekleme:**
+
 1. "Add New Server" tıklayın
 2. **Name**: TradeBot Database
 3. **Host**: host.docker.internal
@@ -224,6 +237,7 @@ echo "PostgreSQL Şifre: $(grep POSTGRES_PASSWORD .env | cut -d= -f2)"
 ### 7️⃣ **Yaygın Sorunlar ve Çözümler**
 
 #### **❌ Bağlantı Hatası**
+
 ```bash
 # PostgreSQL container'ı çalışıyor mu?
 docker ps | grep postgres
@@ -236,6 +250,7 @@ sudo lsof -i :5432
 ```
 
 #### **💾 Disk Alanı Sorunu**
+
 ```sql
 -- Büyük tabloları bul
 SELECT
@@ -250,6 +265,7 @@ VACUUM FULL;
 ```
 
 #### **🐌 Yavaş Sorgular**
+
 ```sql
 -- İndeks eksikliği kontrolü
 EXPLAIN ANALYZE SELECT * FROM trades WHERE symbol = 'BTCUSDT';
@@ -262,6 +278,7 @@ CREATE INDEX IF NOT EXISTS idx_trades_timestamp ON trades(timestamp);
 ### 8️⃣ **Güvenlik**
 
 #### **🔒 Güvenlik En İyi Uygulamaları**
+
 - ✅ Güçlü şifreler kullanın (.env dosyası)
 - ✅ API anahtarları şifrelenmiş saklanır
 - ✅ Regular backup alın
@@ -269,6 +286,7 @@ CREATE INDEX IF NOT EXISTS idx_trades_timestamp ON trades(timestamp);
 - ✅ Production'da postgres portunu kapatın
 
 #### **🛡️ Production Ayarları**
+
 ```yaml
 # docker-compose.yml'de production için
 postgres:
@@ -285,6 +303,7 @@ postgres:
 ## 🎓 Sonuç
 
 PostgreSQL, TradeBot'un kalbidir:
+
 - 🏦 **Veri Güvenliği**: ACID özellikleri
 - ⚡ **Performans**: Hızlı sorgular ve indexing
 - 🔗 **İlişkisel Veri**: Tablolar arası bağlantılar
