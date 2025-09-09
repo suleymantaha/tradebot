@@ -1,5 +1,4 @@
 import React, { useRef, useEffect, useCallback, useState } from 'react'
-import React, { useRef, useState, useCallback, useEffect } from 'react'
 import { useComponentState } from './ComponentStateManager'
 
 // WebSocket configuration
@@ -109,22 +108,46 @@ const WebSocketManager = ({
 
     // Normalize and limit order book snapshot
     const normalizeOrderBook = useCallback((data) => {
-        const rawBids = Array.isArray(data?.bids) ? data.bids : []
-        const rawAsks = Array.isArray(data?.asks) ? data.asks : []
+        try {
+            if (!data || typeof data !== 'object') {
+                console.warn('Invalid order book data received:', data)
+                return { bids: [], asks: [] }
+            }
 
-        const bids = rawBids
-            .map(([p, q]) => ({ price: parseFloat(p), qty: parseFloat(q) }))
-            .filter(l => Number.isFinite(l.price) && Number.isFinite(l.qty) && l.qty > 0)
-            .sort((a, b) => b.price - a.price)
-            .slice(0, ORDERBOOK_LEVELS)
+            const rawBids = Array.isArray(data?.bids) ? data.bids : []
+            const rawAsks = Array.isArray(data?.asks) ? data.asks : []
 
-        const asks = rawAsks
-            .map(([p, q]) => ({ price: parseFloat(p), qty: parseFloat(q) }))
-            .filter(l => Number.isFinite(l.price) && Number.isFinite(l.qty) && l.qty > 0)
-            .sort((a, b) => a.price - b.price)
-            .slice(0, ORDERBOOK_LEVELS)
+            const bids = rawBids
+                .map(item => {
+                    if (!Array.isArray(item) || item.length < 2) return null
+                    const [p, q] = item
+                    const price = parseFloat(p)
+                    const qty = parseFloat(q)
+                    return (Number.isFinite(price) && Number.isFinite(qty) && qty > 0)
+                        ? { price, qty } : null
+                })
+                .filter(Boolean)
+                .sort((a, b) => b.price - a.price)
+                .slice(0, ORDERBOOK_LEVELS)
 
-        return { bids, asks }
+            const asks = rawAsks
+                .map(item => {
+                    if (!Array.isArray(item) || item.length < 2) return null
+                    const [p, q] = item
+                    const price = parseFloat(p)
+                    const qty = parseFloat(q)
+                    return (Number.isFinite(price) && Number.isFinite(qty) && qty > 0)
+                        ? { price, qty } : null
+                })
+                .filter(Boolean)
+                .sort((a, b) => a.price - b.price)
+                .slice(0, ORDERBOOK_LEVELS)
+
+            return { bids, asks }
+        } catch (error) {
+            console.error('Error normalizing order book:', error)
+            return { bids: [], asks: [] }
+        }
     }, [])
 
     // Throttled emitter for order book updates
@@ -300,14 +323,33 @@ const WebSocketManager = ({
                             // Coalesce high-frequency depth updates
                             scheduleDepthEmit(data)
                         } else if (stream === 'trades') {
-                            const trade = {
-                                price: parseFloat(data.p),
-                                qty: parseFloat(data.q),
-                                side: data.m ? 'sell' : 'buy',
-                                ts: data.T
+                            try {
+                                // Validate trade data structure
+                                if (!data.p || !data.q || data.T === undefined || data.m === undefined) {
+                                    console.warn('Invalid trade data received:', data)
+                                    return
+                                }
+
+                                const price = parseFloat(data.p)
+                                const qty = parseFloat(data.q)
+                                const timestamp = parseInt(data.T)
+
+                                if (!Number.isFinite(price) || !Number.isFinite(qty) || !Number.isFinite(timestamp)) {
+                                    console.warn('Invalid trade numeric values:', { price, qty, timestamp })
+                                    return
+                                }
+
+                                const trade = {
+                                    price,
+                                    qty,
+                                    side: data.m ? 'sell' : 'buy',
+                                    ts: timestamp
+                                }
+                                // Buffer trades and emit in small batches
+                                scheduleTradesEmit(trade)
+                            } catch (error) {
+                                console.error('Error processing trade data:', error, data)
                             }
-                            // Buffer trades and emit in small batches
-                            scheduleTradesEmit(trade)
                         }
                     } else if (provider === 'coinbase') {
                         if (data.type === 'ticker') {
@@ -456,6 +498,22 @@ const WebSocketManager = ({
     // Initialize connections when symbol changes
     useEffect(() => {
         if (symbol && symbol.base && symbol.quote) {
+            console.log(`Initializing WebSocket connections for ${symbol.base}${symbol.quote}`)
+
+            // Clear existing data when symbol changes
+            depthBufferRef.current = null
+            tradesBufferRef.current = []
+
+            // Clear any pending throttle timers
+            if (depthThrottleRef.current.timer) {
+                clearTimeout(depthThrottleRef.current.timer)
+                depthThrottleRef.current.timer = null
+            }
+            if (tradesThrottleRef.current.timer) {
+                clearTimeout(tradesThrottleRef.current.timer)
+                tradesThrottleRef.current.timer = null
+            }
+
             initializeConnections(symbol)
         }
 

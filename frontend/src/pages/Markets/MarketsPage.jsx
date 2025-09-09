@@ -6,6 +6,7 @@ import TradingViewLoader from '../../components/Markets/TradingViewLoader'
 import SymbolsLoader from '../../components/Markets/SymbolsLoader'
 import WebSocketManager from '../../components/Markets/WebSocketManager'
 import MarketInfo from '../../components/Markets/MarketInfo'
+import DebugPanel from '../../components/Markets/DebugPanel'
 import {
     LoadingSkeleton,
     StatusIndicator,
@@ -38,6 +39,10 @@ const MarketsPageContent = () => {
     const [orderBook, setOrderBook] = useState({ bids: [], asks: [] })
     const [trades, setTrades] = useState([])
 
+    // Debug state
+    const [debugConnectionStates, setDebugConnectionStates] = useState({})
+    const [debugConnectionStats, setDebugConnectionStats] = useState({})
+
     // UI state
     const [favorites, setFavorites] = useState(() => {
         try {
@@ -64,19 +69,43 @@ const MarketsPageContent = () => {
 
     const handleDepthUpdate = useCallback((provider, data) => {
         if (provider === 'binance') {
-            setOrderBook(data)
+            // Validate data structure before setting
+            if (data && typeof data === 'object' && Array.isArray(data.bids) && Array.isArray(data.asks)) {
+                setOrderBook(data)
+            } else {
+                console.warn('Invalid order book data received:', data)
+            }
         }
     }, [])
 
     const handleTradeUpdate = useCallback((provider, trade) => {
         if (provider === 'binance') {
-            setTrades(prev => [trade, ...prev].slice(0, 50))
+            // Validate trade structure
+            if (trade && typeof trade === 'object' &&
+                Number.isFinite(trade.price) && Number.isFinite(trade.qty) &&
+                trade.side && Number.isFinite(trade.ts)) {
+                setTrades(prev => {
+                    const newTrades = [trade, ...prev].slice(0, 50)
+                    return newTrades
+                })
+            } else {
+                console.warn('Invalid trade data received:', trade)
+            }
         }
     }, [])
 
     const handleConnectionChange = useCallback((connectionId, state, stats) => {
         console.log(`Connection ${connectionId} changed to ${state}`, stats)
-    }, [])
+
+        // Log current data state for debugging
+        if (state === 'connected') {
+            console.log(`Data state when ${connectionId} connected:`, {
+                orderBookSize: `${orderBook.bids.length} bids, ${orderBook.asks.length} asks`,
+                tradesCount: trades.length,
+                symbol: `${base}${quote}`
+            })
+        }
+    }, [orderBook, trades, base, quote])
 
     // Symbol management
     const handleSymbolsLoaded = useCallback((symbols, source) => {
@@ -376,80 +405,130 @@ const MarketsPageContent = () => {
                                     onConnectionChange={handleConnectionChange}
                                     key={`${base}${quote}`}
                                 >
-                                    {({ statusIndicator, retryConnection }) => (
-                                        <>
-                                            {/* Connection Status */}
-                                            <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-3">
-                                                <div className="flex items-center justify-between mb-2">
-                                                    <span className="font-semibold text-gray-800 dark:text-gray-200">Bağlantı</span>
-                                                    <RetryButton onRetry={retryConnection} size="xs" variant="outline" />
+                                    {({ statusIndicator, retryConnection, connectionStates, connectionStats }) => {
+                                        // Update debug states
+                                        setDebugConnectionStates(connectionStates || {})
+                                        setDebugConnectionStats(connectionStats || {})
+
+                                        return (
+                                            <>
+                                                {/* Connection Status */}
+                                                <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-3">
+                                                    <div className="flex items-center justify-between mb-2">
+                                                        <span className="font-semibold text-gray-800 dark:text-gray-200">Bağlantı</span>
+                                                        <RetryButton onRetry={retryConnection} size="xs" variant="outline" />
+                                                    </div>
+                                                    {statusIndicator}
                                                 </div>
-                                                {statusIndicator}
-                                            </div>
 
-                                            {/* Market Information Panel */}
-                                            <MarketInfo
-                                                symbol={`${base}${quote}`}
-                                                binanceTicker={binanceTicker}
-                                                coinbaseTicker={coinbaseTicker}
-                                                orderBook={orderBook}
-                                                trades={trades}
-                                            />
+                                                {/* Market Information Panel */}
+                                                <MarketInfo
+                                                    symbol={`${base}${quote}`}
+                                                    binanceTicker={binanceTicker}
+                                                    coinbaseTicker={coinbaseTicker}
+                                                    orderBook={orderBook}
+                                                    trades={trades}
+                                                />
 
-                                            {/* Order Book */}
-                                            <div className="bg-white dark:bg-gray-800 rounded-xl shadow">
-                                                <div className="px-4 py-2 border-b dark:border-gray-700 font-semibold text-gray-800 dark:text-gray-200">Order Book</div>
-                                                {orderBook.bids.length > 0 ? (
-                                                    <div className="grid grid-cols-2 gap-0 text-xs">
-                                                        <div className="p-2">
-                                                            <div className="text-gray-500 mb-1">Bids</div>
-                                                            {orderBook.bids.slice(0, 5).map((b, i) => (
-                                                                <div key={i} className="flex justify-between">
-                                                                    <span className="text-green-500">{fmt(b.price, 6)}</span>
-                                                                    <span className="text-gray-500">{fmt(b.qty, 4)}</span>
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                        <div className="p-2">
-                                                            <div className="text-gray-500 mb-1">Asks</div>
-                                                            {orderBook.asks.slice(0, 5).map((a, i) => (
-                                                                <div key={i} className="flex justify-between">
-                                                                    <span className="text-red-500">{fmt(a.price, 6)}</span>
-                                                                    <span className="text-gray-500">{fmt(a.qty, 4)}</span>
-                                                                </div>
-                                                            ))}
-                                                        </div>
+                                                {/* Order Book */}
+                                                <div className="bg-white dark:bg-gray-800 rounded-xl shadow">
+                                                    <div className="px-4 py-2 border-b dark:border-gray-700 font-semibold text-gray-800 dark:text-gray-200">
+                                                        Order Book
+                                                        <span className="ml-2 text-xs text-gray-500">
+                                                            ({orderBook.bids.length + orderBook.asks.length} levels)
+                                                        </span>
                                                     </div>
-                                                ) : (
-                                                    <DataPlaceholder title="Order Book Yükleniyor" className="h-32" />
-                                                )}
-                                            </div>
-
-                                            {/* Trade Tape */}
-                                            <div className="bg-white dark:bg-gray-800 rounded-xl shadow">
-                                                <div className="px-4 py-2 border-b dark:border-gray-700 font-semibold text-gray-800 dark:text-gray-200">Trade Tape</div>
-                                                {trades.length > 0 ? (
-                                                    <div className="max-h-[20vh] overflow-y-auto text-xs">
-                                                        {trades.slice(0, 20).map((t, idx) => (
-                                                            <div key={idx} className="flex justify-between px-3 py-1 border-b border-gray-100 dark:border-gray-700">
-                                                                <span className={t.side === 'buy' ? 'text-green-500' : 'text-red-500'}>{fmt(t.price, 6)}</span>
-                                                                <span className="text-gray-500">{fmt(t.qty, 4)}</span>
-                                                                <span className="text-gray-400">{new Date(t.ts).toLocaleTimeString()}</span>
+                                                    {orderBook.bids.length > 0 || orderBook.asks.length > 0 ? (
+                                                        <div className="grid grid-cols-2 gap-0 text-xs">
+                                                            <div className="p-2">
+                                                                <div className="text-gray-500 mb-1 flex justify-between">
+                                                                    <span>Bids</span>
+                                                                    <span className="text-green-600">({orderBook.bids.length})</span>
+                                                                </div>
+                                                                {orderBook.bids.length > 0 ? (
+                                                                    orderBook.bids.slice(0, 5).map((b, i) => (
+                                                                        <div key={i} className="flex justify-between hover:bg-green-50 dark:hover:bg-green-900/20 px-1 py-0.5 rounded">
+                                                                            <span className="text-green-500 font-mono">{fmt(b.price, 6)}</span>
+                                                                            <span className="text-gray-500 font-mono">{fmt(b.qty, 4)}</span>
+                                                                        </div>
+                                                                    ))
+                                                                ) : (
+                                                                    <div className="text-gray-400 text-center py-2">No bids</div>
+                                                                )}
                                                             </div>
-                                                        ))}
+                                                            <div className="p-2">
+                                                                <div className="text-gray-500 mb-1 flex justify-between">
+                                                                    <span>Asks</span>
+                                                                    <span className="text-red-600">({orderBook.asks.length})</span>
+                                                                </div>
+                                                                {orderBook.asks.length > 0 ? (
+                                                                    orderBook.asks.slice(0, 5).map((a, i) => (
+                                                                        <div key={i} className="flex justify-between hover:bg-red-50 dark:hover:bg-red-900/20 px-1 py-0.5 rounded">
+                                                                            <span className="text-red-500 font-mono">{fmt(a.price, 6)}</span>
+                                                                            <span className="text-gray-500 font-mono">{fmt(a.qty, 4)}</span>
+                                                                        </div>
+                                                                    ))
+                                                                ) : (
+                                                                    <div className="text-gray-400 text-center py-2">No asks</div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    ) : (
+                                                        <DataPlaceholder title="Order Book Yükleniyor" className="h-32" />
+                                                    )}
+                                                </div>
+
+                                                {/* Trade Tape */}
+                                                <div className="bg-white dark:bg-gray-800 rounded-xl shadow">
+                                                    <div className="px-4 py-2 border-b dark:border-gray-700 font-semibold text-gray-800 dark:text-gray-200">
+                                                        Trade Tape
+                                                        <span className="ml-2 text-xs text-gray-500">
+                                                            ({trades.length} trades)
+                                                        </span>
                                                     </div>
-                                                ) : (
-                                                    <DataPlaceholder title="Trades Yükleniyor" className="h-32" />
-                                                )}
-                                            </div>
-                                        </>
-                                    )}
+                                                    {trades.length > 0 ? (
+                                                        <div className="max-h-[20vh] overflow-y-auto text-xs">
+                                                            {trades.slice(0, 20).map((t, idx) => {
+                                                                const timeStr = new Date(t.ts).toLocaleTimeString('tr-TR', {
+                                                                    hour12: false,
+                                                                    hour: '2-digit',
+                                                                    minute: '2-digit',
+                                                                    second: '2-digit'
+                                                                })
+                                                                return (
+                                                                    <div key={idx} className={`flex justify-between px-3 py-1 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 ${t.side === 'buy' ? 'hover:bg-green-50 dark:hover:bg-green-900/20' : 'hover:bg-red-50 dark:hover:bg-red-900/20'}`}>
+                                                                        <span className={`font-mono ${t.side === 'buy' ? 'text-green-500' : 'text-red-500'}`}>
+                                                                            {fmt(t.price, 6)}
+                                                                        </span>
+                                                                        <span className="text-gray-500 font-mono">{fmt(t.qty, 4)}</span>
+                                                                        <span className="text-gray-400 text-xs">{timeStr}</span>
+                                                                    </div>
+                                                                )
+                                                            })}
+                                                        </div>
+                                                    ) : (
+                                                        <DataPlaceholder title="Trades Yükleniyor" className="h-32" />
+                                                    )}
+                                                </div>
+                                            </>
+                                        )
+                                    }}
                                 </WebSocketManager>
                             </div>
                         </div>
                     </>
                 )}
             </SymbolsLoader>
+
+            {/* Debug Panel */}
+            <DebugPanel
+                symbol={{ base, quote }}
+                orderBook={orderBook}
+                trades={trades}
+                binanceTicker={binanceTicker}
+                connectionStates={debugConnectionStates}
+                connectionStats={debugConnectionStats}
+            />
         </div>
     )
 }
