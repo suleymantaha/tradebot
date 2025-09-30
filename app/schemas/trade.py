@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
+from datetime import datetime
 
 class TradeBase(BaseModel):
     bot_config_id: int
@@ -15,7 +16,7 @@ class TradeBase(BaseModel):
     commission_asset: Optional[str] = None
     pnl: Optional[float] = None
     realized_pnl: Optional[float] = None
-    timestamp: Optional[str] = None
+    timestamp: Optional[datetime] = None
 
 class TradeCreate(TradeBase):
     pass

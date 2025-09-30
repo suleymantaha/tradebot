@@ -1,10 +1,11 @@
 import pytest
-from httpx import AsyncClient
+from httpx import AsyncClient, ASGITransport
 from app.main import app
 
 @pytest.mark.asyncio
 async def test_bot_state_get_and_update():
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
         # Kullanıcı kaydı ve login
         await ac.post("/api/v1/auth/register", json={"email": "stateuser@example.com", "password": "testpass"})
         login_resp = await ac.post("/api/v1/auth/login", json={"email": "stateuser@example.com", "password": "testpass"})
@@ -61,7 +62,8 @@ async def test_bot_state_get_and_update():
 
 @pytest.mark.asyncio
 async def test_bot_state_unauthorized():
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
         # Yetkisiz görüntüleme
         resp = await ac.get("/api/v1/bot-states/1")
         assert resp.status_code == 401

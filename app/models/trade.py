@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Numeric, DateTime, ForeignKey, func
 from sqlalchemy.orm import relationship
-from app.database import Base
+from app.db_base import Base
 
 class Trade(Base):
     __tablename__ = "trades"

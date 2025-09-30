@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
+from sqlalchemy import select
 from datetime import datetime, timedelta, timezone
 import secrets
 from app.models.user import User
@@ -10,6 +10,7 @@ from app.core.security import get_password_hash, verify_password
 from app.core.jwt import create_access_token
 from app.dependencies.auth import get_db, get_current_active_user
 import os
+from typing import cast, Any
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
@@ -30,15 +31,15 @@ async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)):
 async def login(user_in: UserLogin, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(User).where(User.email == user_in.email))
     user = result.scalars().first()
-    if not user or not verify_password(user_in.password, user.hashed_password):
+    if not user or not verify_password(user_in.password, cast(str, user.hashed_password)):
         raise HTTPException(status_code=401, detail="Incorrect email or password")
-    if not user.is_active:
+    if not cast(bool, user.is_active):
         raise HTTPException(status_code=400, detail="Inactive user")
 
     # 🆕 Remember Me desteği ile token oluştur
     access_token = create_access_token(
         data={"sub": user.email, "user_id": user.id},
-        remember_me=user_in.remember_me
+        remember_me=bool(user_in.remember_me)
     )
 
     return {
@@ -71,7 +72,7 @@ async def forgot_password(
             # Güvenlik için her durumda success döndür (email enumeration'ı önlemek için)
             return PasswordResetResponse(message="Eğer bu email kayıtlıysa, şifre sıfırlama linki gönderildi.")
 
-        if not user.is_active:
+        if not cast(bool, user.is_active):
             return PasswordResetResponse(message="Hesap aktif değil.")
 
         # Reset token oluştur (güvenli random string)
@@ -79,15 +80,15 @@ async def forgot_password(
         expires_at = datetime.now(timezone.utc) + timedelta(hours=1)
 
         # Database'de token'ı sakla
-        user.reset_token = reset_token
-        user.reset_token_expires = expires_at
+        cast(Any, user).reset_token = reset_token
+        cast(Any, user).reset_token_expires = expires_at
         await db.commit()
 
         # 🔧 User'ı refresh et (lazy loading sorununu çözmek için)
         await db.refresh(user)
 
         # 🔧 Sadece console'a yazdır (email service kullanma)
-        frontend_url = "http://localhost:3000"
+        frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
         reset_url = f"{frontend_url}/reset-password?token={reset_token}"
 
         print("=" * 60)
@@ -125,7 +126,7 @@ async def reset_password(request: ResetPasswordRequest, db: AsyncSession = Depen
         if not user:
             raise HTTPException(status_code=400, detail="Geçersiz veya süresi dolmuş token.")
 
-        if not user.is_active:
+        if not cast(bool, user.is_active):
             raise HTTPException(status_code=400, detail="Hesap aktif değil.")
 
         # Şifre geçerliliğini kontrol et
@@ -133,11 +134,11 @@ async def reset_password(request: ResetPasswordRequest, db: AsyncSession = Depen
             raise HTTPException(status_code=400, detail="Şifre en az 6 karakter olmalıdır.")
 
         # Yeni şifreyi hashle ve kaydet
-        user.hashed_password = get_password_hash(request.new_password)
+        cast(Any, user).hashed_password = get_password_hash(request.new_password)
 
         # Reset token'ı temizle
-        user.reset_token = None
-        user.reset_token_expires = None
+        cast(Any, user).reset_token = None
+        cast(Any, user).reset_token_expires = None
 
         await db.commit()
 

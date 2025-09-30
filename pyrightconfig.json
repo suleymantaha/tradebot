@@ -1,0 +1,9 @@
+{
+    "venvPath": "/Users/baba/tradebot",
+    "venv": ".venv",
+    "pythonVersion": "3.13",
+    "reportMissingTypeStubs": "none",
+    "extraPaths": [
+        "app"
+    ]
+}

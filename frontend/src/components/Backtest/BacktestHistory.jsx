@@ -201,6 +201,27 @@ const BacktestHistory = ({ onSelectBacktest }) => {
                         </div>
 
                         <div className="p-6">
+                            {/* İndirme Butonları */}
+                            <div className="flex flex-wrap gap-2 mb-4">
+                                <button
+                                    onClick={() => apiService.downloadBacktestDaily(selectedBacktest.id)}
+                                    className="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-lg"
+                                >
+                                    ⬇️ Günlük CSV
+                                </button>
+                                <button
+                                    onClick={() => apiService.downloadBacktestMonthly(selectedBacktest.id)}
+                                    className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg"
+                                >
+                                    ⬇️ Aylık CSV
+                                </button>
+                                <button
+                                    onClick={() => apiService.downloadBacktestTrades(selectedBacktest.id)}
+                                    className="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm rounded-lg"
+                                >
+                                    ⬇️ İşlemler CSV
+                                </button>
+                            </div>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                                 <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
                                     <div className="text-sm font-medium text-gray-500 dark:text-gray-400">Başlangıç Sermayesi</div>

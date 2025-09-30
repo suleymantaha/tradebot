@@ -97,6 +97,37 @@ class ApiService {
         }
     }
 
+    // CSV indirme için yardımcı: auth header ile blob indirip dosya kaydeder
+    async downloadCSV(endpoint, fallbackFilename) {
+        const url = `${this.baseURL}${endpoint}`
+        const token = this.getToken()
+        const headers = {}
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`
+        }
+        const response = await fetch(url, { headers })
+        if (!response.ok) {
+            const errorText = await response.text()
+            throw new Error(`HTTP ${response.status}: ${errorText}`)
+        }
+        const blob = await response.blob()
+        // Sunucudan gelen dosya adını kullan (Content-Disposition)
+        const cd = response.headers.get('Content-Disposition') || ''
+        let filename = fallbackFilename
+        const match = /filename\s*=\s*"?([^";]+)"?/i.exec(cd)
+        if (match && match[1]) {
+            filename = match[1]
+        }
+        const blobUrl = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = blobUrl
+        a.download = filename
+        document.body.appendChild(a)
+        a.click()
+        a.remove()
+        window.URL.revokeObjectURL(blobUrl)
+    }
+
     // Convenience methods
     async get(endpoint, options = {}) {
         return this.request(endpoint, { ...options, method: 'GET' })
@@ -144,6 +175,17 @@ class ApiService {
     // Backtest geçmişi
     async getBacktestList() {
         return this.get('/api/v1/backtest/list')
+    }
+
+    // Backtest CSV indirme
+    async downloadBacktestDaily(backtestId) {
+        return this.downloadCSV(`/api/v1/backtest/download/${backtestId}/daily.csv`, `backtest_${backtestId}_daily.csv`)
+    }
+    async downloadBacktestMonthly(backtestId) {
+        return this.downloadCSV(`/api/v1/backtest/download/${backtestId}/monthly.csv`, `backtest_${backtestId}_monthly.csv`)
+    }
+    async downloadBacktestTrades(backtestId) {
+        return this.downloadCSV(`/api/v1/backtest/download/${backtestId}/trades.csv`, `backtest_${backtestId}_trades.csv`)
     }
 }
 

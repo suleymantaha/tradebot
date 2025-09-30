@@ -6,6 +6,18 @@ echo "🚀 TradeBot başlatılıyor..."
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
+# Ensure PATH for Finder-launched apps (macOS)
+export PATH="/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:$PATH"
+
+# docker compose wrapper (supports both docker-compose and docker compose)
+compose() {
+    if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+        docker compose "$@"
+    else
+        docker-compose "$@"
+    fi
+}
+
 # Function to check if Docker is running
 check_docker() {
     if docker info >/dev/null 2>&1; then
@@ -75,28 +87,40 @@ fi
 # Start TradeBot services
 echo ""
 echo "🔨 TradeBot servisleri başlatılıyor..."
-docker-compose up -d
+compose up -d
 
 if [ $? -eq 0 ]; then
     echo ""
     echo "🎉 TradeBot başarıyla başlatıldı!"
-echo ""
+    echo ""
     echo "📊 Erişim Linkleri:"
     echo "   Frontend:    http://localhost:3000"
     echo "   Backend API: http://localhost:8000"
     echo "   pgAdmin:     http://localhost:5050"
-echo ""
+    echo ""
     echo "⏳ Servislerin tam olarak hazır olması 30-60 saniye sürebilir..."
     echo "🌐 Tarayıcı otomatik olarak açılacak..."
 
-sleep 3
+    # Wait frontend health before opening browser (max ~90s)
+    echo "⏳ Frontend kontrol ediliyor..."
+    max_wait=90
+    waited=0
+    until curl -sf http://localhost:3000 >/dev/null 2>&1; do
+        sleep 3
+        waited=$((waited+3))
+        if [ $waited -ge $max_wait ]; then
+            echo "⚠️ Frontend henüz hazır değil, yine de tarayıcı açılıyor..."
+            break
+        fi
+        echo "⏳ Bekleniyor... (${waited}/${max_wait}s)"
+    done
 
-# Open in default browser
+    # Open in default browser
     if command -v open > /dev/null; then
         open "http://localhost:3000" &
     elif command -v xdg-open > /dev/null; then
-    xdg-open "http://localhost:3000" &
-fi
+        xdg-open "http://localhost:3000" &
+    fi
 
     echo ""
     echo "✅ TradeBot hazır!"
@@ -104,6 +128,6 @@ fi
 else
     echo ""
     echo "❌ TradeBot başlatılırken hata oluştu!"
-    echo "🔍 Hata detayları için: docker-compose logs"
+    echo "🔍 Hata detayları için: docker compose logs"
     exit 1
 fi

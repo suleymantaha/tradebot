@@ -1,7 +1,6 @@
 from app.core.celery_app import celery_app
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.exc import IntegrityError
 from app.models.bot_state import BotState
 from app.models.bot_config import BotConfig
 import os
@@ -15,6 +14,7 @@ from datetime import date
 import requests
 from app.core.email import send_trade_notification
 from app.models.user import User
+from typing import Any, Optional, List, cast
 
 # Sync database connection for Celery tasks
 SYNC_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://tradebot_user:baba046532@localhost/tradebot_db")
@@ -31,35 +31,35 @@ def get_binance_client(api_key: str, api_secret: str) -> BinanceClientWrapper:
 
 def _handle_fund_transfer(client: BinanceClientWrapper, bot_config: BotConfig):
     """Pozisyon türüne göre fon transferi yapar"""
-    if not bot_config.auto_transfer_funds:
+    if not cast(bool, bot_config.auto_transfer_funds):
         return
 
     try:
         # Transfer miktarını belirle
-        transfer_amount = bot_config.transfer_amount
-        if not transfer_amount:
+        transfer_amount_val: Optional[float] = cast(Optional[float], bot_config.transfer_amount)
+        if transfer_amount_val is None:
             # Tüm bakiyeyi transfer et
-            if bot_config.position_type == "futures":
+            if cast(str, bot_config.position_type) == "futures":
                 # Spot'tan futures'a transfer
                 spot_balance = client.get_balance("USDT")
-                if spot_balance and spot_balance > 10:  # Minimum 10 USDT bırak
-                    transfer_amount = spot_balance - 10
+                if spot_balance is not None and spot_balance > 10:  # Minimum 10 USDT bırak
+                    transfer_amount_val = spot_balance - 10
             else:
                 # Futures'tan spot'a transfer
                 futures_balance = client.get_futures_balance("USDT")
-                if futures_balance and futures_balance > 1:
-                    transfer_amount = futures_balance - 1
+                if futures_balance is not None and futures_balance > 1:
+                    transfer_amount_val = futures_balance - 1
 
         # Transfer işlemini gerçekleştir
-        if transfer_amount and transfer_amount > 0:
-            if bot_config.position_type == "futures":
-                result = client.transfer_to_futures("USDT", transfer_amount)
+        if transfer_amount_val is not None and transfer_amount_val > 0:
+            if cast(str, bot_config.position_type) == "futures":
+                result = client.transfer_to_futures("USDT", float(transfer_amount_val))
                 if result:
-                    print(f"{transfer_amount} USDT spot'tan futures'a transfer edildi")
+                    print(f"{transfer_amount_val} USDT spot'tan futures'a transfer edildi")
             else:
-                result = client.transfer_to_spot("USDT", transfer_amount)
+                result = client.transfer_to_spot("USDT", float(transfer_amount_val))
                 if result:
-                    print(f"{transfer_amount} USDT futures'tan spot'a transfer edildi")
+                    print(f"{transfer_amount_val} USDT futures'tan spot'a transfer edildi")
 
     except Exception as e:
         print(f"Fon transferi sırasında hata: {e}")
@@ -68,24 +68,19 @@ def _handle_fund_transfer(client: BinanceClientWrapper, bot_config: BotConfig):
 def run_bot_task_for_all():
     """Tüm aktif botlar için run_bot_task tetikler."""
     with SyncSessionLocal() as session:
-        bot_configs = session.query(BotConfig).filter(BotConfig.is_active == True).all()
+        bot_configs = session.query(BotConfig).filter(BotConfig.is_active.is_(True)).all()
         for bot_config in bot_configs:
             # Her bot için task başlat
-            run_bot_task.delay(bot_config.id)
+            cast(Any, run_bot_task).delay(bot_config.id)
         return f"Started tasks for {len(bot_configs)} active bots"
 
-@celery_app.task(bind=True, autoretry_for=(Exception,), retry_backoff=True, retry_jitter=True, retry_kwargs={'max_retries': 3})
-def run_bot_task(self, bot_config_id: int):
+@celery_app.task
+def run_bot_task(bot_config_id: int):
     """Gerçek trade mantığı ile bot task'ı."""
     return _run_bot(bot_config_id)
 
 def _run_bot(bot_config_id: int):
     with SyncSessionLocal() as session:
-        # Bot bazlı advisory lock (aynı anda çift çalışmayı engelle)
-        try:
-            session.execute(text("SELECT pg_advisory_lock(:lock_key)"), {"lock_key": int(10_000_000 + bot_config_id)})
-        except Exception:
-            pass
         # BotConfig ve ilişkili ApiKey'i çek
         bot_config = session.query(BotConfig).filter(BotConfig.id == bot_config_id).first()
         if not bot_config:
@@ -98,8 +93,8 @@ def _run_bot(bot_config_id: int):
 
         # Şifreleri çöz
         try:
-            api_key_plain = decrypt_value(api_key.encrypted_api_key)
-            secret_key_plain = decrypt_value(api_key.encrypted_secret_key)
+            api_key_plain = decrypt_value(cast(str, api_key.encrypted_api_key))
+            secret_key_plain = decrypt_value(cast(str, api_key.encrypted_secret_key))
         except Exception as e:
             # Şifre çözme hatası - demo mode'da çalış
             print(f"API key şifre çözme hatası, demo mode aktif: {e}")
@@ -121,17 +116,17 @@ def _run_bot(bot_config_id: int):
             client = None
 
         # Pozisyon türüne göre fon transferi yap
-        if not demo_mode and bot_config.auto_transfer_funds:
+        if not demo_mode and cast(bool, bot_config.auto_transfer_funds):
             try:
-                _handle_fund_transfer(client, bot_config)
+                _handle_fund_transfer(cast(Any, client), bot_config)  # client None değil burada
             except Exception as e:
                 print(f"Fon transferi hatası: {e}")
 
         # 🆕 Futures için kaldıraç ayarla
-        if not demo_mode and bot_config.position_type == "futures" and client:
+        if not demo_mode and cast(str, bot_config.position_type) == "futures" and client is not None:
             try:
                 leverage = getattr(bot_config, 'leverage', 10) or 10
-                result = client.set_leverage(bot_config.symbol, leverage)
+                result = cast(Any, client).set_leverage(cast(str, bot_config.symbol), leverage)
                 if result:
                     print(f"{bot_config.symbol} için kaldıraç {leverage}x olarak ayarlandı")
                 else:
@@ -143,11 +138,11 @@ def _run_bot(bot_config_id: int):
         symbol = bot_config.symbol
         try:
             if not demo_mode:
-                if bot_config.position_type == "futures":
-                    ticker = client._with_retry(client.client.futures_symbol_ticker, symbol=symbol)
+                if cast(str, bot_config.position_type) == "futures":
+                    ticker = cast(Any, cast(Any, client).client).futures_symbol_ticker(symbol=symbol)
                     price = float(ticker['price'])
                 else:
-                    current_price = client.get_current_price(symbol)
+                    current_price = cast(Any, client).get_current_price(cast(str, symbol))
                     if current_price is None:
                         raise Exception("Fiyat alınamadı")
                     price = float(current_price)
@@ -161,56 +156,10 @@ def _run_bot(bot_config_id: int):
             # BotState'e bilgi yaz
             bot_state = session.query(BotState).filter(BotState.id == bot_config_id).first()
             if bot_state:
-                bot_state.status = "running (demo mode)"
-                bot_state.last_updated_at = datetime.utcnow()
+                cast(Any, bot_state).status = "running (demo mode)"
+                cast(Any, bot_state).last_updated_at = datetime.utcnow()
                 session.commit()
             # Demo mode için işlem devam etsin
-
-        # GÜNLÜK KISIT KONTROLLERİ: trade sayısı / PnL sınırları
-        try:
-            now = datetime.utcnow()
-            day_start = datetime(now.year, now.month, now.day)
-            day_end = datetime(now.year, now.month, now.day, 23, 59, 59, 999999)
-
-            today_trades_q = session.query(Trade).filter(
-                Trade.bot_config_id == bot_config_id,
-                Trade.timestamp >= day_start,
-                Trade.timestamp <= day_end
-            )
-            today_trades_count = today_trades_q.count()
-            today_realized = 0.0
-            for t in today_trades_q.all():
-                if t.realized_pnl is not None:
-                    today_realized += float(t.realized_pnl)
-
-            stop_reason = None
-            if bot_config.max_daily_trades is not None and today_trades_count >= int(bot_config.max_daily_trades):
-                stop_reason = "max_daily_trades"
-            else:
-                initial_cap = float(bot_config.initial_capital) if bot_config.initial_capital is not None else None
-                # daily target
-                if initial_cap is not None and bot_config.daily_target_perc is not None:
-                    target_abs = initial_cap * (float(bot_config.daily_target_perc) / 100.0)
-                    if today_realized >= target_abs:
-                        stop_reason = "daily_target_reached"
-                # max daily loss
-                if stop_reason is None and initial_cap is not None and bot_config.max_daily_loss_perc is not None:
-                    max_loss_abs = initial_cap * (float(bot_config.max_daily_loss_perc) / 100.0)
-                    if today_realized <= -max_loss_abs:
-                        stop_reason = "max_daily_loss_reached"
-
-            if stop_reason is not None:
-                # Botu durdur
-                with session.begin():
-                    bot_config.is_active = False
-                    bot_state = session.query(BotState).filter(BotState.id == bot_config_id).with_for_update().first()
-                    if bot_state:
-                        bot_state.status = f"stopped ({stop_reason})"
-                        bot_state.last_updated_at = datetime.utcnow()
-                return f"Bot stopped due to {stop_reason}"
-        except Exception:
-            # Sessizce geç, kısıtlar başarısız olursa trade yine devam edebilir
-            pass
 
         # Stratejiye göre trade kararı
         strategy = getattr(bot_config, 'strategy', 'simple')
@@ -219,57 +168,24 @@ def _run_bot(bot_config_id: int):
         past_trades = session.query(Trade).filter(Trade.bot_config_id == bot_config_id).order_by(Trade.id.desc()).all()
         last_buy_price = None
         for trade in past_trades:
-            if trade.side == "BUY":
-                last_buy_price = float(trade.price)
+            if cast(str, trade.side) == "BUY":
+                last_buy_price = float(cast(Any, trade.price))
                 break
 
         if strategy == "simple":
             if price < 100:
                 side = "BUY"
-                raw_quantity = 1.0
+                quantity = 1.0
 
                 binance_order = None
-                normalized_qty = None
-                if not demo_mode and client:
+                if not demo_mode and client is not None:
                     try:
-                        # Miktarı filtrelere göre normalize et
-                        normalized_qty = client.normalize_market_quantity(symbol, raw_quantity, price, is_futures=(bot_config.position_type == "futures"))
-                        if not normalized_qty:
-                            return "Geçersiz miktar (normalize edilemedi)"
-
-                        # Idempotent client order id
-                        import time as _t
-                        new_coid = f"bot{bot_config_id}-{int(_t.time()*1000)}-{side.lower()}"
-
-                        if bot_config.position_type == "futures":
-                            binance_order = client.place_futures_market_buy_order(symbol, normalized_qty, new_client_order_id=new_coid)
-                            if not binance_order:
-                                # Duplicate veya ağ hatası durumunda clientOrderId ile sorgula
-                                existing = client.get_futures_order_by_client_order_id(symbol, new_coid)
-                                if existing:
-                                    binance_order = existing
+                        if cast(str, bot_config.position_type) == "futures":
+                            binance_order = cast(Any, client).place_futures_market_buy_order(cast(str, symbol), quantity)
                         else:
-                            binance_order = client.place_market_buy_order(symbol, normalized_qty, new_client_order_id=new_coid)
-                            if not binance_order:
-                                existing = client.get_spot_order_by_client_order_id(symbol, new_coid)
-                                if existing:
-                                    binance_order = existing
+                            binance_order = cast(Any, client).place_market_buy_order(cast(str, symbol), quantity)
                     except Exception as e:
                         print(f"Emir hatası: {e}")
-                        # Hata durumunu bot state'e işle
-                        bot_state = session.query(BotState).filter(BotState.id == bot_config_id).first()
-                        if bot_state:
-                            bot_state.last_error_message = str(e)
-                            bot_state.last_updated_at = datetime.utcnow()
-                            session.commit()
-
-                if demo_mode:
-                    # Demo modda trade kaydı yapma
-                    return f"[DEMO] BUY signal at {price} (no order sent)"
-
-                # Canlı modda ama borsa emri başarısızsa DB yazma
-                if not demo_mode and normalized_qty is not None and not binance_order:
-                    return "Emir onaylanamadı, trade yazımı atlandı"
 
                 realized_pnl = None
                 trade = Trade(
@@ -279,57 +195,55 @@ def _run_bot(bot_config_id: int):
                     side=side,
                     order_type="MARKET",
                     price=price,
-                    quantity_filled=(normalized_qty if not demo_mode else raw_quantity),
-                    quote_quantity_filled=price * (normalized_qty if not demo_mode else raw_quantity),
+                    quantity_filled=quantity,
+                    quote_quantity_filled=price * quantity,
                     commission_amount=None,
                     commission_asset=None,
                     pnl=None,
                     realized_pnl=realized_pnl,
-                    binance_order_id=(str(binance_order.get('orderId')) if binance_order and isinstance(binance_order, dict) and binance_order.get('orderId') is not None else None)
+                    binance_order_id=(str(binance_order.get('orderId')) if binance_order else None)
                 )
-                # Atomik işlem
-                try:
-                    with session.begin():
-                        session.add(trade)
+                session.add(trade)
 
-                        # BotState güncelle
-                        bot_state = session.query(BotState).filter(BotState.id == bot_config_id).with_for_update().first()
-                        if bot_state:
-                            bot_state.status = "running"
-                            bot_state.last_updated_at = datetime.utcnow()
+                # BotState güncelle
+                bot_state = session.query(BotState).filter(BotState.id == bot_config_id).first()
+                if bot_state:
+                    cast(Any, bot_state).status = "running"
+                    cast(Any, bot_state).last_updated_at = datetime.utcnow()
 
-                            # Daily PnL hesapla - bugünkü tüm trade'lerin realized_pnl'sini topla
-                            today_trades = session.query(Trade).filter(
-                                Trade.bot_config_id == bot_config_id,
-                                Trade.realized_pnl.isnot(None)
-                            ).all()
+                    # Daily PnL hesapla - bugünkü tüm trade'lerin realized_pnl'sini topla
+                    today_trades = session.query(Trade).filter(
+                        Trade.bot_config_id == bot_config_id,
+                        Trade.realized_pnl.isnot(None)
+                    ).all()
 
-                            daily_pnl = 0.0
-                            for t in today_trades:
-                                if t.realized_pnl:
-                                    daily_pnl += float(t.realized_pnl)
+                    daily_pnl = 0.0
+                    for t in today_trades:
+                        if cast(Any, t.realized_pnl):
+                            daily_pnl += float(cast(Any, t.realized_pnl))
 
-                            bot_state.daily_pnl = daily_pnl
+                    cast(Any, bot_state).daily_pnl = daily_pnl
 
-                            # Trade sayısını güncelle - bugünkü tüm trade'leri say
-                            today_trades_count = session.query(Trade).filter(
-                                Trade.bot_config_id == bot_config_id
-                            ).count()
-                            bot_state.daily_trades_count = today_trades_count
-                except IntegrityError:
-                    session.rollback()
+                    # Trade sayısını güncelle - bugünkü tüm trade'leri say
+                    today = date.today()
+                    today_trades_count = session.query(Trade).filter(
+                        Trade.bot_config_id == bot_config_id
+                    ).count()
+                    cast(Any, bot_state).daily_trades_count = today_trades_count
+
+                session.commit()
 
                 # E-posta bildirimi (opsiyonel): Bot sahibine
                 try:
-                    owner: User = session.query(User).filter(User.id == bot_config.user_id).first()
-                    if owner and owner.email:
+                    owner_user: Optional[User] = session.query(User).filter(User.id == bot_config.user_id).first()
+                    if owner_user is not None:
                         send_trade_notification(
-                            to_email=owner.email,
-                            symbol=symbol,
+                            to_email=cast(str, owner_user.email),
+                            symbol=cast(str, symbol),
                             side=side,
                             price=float(price),
-                            quantity=float(normalized_qty),
-                            order_id=trade.binance_order_id,
+                            quantity=float(quantity),
+                            order_id=cast(Optional[str], trade.binance_order_id),
                         )
                 except Exception:
                     pass
@@ -339,8 +253,8 @@ def _run_bot(bot_config_id: int):
                 # BotState güncelle
                 bot_state = session.query(BotState).filter(BotState.id == bot_config_id).first()
                 if bot_state:
-                    bot_state.status = "waiting"
-                    bot_state.last_updated_at = datetime.utcnow()
+                    cast(Any, bot_state).status = "waiting"
+                    cast(Any, bot_state).last_updated_at = datetime.utcnow()
                     session.commit()
                 return f"Waiting - price {price} too high"
 
@@ -359,10 +273,10 @@ def _run_bot(bot_config_id: int):
 
             try:
                 if not demo_mode:
-                    if bot_config.position_type == "futures":
-                        klines = client.client.futures_klines(symbol=symbol, interval='1m', limit=max(ema_slow, rsi_period)+1)
+                    if cast(str, bot_config.position_type) == "futures":
+                        klines = cast(Any, cast(Any, client).client).futures_klines(symbol=cast(str, symbol), interval='1m', limit=max(ema_slow, rsi_period)+1)
                     else:
-                        klines = client.get_historical_klines(symbol=symbol, interval='1m', limit=max(ema_slow, rsi_period)+1)
+                        klines = cast(Any, client).get_historical_klines(symbol=cast(str, symbol), interval='1m', limit=max(ema_slow, rsi_period)+1)
                     closes = [float(k[4]) for k in klines]
                     if len(closes) < max(ema_slow, rsi_period):
                         raise Exception("Yeterli veri yok")
@@ -405,6 +319,7 @@ def _run_bot(bot_config_id: int):
             rsi = calculate_rsi(closes, rsi_period)
 
             # Trading sinyali
+            side: str
             if ema_fast_val > ema_slow_val and rsi < rsi_overbought:
                 side = "BUY"
             elif ema_fast_val < ema_slow_val and rsi > rsi_oversold:
@@ -413,8 +328,8 @@ def _run_bot(bot_config_id: int):
                 # Sinyal yok, bekle
                 bot_state = session.query(BotState).filter(BotState.id == bot_config_id).first()
                 if bot_state:
-                    bot_state.status = "waiting (no signal)" if not demo_mode else "waiting (demo mode)"
-                    bot_state.last_updated_at = datetime.utcnow()
+                    cast(Any, bot_state).status = ("waiting (no signal)" if not demo_mode else "waiting (demo mode)")
+                    cast(Any, bot_state).last_updated_at = datetime.utcnow()
                     session.commit()
                 return f"Waiting for signal - EMA Fast: {ema_fast_val:.2f}, EMA Slow: {ema_slow_val:.2f}, RSI: {rsi:.2f}"
 
@@ -432,50 +347,23 @@ def _run_bot(bot_config_id: int):
                 stop_loss_price = price * (1 + stop_loss / 100)
                 take_profit_price = price * (1 - take_profit / 100)
 
-            # Miktar: şimdilik sabit 1.0 -> normalize et
+            # Miktar: şimdilik sabit 1.0 (TODO: min qty/step size ile normalize)
             order_quantity = 1.0
             binance_order = None
-            normalized_qty = None
-            if not demo_mode and client:
+            if not demo_mode and client is not None:
                 try:
-                    # Normalize miktar
-                    normalized_qty = client.normalize_market_quantity(symbol, order_quantity, price, is_futures=(bot_config.position_type == "futures"))
-                    if not normalized_qty:
-                        return "Geçersiz miktar (normalize edilemedi)"
-                    import time as _t
-                    new_coid = f"bot{bot_config_id}-{int(_t.time()*1000)}-{side.lower()}"
-                    if bot_config.position_type == "futures":
+                    if cast(str, bot_config.position_type) == "futures":
                         if side == "BUY":
-                            binance_order = client.place_futures_market_buy_order(symbol, normalized_qty, new_client_order_id=new_coid)
+                            binance_order = cast(Any, client).place_futures_market_buy_order(cast(str, symbol), order_quantity)
                         else:
-                            binance_order = client.place_futures_market_sell_order(symbol, normalized_qty, new_client_order_id=new_coid)
-                        if not binance_order:
-                            existing = client.get_futures_order_by_client_order_id(symbol, new_coid)
-                            if existing:
-                                binance_order = existing
+                            binance_order = cast(Any, client).place_futures_market_sell_order(cast(str, symbol), order_quantity)
                     else:
                         if side == "BUY":
-                            binance_order = client.place_market_buy_order(symbol, normalized_qty, new_client_order_id=new_coid)
+                            binance_order = cast(Any, client).place_market_buy_order(cast(str, symbol), order_quantity)
                         else:
-                            binance_order = client.place_market_sell_order(symbol, normalized_qty, new_client_order_id=new_coid)
-                        if not binance_order:
-                            existing = client.get_spot_order_by_client_order_id(symbol, new_coid)
-                            if existing:
-                                binance_order = existing
+                            binance_order = cast(Any, client).place_market_sell_order(cast(str, symbol), order_quantity)
                 except Exception as e:
                     print(f"Emir hatası: {e}")
-                    bot_state = session.query(BotState).filter(BotState.id == bot_config_id).first()
-                    if bot_state:
-                        bot_state.last_error_message = str(e)
-                        bot_state.last_updated_at = datetime.utcnow()
-                        session.commit()
-
-            if demo_mode:
-                # Demo modda trade kaydı yapma
-                return f"[DEMO] {side} signal at {price} (no order sent)"
-
-            if not demo_mode and normalized_qty is not None and not binance_order:
-                return "Emir onaylanamadı, trade yazımı atlandı"
 
             trade = Trade(
                 bot_config_id=bot_config_id,
@@ -484,48 +372,46 @@ def _run_bot(bot_config_id: int):
                 side=side,
                 order_type="MARKET",
                 price=price,
-                quantity_filled=(normalized_qty if not demo_mode else order_quantity),
-                quote_quantity_filled=price * (normalized_qty if not demo_mode else order_quantity),
+                quantity_filled=order_quantity,
+                quote_quantity_filled=price * order_quantity,
                 commission_amount=None,
                 commission_asset=None,
                 pnl=None,
                 realized_pnl=realized_pnl,
-                binance_order_id=(str(binance_order.get('orderId')) if binance_order and isinstance(binance_order, dict) and binance_order.get('orderId') is not None else None)
+                binance_order_id=(str(binance_order.get('orderId')) if binance_order else None)
             )
-            # Atomik işlem
-            try:
-                with session.begin():
-                    session.add(trade)
+            session.add(trade)
 
-                    # BotState güncelle
-                    bot_state = session.query(BotState).filter(BotState.id == bot_config_id).with_for_update().first()
-                    if bot_state:
-                        bot_state.status = "running" if not demo_mode else "running (demo mode)"
-                        bot_state.last_updated_at = datetime.utcnow()
-                        if side == "BUY":
-                            bot_state.stop_loss_price = stop_loss_price
-                            bot_state.take_profit_price = take_profit_price
+            # BotState güncelle
+            bot_state = session.query(BotState).filter(BotState.id == bot_config_id).first()
+            if bot_state:
+                cast(Any, bot_state).status = "running" if not demo_mode else "running (demo mode)"
+                cast(Any, bot_state).last_updated_at = datetime.utcnow()
+                if side == "BUY":
+                    cast(Any, bot_state).stop_loss_price = stop_loss_price
+                    cast(Any, bot_state).take_profit_price = take_profit_price
 
-                        # Daily PnL hesapla - bugünkü tüm trade'lerin realized_pnl'sini topla
-                        today_trades = session.query(Trade).filter(
-                            Trade.bot_config_id == bot_config_id,
-                            Trade.realized_pnl.isnot(None)
-                        ).all()
+                # Daily PnL hesapla - bugünkü tüm trade'lerin realized_pnl'sini topla
+                today_trades = session.query(Trade).filter(
+                    Trade.bot_config_id == bot_config_id,
+                    Trade.realized_pnl.isnot(None)
+                ).all()
 
-                        daily_pnl = 0.0
-                        for t in today_trades:
-                            if t.realized_pnl:
-                                daily_pnl += float(t.realized_pnl)
+                daily_pnl = 0.0
+                for t in today_trades:
+                    if cast(Any, t.realized_pnl):
+                        daily_pnl += float(cast(Any, t.realized_pnl))
 
-                        bot_state.daily_pnl = daily_pnl
+                cast(Any, bot_state).daily_pnl = daily_pnl
 
-                        # Trade sayısını güncelle - bugünkü tüm trade'leri say
-                        today_trades_count = session.query(Trade).filter(
-                            Trade.bot_config_id == bot_config_id
-                        ).count()
-                        bot_state.daily_trades_count = today_trades_count
-            except IntegrityError:
-                session.rollback()
+                # Trade sayısını güncelle - bugünkü tüm trade'leri say
+                today = date.today()
+                today_trades_count = session.query(Trade).filter(
+                    Trade.bot_config_id == bot_config_id
+                ).count()
+                cast(Any, bot_state).daily_trades_count = today_trades_count
+
+            session.commit()
 
             # Basit webhook bildirimi (opsiyonel)
             try:
@@ -546,15 +432,15 @@ def _run_bot(bot_config_id: int):
 
             # E-posta bildirimi (opsiyonel): Bot sahibine
             try:
-                owner: User = session.query(User).filter(User.id == bot_config.user_id).first()
-                if owner and owner.email:
+                owner_user_ema: Optional[User] = session.query(User).filter(User.id == bot_config.user_id).first()
+                if owner_user_ema is not None and owner_user_ema.email is not None:
                     send_trade_notification(
-                        to_email=owner.email,
-                        symbol=symbol,
-                        side=side,
+                        to_email=cast(str, owner_user_ema.email),
+                        symbol=cast(str, symbol),
+                        side=cast(str, side),
                         price=float(price),
-                        quantity=float(normalized_qty),
-                        order_id=trade.binance_order_id,
+                        quantity=float(order_quantity),
+                        order_id=cast(Optional[str], trade.binance_order_id),
                     )
             except Exception:
                 pass
@@ -564,53 +450,7 @@ def _run_bot(bot_config_id: int):
         else:
             bot_state = session.query(BotState).filter(BotState.id == bot_config_id).first()
             if bot_state:
-                bot_state.status = "error"
-                bot_state.last_updated_at = datetime.utcnow()
+                cast(Any, bot_state).status = "error"
+                cast(Any, bot_state).last_updated_at = datetime.utcnow()
                 session.commit()
             return f"Unknown strategy: {strategy}"
-
-    # Kilidi bırak (aynı session üzerinden otomatik bırakılır; yine de açıkça deneriz)
-    try:
-        with SyncSessionLocal() as release_sess:
-            release_sess.execute(text("SELECT pg_advisory_unlock(:lock_key)"), {"lock_key": int(10_000_000 + bot_config_id)})
-    except Exception:
-        pass
-
-@celery_app.task(name='app.core.bot_tasks.reactivate_bots_after_reset')
-def reactivate_bots_after_reset():
-    """Günlük limit nedeniyle durmuş botları ertesi gün otomatik yeniden başlat."""
-    from sqlalchemy import and_
-    with SyncSessionLocal() as session:
-        now = datetime.utcnow()
-        today_start = datetime(now.year, now.month, now.day)
-
-        stop_statuses = [
-            "stopped (max_daily_trades)",
-            "stopped (daily_target_reached)",
-            "stopped (max_daily_loss_reached)",
-        ]
-
-        states = (
-            session.query(BotState)
-            .filter(
-                BotState.status.in_(stop_statuses),
-                BotState.last_updated_at < today_start,
-            )
-            .all()
-        )
-
-        reactivated = 0
-        for state in states:
-            cfg = session.query(BotConfig).filter(BotConfig.id == state.id).first()
-            if not cfg:
-                continue
-            # Kullanıcı manuel kapatmadıysa yeniden başlat
-            with session.begin():
-                cfg.is_active = True
-                state.status = "pending"
-                state.daily_pnl = 0.0
-                state.daily_trades_count = 0
-                state.last_updated_at = datetime.utcnow()
-            reactivated += 1
-
-        return f"Reactivated {reactivated} bots"

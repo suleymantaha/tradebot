@@ -13,7 +13,6 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     networks:
       - tradebot-network
     healthcheck:
@@ -42,6 +41,7 @@ services:
 
   # Backend API
   backend:
+    image: tradebot-backend:latest
     build:
       context: .
       dockerfile: Dockerfile.backend
@@ -84,7 +84,71 @@ services:
         alembic upgrade head &&
         echo '✅ Database migration tamamlandı!' &&
         echo '🚀 Backend server başlatılıyor...' &&
-        /usr/local/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+        /usr/local/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000
+      "
+
+  # Celery Worker
+  celery-worker:
+    image: tradebot-backend:latest
+    container_name: tradebot-celery-worker
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=postgresql://tradebot_user:${POSTGRES_PASSWORD:-tradebot_secure_pass_123}@postgres:5432/tradebot_db
+      - REDIS_URL=redis://redis:6379
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - SECRET_KEY=${SECRET_KEY:-super_secret_key_change_in_production_12345}
+      - FERNET_KEY=${FERNET_KEY}
+      - ALGORITHM=${ALGORITHM:-HS256}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-30}
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - tradebot-network
+    volumes:
+      - ./logs:/app/logs
+      - ./alembic:/app/alembic
+    command: >
+      sh -c "
+        alembic upgrade head && \
+        celery -A app.core.celery_app.celery_app worker -l info
+      "
+
+  # Celery Beat (Periyodik Görevler)
+  celery-beat:
+    image: tradebot-backend:latest
+    container_name: tradebot-celery-beat
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=postgresql://tradebot_user:${POSTGRES_PASSWORD:-tradebot_secure_pass_123}@postgres:5432/tradebot_db
+      - REDIS_URL=redis://redis:6379
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - SECRET_KEY=${SECRET_KEY:-super_secret_key_change_in_production_12345}
+      - FERNET_KEY=${FERNET_KEY}
+      - ALGORITHM=${ALGORITHM:-HS256}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-30}
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - tradebot-network
+    volumes:
+      - ./logs:/app/logs
+      - ./alembic:/app/alembic
+    command: >
+      sh -c "
+        alembic upgrade head && \
+        celery -A app.core.celery_app.celery_app beat -l info
       "
 
   # Celery Worker
@@ -177,7 +241,7 @@ services:
       - /run
       - /var/cache/nginx
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:80" ]
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:80 > /dev/null 2>&1 || exit 1" ]
       interval: 30s
       timeout: 10s
       retries: 3

@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, field_serializer
-from typing import Optional
+from typing import Optional, cast
 from datetime import datetime
 from app.core.crypto import decrypt_value
 
@@ -11,7 +11,7 @@ class ApiKeyCreate(BaseModel):
 class ApiKeyResponse(BaseModel):
     id: int
     label: Optional[str]
-    api_key_masked: str = Field(alias="encrypted_api_key")
+    api_key_masked: str
     is_valid: bool
     created_at: datetime
     updated_at: datetime
@@ -24,7 +24,7 @@ class ApiKeyResponse(BaseModel):
     def model_validate_orm(cls, obj):
         # API key'i çöz ve maskele
         try:
-            decrypted_api_key = decrypt_value(obj.encrypted_api_key)
+            decrypted_api_key = decrypt_value(cast(str, obj.encrypted_api_key))
             masked_api_key = decrypted_api_key[:4] + "****" + decrypted_api_key[-4:] if len(decrypted_api_key) > 8 else "****"
         except:
             masked_api_key = "****"

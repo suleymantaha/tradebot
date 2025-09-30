@@ -5,8 +5,8 @@ from app.models.user import User
 from app.models.api_key import ApiKey
 from app.core.crypto import decrypt_value
 from app.core.binance_client import BinanceClientWrapper
-from sqlalchemy.future import select
-from typing import Optional
+from sqlalchemy import select
+from typing import Optional, cast
 import traceback
 import logging
 
@@ -30,8 +30,8 @@ async def get_spot_symbols(db: AsyncSession = Depends(get_db), current_user: Opt
         if api_key:
             logger.info(f"API key bulundu, kullanıcı API'si ile spot sembol çekiliyor...")
             # API key varsa şifreleri çöz ve kendi API ile dene
-            api_key_plain = decrypt_value(api_key.encrypted_api_key)
-            secret_key_plain = decrypt_value(api_key.encrypted_secret_key)
+            api_key_plain = decrypt_value(cast(str, api_key.encrypted_api_key))
+            secret_key_plain = decrypt_value(cast(str, api_key.encrypted_secret_key))
 
             # Önce testnet dene, sonra mainnet
             try:
@@ -113,8 +113,8 @@ async def get_futures_symbols(db: AsyncSession = Depends(get_db), current_user: 
         if api_key:
             logger.info(f"API key bulundu, kullanıcı API'si ile futures sembol çekiliyor...")
             # API key varsa şifreleri çöz ve kendi API ile dene
-            api_key_plain = decrypt_value(api_key.encrypted_api_key)
-            secret_key_plain = decrypt_value(api_key.encrypted_secret_key)
+            api_key_plain = decrypt_value(cast(str, api_key.encrypted_api_key))
+            secret_key_plain = decrypt_value(cast(str, api_key.encrypted_secret_key))
 
             # Önce testnet dene, sonra mainnet
             try:

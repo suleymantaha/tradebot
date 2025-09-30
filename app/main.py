@@ -4,10 +4,11 @@ from fastapi.responses import StreamingResponse
 from app.api.routes import auth_router, api_key_router, bot_config_router, bot_state_router, trade_router, bot_runner_router, bot_report_router, symbols_router, backtest_router
 from app.api.routes.health import router as health_router
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
+from sqlalchemy import select
 from app.dependencies.auth import get_db, get_current_active_user
 from app.models.user import User
 from app.models.bot_state import BotState
+from typing import cast
 import asyncio
 
 app = FastAPI(title="TradeBot API")
@@ -19,6 +20,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],  # Tüm HTTP metodlarına izin ver
     allow_headers=["*"],  # Tüm header'lara izin ver
+    expose_headers=["Content-Disposition"],  # CSV dosya adını istemcinin okuyabilmesi için
 )
 
 app.include_router(auth_router)
@@ -43,9 +45,9 @@ async def bot_status_stream(bot_config_id: int, db: AsyncSession = Depends(get_d
             payload = {
                 "status": state.status if state else "unknown",
                 "in_position": bool(state.in_position) if state else False,
-                "entry_price": float(state.entry_price) if state and state.entry_price is not None else None,
-                "daily_pnl": float(state.daily_pnl) if state and state.daily_pnl is not None else 0.0,
-                "daily_trades_count": int(state.daily_trades_count) if state and state.daily_trades_count is not None else 0,
+                "entry_price": float(cast(float, state.entry_price)) if state and state.entry_price is not None else None,
+                "daily_pnl": float(cast(float, state.daily_pnl)) if state and state.daily_pnl is not None else 0.0,
+                "daily_trades_count": int(cast(int, state.daily_trades_count)) if state and state.daily_trades_count is not None else 0,
                 "last_updated_at": str(state.last_updated_at) if state else None,
             }
             if payload != last_payload:
