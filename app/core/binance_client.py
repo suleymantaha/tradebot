@@ -1,6 +1,6 @@
 from binance.client import Client
 from binance.exceptions import BinanceAPIException, BinanceOrderException
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List, cast
 import logging
 import requests
 import os
@@ -76,17 +76,42 @@ class BinanceClientWrapper:
             logger.error(f"{symbol} fiyatı alınamadı: {e}")
             return None
 
-    def get_historical_klines(self, symbol: str, interval: str, limit: int = 100) -> Optional[list]:
+    def get_historical_klines(self, symbol: str, interval: str, limit: int = 100) -> Optional[List[Any]]:
         """Historik candlestick verilerini döndürür"""
         try:
-            klines = self.client.get_klines(
+            klines = cast(List[Any], self.client.get_klines(
                 symbol=symbol,
                 interval=interval,
                 limit=limit
-            )
+            ))
             return klines
         except Exception as e:
             logger.error(f"{symbol} historik veriler alınamadı: {e}")
+            return None
+
+    def get_symbol_filters_spot(self, symbol: str) -> Optional[Dict[str, Any]]:
+        """Spot için sembol filtrelerini döndürür (LOT_SIZE, MIN_NOTIONAL vb.)"""
+        try:
+            info = self.client.get_symbol_info(symbol)
+            if not info:
+                return None
+            filters = {f['filterType']: f for f in info.get('filters', [])}
+            return filters
+        except Exception as e:
+            logger.error(f"Spot sembol filtreleri alınamadı {symbol}: {e}")
+            return None
+
+    def get_symbol_filters_futures(self, symbol: str) -> Optional[Dict[str, Any]]:
+        """Futures için sembol filtrelerini döndürür (LOT_SIZE, MIN_NOTIONAL vb.)"""
+        try:
+            info = self.client.futures_exchange_info()
+            for s in info.get('symbols', []):
+                if s.get('symbol') == symbol:
+                    filters = {f['filterType']: f for f in s.get('filters', [])}
+                    return filters
+            return None
+        except Exception as e:
+            logger.error(f"Futures sembol filtreleri alınamadı {symbol}: {e}")
             return None
 
     def place_market_buy_order(self, symbol: str, quantity: float) -> Optional[Dict[str, Any]]:
@@ -234,7 +259,7 @@ class BinanceClientWrapper:
     def transfer_to_futures(self, asset: str, amount: float) -> Optional[Dict[str, Any]]:
         """Spot'tan Futures'a fon transferi"""
         try:
-            result = self.client.futures_transfer(
+            result = self.client.futures_account_transfer(
                 asset=asset,
                 amount=amount,
                 type=1  # 1: spot to futures, 2: futures to spot
@@ -248,7 +273,7 @@ class BinanceClientWrapper:
     def transfer_to_spot(self, asset: str, amount: float) -> Optional[Dict[str, Any]]:
         """Futures'tan Spot'a fon transferi"""
         try:
-            result = self.client.futures_transfer(
+            result = self.client.futures_account_transfer(
                 asset=asset,
                 amount=amount,
                 type=2  # 1: spot to futures, 2: futures to spot

@@ -4,4 +4,4 @@ from .bot_config import BotConfig
 from .bot_state import BotState
 from .trade import Trade
 from .backtest import Backtest
-from app.database import Base
+from app.db_base import Base

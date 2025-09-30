@@ -414,7 +414,7 @@ Kurulum yaklaşık 5-10 dakika sürer.
                 color = "red"
 
             label = ttk.Label(self.check_frame, text=f"{name}: {status}", foreground=color)
-            label.check_result = status
+            setattr(label, "check_result", status)
             label.pack(anchor="w", pady=2)
 
     def validate_system(self):
@@ -426,7 +426,7 @@ Kurulum yaklaşık 5-10 dakika sürer.
             messagebox.showwarning("Uyarı", "Lütfen önce sistem kontrolü yapın!")
             return False
 
-        failed_checks = [widget for widget in checks if "❌" in widget.check_result]
+        failed_checks = [widget for widget in checks if "❌" in str(getattr(widget, "check_result", ""))]
         if failed_checks:
             messagebox.showerror("Hata", "Bazı sistem gereksinimleri karşılanmıyor!")
             return False
@@ -1026,8 +1026,9 @@ echo "TradeBot durduruldu!"
     def create_windows_shortcut(self, desktop_path):
         """Windows için shortcut oluştur"""
         try:
-            import winshell
-            from win32com.client import Dispatch
+            import importlib
+            win32com_client = importlib.import_module('win32com.client')  # type: ignore[reportMissingModuleSource]
+            Dispatch = getattr(win32com_client, 'Dispatch')
 
             shortcut_path = os.path.join(desktop_path, "TradeBot.lnk")
             shell = Dispatch('WScript.Shell')

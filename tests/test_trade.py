@@ -1,10 +1,11 @@
 import pytest
-from httpx import AsyncClient
+from httpx import AsyncClient, ASGITransport
 from app.main import app
 
 @pytest.mark.asyncio
 async def test_trade_crud():
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
         # Kullanıcı kaydı ve login
         await ac.post("/api/v1/auth/register", json={"email": "tradeuser@example.com", "password": "testpass"})
         login_resp = await ac.post("/api/v1/auth/login", json={"email": "tradeuser@example.com", "password": "testpass"})
@@ -61,7 +62,8 @@ async def test_trade_crud():
 
 @pytest.mark.asyncio
 async def test_trade_unauthorized():
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
         # Yetkisiz ekleme
         trade_data = {"bot_config_id": 1, "user_id": 1, "symbol": "BTC/USDT", "side": "BUY", "order_type": "MARKET", "price": 50000.0, "quantity_filled": 0.01, "quote_quantity_filled": 500.0}
         resp = await ac.post("/api/v1/trades/", json=trade_data)

@@ -24,6 +24,7 @@ const MainLayout = () => {
         { name: 'Dashboard', href: '/dashboard', icon: '📊' },
         { name: 'Botlar', href: '/bots', icon: '🤖' },
         { name: 'Backtest', href: '/backtest', icon: '📈' },
+        { name: 'Piyasalar', href: '/markets', icon: '📉' },
         { name: 'API Anahtarları', href: '/api-keys', icon: '🔑' },
     ]
 

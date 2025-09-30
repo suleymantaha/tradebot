@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
+import BacktestInsights from './BacktestInsights';
+import apiService from '../../services/api';
 
 const BacktestHistory = ({ onSelectBacktest }) => {
     const [backtests, setBacktests] = useState([]);
@@ -14,20 +16,8 @@ const BacktestHistory = ({ onSelectBacktest }) => {
     const fetchBacktests = async () => {
         try {
             setLoading(true);
-            const token = localStorage.getItem('token');
-            const response = await fetch('/api/v1/backtest/list', {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                setBacktests(data.data || []);
-            } else {
-                console.error('Failed to fetch backtests');
-            }
+            const data = await apiService.getBacktestList();
+            setBacktests(data?.data || []);
         } catch (error) {
             console.error('Error fetching backtests:', error);
         } finally {
@@ -37,20 +27,8 @@ const BacktestHistory = ({ onSelectBacktest }) => {
 
     const deleteBacktest = async (backtestId) => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`/api/v1/backtest/delete/${backtestId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (response.ok) {
-                setBacktests(prev => prev.filter(bt => bt.id !== backtestId));
-            } else {
-                console.error('Failed to delete backtest');
-            }
+            await apiService.delete(`/api/v1/backtest/delete/${backtestId}`);
+            setBacktests(prev => prev.filter(bt => bt.id !== backtestId));
         } catch (error) {
             console.error('Error deleting backtest:', error);
         }
@@ -58,21 +36,9 @@ const BacktestHistory = ({ onSelectBacktest }) => {
 
     const viewBacktestDetail = async (backtestId) => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`/api/v1/backtest/detail/${backtestId}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                setSelectedBacktest(data.data);
-                setIsModalOpen(true);
-            } else {
-                console.error('Failed to fetch backtest detail');
-            }
+            const data = await apiService.get(`/api/v1/backtest/detail/${backtestId}`);
+            setSelectedBacktest(data?.data);
+            setIsModalOpen(true);
         } catch (error) {
             console.error('Error fetching backtest detail:', error);
         }
@@ -185,8 +151,8 @@ const BacktestHistory = ({ onSelectBacktest }) => {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${backtest.test_mode === 'true'
-                                                    ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                                                    : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                                ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                                                : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                                                 }`}>
                                                 {backtest.test_mode === 'true' ? 'Test' : 'Gerçek'}
                                             </span>
@@ -235,6 +201,27 @@ const BacktestHistory = ({ onSelectBacktest }) => {
                         </div>
 
                         <div className="p-6">
+                            {/* İndirme Butonları */}
+                            <div className="flex flex-wrap gap-2 mb-4">
+                                <button
+                                    onClick={() => apiService.downloadBacktestDaily(selectedBacktest.id)}
+                                    className="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-lg"
+                                >
+                                    ⬇️ Günlük CSV
+                                </button>
+                                <button
+                                    onClick={() => apiService.downloadBacktestMonthly(selectedBacktest.id)}
+                                    className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg"
+                                >
+                                    ⬇️ Aylık CSV
+                                </button>
+                                <button
+                                    onClick={() => apiService.downloadBacktestTrades(selectedBacktest.id)}
+                                    className="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm rounded-lg"
+                                >
+                                    ⬇️ İşlemler CSV
+                                </button>
+                            </div>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                                 <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
                                     <div className="text-sm font-medium text-gray-500 dark:text-gray-400">Başlangıç Sermayesi</div>
@@ -289,7 +276,8 @@ const BacktestHistory = ({ onSelectBacktest }) => {
                                 </div>
                             </div>
 
-                            {/* Parameters Section */}
+                            {/* Parameters Section */
+                            }
                             <div className="mb-6">
                                 <h4 className="text-md font-semibold text-gray-900 dark:text-white mb-3">Kullanılan Parametreler</h4>
                                 <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
@@ -298,6 +286,9 @@ const BacktestHistory = ({ onSelectBacktest }) => {
                                     </pre>
                                 </div>
                             </div>
+
+                            {/* AI-like Insights for historical backtests */}
+                            <BacktestInsights results={selectedBacktest} />
                         </div>
                     </div>
                 </div>

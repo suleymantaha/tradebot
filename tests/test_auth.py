@@ -1,5 +1,5 @@
 import pytest
-from httpx import AsyncClient
+from httpx import AsyncClient, ASGITransport
 from app.main import app
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -7,7 +7,8 @@ import asyncio
 
 @pytest.mark.asyncio
 async def test_register_and_login():
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
         # Register
         response = await ac.post("/api/v1/auth/register", json={"email": "test@example.com", "password": "testpass"})
         assert response.status_code == 201
@@ -31,7 +32,8 @@ async def test_register_and_login():
 
 @pytest.mark.asyncio
 async def test_register_duplicate():
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
         # İlk kayıt
         await ac.post("/api/v1/auth/register", json={"email": "dupe@example.com", "password": "testpass"})
         # Aynı email ile tekrar kayıt
@@ -40,7 +42,8 @@ async def test_register_duplicate():
 
 @pytest.mark.asyncio
 async def test_login_wrong_password():
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
         await ac.post("/api/v1/auth/register", json={"email": "wrongpass@example.com", "password": "rightpass"})
         response = await ac.post("/api/v1/auth/login", json={"email": "wrongpass@example.com", "password": "wrongpass"})
         assert response.status_code == 401

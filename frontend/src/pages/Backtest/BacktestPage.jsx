@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useTheme } from '../../contexts/ThemeContext'
 import apiService, { symbolsAPI } from '../../services/api'
+import BacktestInsights from '../../components/Backtest/BacktestInsights'
 import BacktestHistory from '../../components/Backtest/BacktestHistory'
 import useAuthStore from '../../store/authStore'
 import { useNavigate } from 'react-router-dom'
@@ -729,6 +730,29 @@ const BacktestPage = () => {
 
                                 {results && (
                                     <div className="space-y-6">
+                                        {/* CSV İndirme Butonları (Yeni backtest sonucu için) */}
+                                        {results.id && (
+                                            <div className="flex flex-wrap gap-2">
+                                                <button
+                                                    onClick={() => apiService.downloadBacktestDaily(results.id)}
+                                                    className="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-lg"
+                                                >
+                                                    ⬇️ Günlük CSV
+                                                </button>
+                                                <button
+                                                    onClick={() => apiService.downloadBacktestMonthly(results.id)}
+                                                    className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg"
+                                                >
+                                                    ⬇️ Aylık CSV
+                                                </button>
+                                                <button
+                                                    onClick={() => apiService.downloadBacktestTrades(results.id)}
+                                                    className="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm rounded-lg"
+                                                >
+                                                    ⬇️ İşlemler CSV
+                                                </button>
+                                            </div>
+                                        )}
                                         {/* Özet Kartları */}
                                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                             <div className={`p-4 rounded-xl ${isDark ? 'bg-gray-700' : 'bg-indigo-50'}`}>
@@ -823,6 +847,9 @@ const BacktestPage = () => {
                                                 </div>
                                             </div>
                                         </div>
+
+                                        {/* AI benzeri özet ve grafik okuma (heuristik) */}
+                                        <BacktestInsights results={results} />
 
                                         {/* Aylık Performans */}
                                         {results.monthly_results && Object.keys(results.monthly_results).length > 0 && (

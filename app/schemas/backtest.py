@@ -24,8 +24,9 @@ class BacktestSummary(BaseModel):
     test_mode: str
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = {
+        "from_attributes": True
+    }
 
 class BacktestDetail(BacktestSummary):
     parameters: Dict[str, Any]
@@ -38,5 +39,6 @@ class BacktestDetail(BacktestSummary):
     daily_results: Optional[List[Dict[str, Any]]] = None
     monthly_results: Optional[Dict[str, Any]] = None
 
-    class Config:
-        from_attributes = True
+    model_config = {
+        "from_attributes": True
+    }

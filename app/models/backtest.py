@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, JSON, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from app.database import Base
+from app.db_base import Base
 
 class Backtest(Base):
     __tablename__ = "backtests"
@@ -35,6 +35,7 @@ class Backtest(Base):
 
     # Metadata
     test_mode = Column(String, nullable=False, default="true")  # "true" or "false"
+    market_type = Column(String, nullable=False, default="spot")  # 'spot' or 'futures'
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 

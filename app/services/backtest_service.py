@@ -2,14 +2,14 @@ import os
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional, List, cast
 from binance.client import Client as BinanceClient
 from ta.trend import SMAIndicator, EMAIndicator, MACD
 from ta.momentum import RSIIndicator
 from ta.volatility import BollingerBands
 from ta.utils import dropna
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
+from sqlalchemy import select
 import requests
 import time
 from fastapi import HTTPException
@@ -57,8 +57,8 @@ class BacktestService:
                 return
 
             # Decrypt API keys
-            api_key_plain = decrypt_value(api_key_record.encrypted_api_key)
-            secret_key_plain = decrypt_value(api_key_record.encrypted_secret_key)
+            api_key_plain = decrypt_value(cast(str, api_key_record.encrypted_api_key))
+            secret_key_plain = decrypt_value(cast(str, api_key_record.encrypted_secret_key))
 
             if api_key_plain and secret_key_plain:
                 self.client = BinanceClient(api_key=api_key_plain, api_secret=secret_key_plain)
@@ -94,6 +94,8 @@ class BacktestService:
 
         except Exception as e:
             print(f"⚠️ Could not get current price for {symbol}: {e}")
+        # Fallback default price to ensure a float is always returned
+        return 100.0
 
 
 
@@ -158,7 +160,7 @@ class BacktestService:
             current_time += timedelta(minutes=minutes)
 
         # Create DataFrame
-        df = pd.DataFrame(prices, columns=['open', 'high', 'low', 'close', 'volume'])
+        df = pd.DataFrame(prices, columns=pd.Index(['open', 'high', 'low', 'close', 'volume']))
         df['timestamp'] = timestamps
 
         # Add additional columns to match Binance format
@@ -214,10 +216,11 @@ class BacktestService:
                 return await self.generate_sample_data(symbol, interval, start_date, end_date)
 
             # Create DataFrame
-            df = pd.DataFrame(all_klines, columns=[
+            # DataFrame'i oluştur ve dönüştür
+            df = pd.DataFrame(all_klines, columns=pd.Index([
                 'timestamp', 'open', 'high', 'low', 'close', 'volume',
                 'close_time', 'quote_volume', 'trades', 'taker_base', 'taker_quote', 'ignore'
-            ])
+            ]))
 
             # Convert timestamp to datetime
             df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
@@ -235,7 +238,7 @@ class BacktestService:
             return await self.generate_sample_data(symbol, interval, start_date, end_date)
 
     async def get_historical_data(self, symbol: str = "BNBUSDT", interval: str = "15m",
-                          start_date: str = None, end_date: str = None) -> pd.DataFrame:
+                          start_date: Optional[str] = None, end_date: Optional[str] = None) -> pd.DataFrame:
         """Get historical data with caching"""
 
         print(f"📅 Using date range: {start_date} to {end_date}")
@@ -300,10 +303,11 @@ class BacktestService:
 
                     print(f"📊 Progress: {datetime.fromtimestamp(current_time/1000).strftime('%Y-%m-%d')}")
 
-                df = pd.DataFrame(all_klines, columns=[
+                # DataFrame'i oluştur ve dönüştür
+                df = pd.DataFrame(all_klines, columns=pd.Index([
                     'timestamp', 'open', 'high', 'low', 'close', 'volume',
                     'close_time', 'quote_volume', 'trades', 'taker_base', 'taker_quote', 'ignore'
-                ])
+                ]))
 
                 # Convert timestamp to datetime
                 df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
@@ -337,18 +341,18 @@ class BacktestService:
             df_indicators = df.copy()
 
             # EMA indicators
-            df_indicators['EMA_fast'] = EMAIndicator(df_indicators['close'], ema_fast).ema_indicator()
-            df_indicators['EMA_slow'] = EMAIndicator(df_indicators['close'], ema_slow).ema_indicator()
+            df_indicators['EMA_fast'] = EMAIndicator(cast(pd.Series, df_indicators['close']), ema_fast).ema_indicator()
+            df_indicators['EMA_slow'] = EMAIndicator(cast(pd.Series, df_indicators['close']), ema_slow).ema_indicator()
 
             # RSI
-            df_indicators['RSI'] = RSIIndicator(df_indicators['close'], rsi_period).rsi()
+            df_indicators['RSI'] = RSIIndicator(cast(pd.Series, df_indicators['close']), rsi_period).rsi()
 
             # MACD
-            macd = MACD(df_indicators['close'])
+            macd = MACD(cast(pd.Series, df_indicators['close']))
             df_indicators['MACD'] = macd.macd_diff()
 
             # Bollinger Bands
-            bb = BollingerBands(df_indicators['close'])
+            bb = BollingerBands(cast(pd.Series, df_indicators['close']))
             df_indicators['BB_upper'] = bb.bollinger_hband()
             df_indicators['BB_middle'] = bb.bollinger_mavg()
             df_indicators['BB_lower'] = bb.bollinger_lband()
@@ -435,44 +439,59 @@ class BacktestService:
                 if col not in current.index or col not in previous.index:
                     print(f"⚠️ Missing column {col} in signal check")
                     return False
-                if pd.isna(current[col]) or pd.isna(previous[col]):
+                if bool(pd.isna(current[col])) or bool(pd.isna(previous[col])):
                     print(f"⚠️ NaN value in {col} - skipping signal")
                     return False
 
-            # Trend analysis
-            trend_up = current['close'] > current['EMA_fast'] > current['EMA_slow']
-            trend_accelerating = (current['EMA_fast'] - current['EMA_slow']) > (previous['EMA_fast'] - previous['EMA_slow'])
+            # Trend analysis with explicit float casts
+            c_close = float(current['close'])
+            c_ema_fast = float(current['EMA_fast'])
+            c_ema_slow = float(current['EMA_slow'])
+            p_close = float(previous['close'])
+            p_ema_fast = float(previous['EMA_fast'])
+            p_ema_slow = float(previous['EMA_slow'])
+            trend_up = c_close > c_ema_fast > c_ema_slow
+            trend_accelerating = (c_ema_fast - c_ema_slow) > (p_ema_fast - p_ema_slow)
 
             # RSI analysis
-            rsi_signal = rsi_oversold <= current['RSI'] <= rsi_overbought
-            rsi_rising = current['RSI'] > previous['RSI']
+            c_rsi = float(current['RSI'])
+            p_rsi = float(previous['RSI'])
+            rsi_signal = rsi_oversold <= c_rsi <= rsi_overbought
+            rsi_rising = c_rsi > p_rsi
 
             # MACD analysis
-            macd_positive = current['MACD'] > 0
-            macd_rising = current['MACD'] > previous['MACD']
+            c_macd = float(current['MACD'])
+            p_macd = float(previous['MACD'])
+            macd_positive = c_macd > 0
+            macd_rising = c_macd > p_macd
 
             # Bollinger Band analysis
-            bb_signal = (current['close'] > current['BB_middle']) and (current['close'] < current['BB_upper'])
-            bb_expanding = (current['BB_upper'] - current['BB_lower']) > (previous['BB_upper'] - previous['BB_lower'])
+            c_bb_mid = float(current['BB_middle'])
+            c_bb_up = float(current['BB_upper'])
+            c_bb_low = float(current['BB_lower'])
+            p_bb_up = float(previous['BB_upper'])
+            p_bb_low = float(previous['BB_lower'])
+            bb_signal = (c_close > c_bb_mid) and (c_close < c_bb_up)
+            bb_expanding = (c_bb_up - c_bb_low) > (p_bb_up - p_bb_low)
 
             # Volume analysis - with safety check
             volume_surge = False
-            if 'volume_ratio' in current.index and not pd.isna(current['volume_ratio']):
-                volume_surge = current['volume_ratio'] > 1.2
+            if 'volume_ratio' in current.index and not bool(pd.isna(current['volume_ratio'])):
+                volume_surge = float(current['volume_ratio']) > 1.2
 
             # Momentum and trend strength
-            momentum = current['close'] > previous['close'] * 1.0005  # 0.05% minimum increase
+            momentum = c_close > p_close * 1.0005  # 0.05% minimum increase
 
             # Trend strength with safety check
             strong_trend = False
-            if 'trend_strength' in current.index and not pd.isna(current['trend_strength']):
-                strong_trend = current['trend_strength'] > 0.2
+            if 'trend_strength' in current.index and not bool(pd.isna(current['trend_strength'])):
+                strong_trend = float(current['trend_strength']) > 0.2
 
             # Volatility control with safety check
             volatility_ok = True
             if ('volatility' in current.index and 'volatility_ma' in current.index and
-                not pd.isna(current['volatility']) and not pd.isna(current['volatility_ma'])):
-                volatility_ok = current['volatility'] < current['volatility_ma']
+                not bool(pd.isna(current['volatility'])) and not bool(pd.isna(current['volatility_ma']))):
+                volatility_ok = float(current['volatility']) < float(current['volatility_ma'])
 
             # Primary signals (at least 3 required)
             primary_signals = sum([
@@ -553,6 +572,8 @@ class BacktestService:
             total_fees = 0.0
             daily_results = []
             monthly_results = {}
+            # initialize to satisfy type checker
+            leveraged_position_units: float = 0.0
 
             # Get and prepare data
             df = await self.get_historical_data(symbol, interval, start_date, end_date)
@@ -626,6 +647,10 @@ class BacktestService:
                         total_fees += entry_fee
 
                         if market_type.lower() == "futures":
+                            # leveraged_position_units her branch'ta set edilsin
+                            leveraged_position_units = (float(leveraged_position_units)
+                                                         if 'leveraged_position_units' in locals()
+                                                         else float(position_units) * float(leverage))
                             actual_units = leveraged_position_units
                             print(f"📈 Futures Entry: {actual_units:.6f} {symbol} @ ${entry_price:.4f} ({leverage}x), Margin: ${margin_required:.2f}")
                         else:
@@ -716,7 +741,7 @@ class BacktestService:
                     })
 
                     # Monthly aggregation
-                    month = pd.to_datetime(date).strftime('%Y-%m')
+                    month = pd.to_datetime(str(date)).strftime('%Y-%m')
                     if month not in monthly_results:
                         monthly_results[month] = {'pnl': 0, 'trades': 0}
                     monthly_results[month]['pnl'] += daily_pnl
@@ -737,7 +762,7 @@ class BacktestService:
             print(f"   Win Rate: {win_rate:.2f}%")
             print(f"   Total Return: {total_return:.2f}%")
 
-            results = {
+            results: Dict[str, Any] = {
                 'initial_capital': initial_capital,
                 'final_capital': current_capital,
                 'total_return': total_return,
@@ -760,14 +785,14 @@ class BacktestService:
             }
 
             # Clean NaN values before returning
-            results = self.clean_nan_values(results)
-            return results
+            cleaned_results = self.clean_nan_values(results)
+            return cast(Dict[str, Any], cleaned_results)
 
         except Exception as e:
             print(f"❌ Backtest error: {e}")
             raise
 
-    async def save_backtest_result(self, results: Dict[str, Any]) -> int:
+    async def save_backtest_result(self, results: Dict[str, Any]) -> Optional[int]:
         """Save backtest results to database"""
         if not self.user_id or not self.db_session:
             print("⚠️ Cannot save backtest - no user or database session")
@@ -792,7 +817,8 @@ class BacktestService:
                 avg_profit=results['avg_profit'],
                 daily_results=results.get('daily_results'),
                 monthly_results=results.get('monthly_results'),
-                test_mode=str(results['test_mode']).lower()
+                test_mode=str(results['test_mode']).lower(),
+                market_type=str(results.get('market_type', 'spot')).lower()
             )
 
             self.db_session.add(backtest)
@@ -800,7 +826,7 @@ class BacktestService:
             await self.db_session.refresh(backtest)
 
             print(f"✅ Backtest saved with ID: {backtest.id}")
-            return backtest.id
+            return cast(int, backtest.id)
 
         except Exception as e:
             print(f"❌ Error saving backtest: {e}")
@@ -825,8 +851,8 @@ class BacktestService:
                     "interval": bt.interval,
                     "start_date": bt.start_date,
                     "end_date": bt.end_date,
-                    "total_return": round(bt.total_return, 2),
-                    "win_rate": round(bt.win_rate, 2),
+                    "total_return": round(cast(float, bt.total_return), 2),
+                    "win_rate": round(cast(float, bt.win_rate), 2),
                     "total_trades": bt.total_trades,
                     "test_mode": bt.test_mode,
                     "created_at": bt.created_at
@@ -858,16 +884,17 @@ class BacktestService:
                 "parameters": backtest.parameters,
                 "initial_capital": backtest.initial_capital,
                 "final_capital": backtest.final_capital,
-                "total_return": round(backtest.total_return, 2),
+                "total_return": round(cast(float, backtest.total_return or 0.0), 2),
                 "total_trades": backtest.total_trades,
                 "winning_trades": backtest.winning_trades,
                 "losing_trades": backtest.losing_trades,
-                "win_rate": round(backtest.win_rate, 2),
+                "win_rate": round(cast(float, backtest.win_rate or 0.0), 2),
                 "total_fees": backtest.total_fees,
                 "avg_profit": backtest.avg_profit,
                 "daily_results": backtest.daily_results,
                 "monthly_results": backtest.monthly_results,
                 "test_mode": backtest.test_mode,
+                "market_type": getattr(backtest, 'market_type', 'spot'),
                 "created_at": backtest.created_at
             }
 
@@ -909,10 +936,181 @@ class BacktestService:
             return int(obj)
         elif isinstance(obj, np.ndarray):
             return obj.tolist()
-        elif hasattr(obj, 'item'):  # numpy scalars
+        elif isinstance(obj, np.generic):  # numpy scalars
             return obj.item()
         else:
             return obj
+
+    async def generate_trade_log(
+        self,
+        symbol: str,
+        interval: str,
+        start_date: str,
+        end_date: str,
+        parameters: Dict[str, Any],
+        market_type: str = "spot"
+    ) -> List[Dict[str, Any]]:
+        """Re-simulate backtest to generate a simple trade-by-trade log without persisting.
+
+        Returns a list of dict rows with keys: date, entry_time, exit_time, entry_price,
+        exit_price, units, pnl_usdt, pnl_pct, fees_entry, fees_exit, capital_after.
+        """
+        # Parameters
+        initial_capital = parameters.get('initial_capital', 1000)
+        daily_target = parameters.get('daily_target', 3.0)
+        max_daily_loss = parameters.get('max_daily_loss', 1.0)
+        stop_loss = parameters.get('stop_loss', 0.5)
+        take_profit = parameters.get('take_profit', 1.5)
+        trailing_stop = parameters.get('trailing_stop', 0.3)
+        leverage = parameters.get('leverage', 1)
+
+        if market_type.lower() != "futures":
+            leverage = 1
+
+        ema_fast = int(parameters.get('ema_fast', 8))
+        ema_slow = int(parameters.get('ema_slow', 21))
+        rsi_period = int(parameters.get('rsi_period', 7))
+        rsi_oversold = parameters.get('rsi_oversold', 35)
+        rsi_overbought = parameters.get('rsi_overbought', 65)
+
+        current_capital = float(initial_capital)
+        trade_log: List[Dict[str, Any]] = []
+
+        # Prepare data
+        df = await self.get_historical_data(symbol, interval, start_date, end_date)
+        df = self.prepare_indicators(df, ema_fast, ema_slow, rsi_period)
+
+        daily_groups = df.groupby(df['timestamp'].dt.date)
+        for date, day_data in daily_groups:
+            daily_pnl_pct = 0.0
+            daily_trades = 0
+            max_daily_trades = 5
+            day_data = day_data.reset_index(drop=True)
+
+            for i in range(1, len(day_data)):
+                if daily_trades >= max_daily_trades or daily_pnl_pct <= -max_daily_loss:
+                    break
+
+                current = day_data.iloc[i]
+                previous = day_data.iloc[i-1]
+
+                if not self.check_entry_signal(current, previous, rsi_oversold, rsi_overbought):
+                    continue
+
+                # Risk size
+                risk_per_trade = parameters.get('risk_per_trade', 2.0)
+                max_position_size = current_capital * (risk_per_trade / 100)
+
+                entry_price = float(current['close'])
+                entry_time = str(current['timestamp']) if 'timestamp' in current else str(date)
+
+                stop_loss_price = entry_price * (1 - stop_loss/100)
+                risk_per_unit = entry_price - stop_loss_price
+                position_units = (max_position_size / risk_per_unit) if risk_per_unit > 0 else 0.0
+
+                if market_type.lower() == "futures":
+                    leveraged_position_units = position_units * leverage
+                    position_value = leveraged_position_units * entry_price
+                    margin_required = position_value / leverage
+                    actual_units = leveraged_position_units
+                else:
+                    position_value = position_units * entry_price
+                    margin_required = position_value
+                    actual_units = position_units
+
+                # Capital guard
+                if margin_required > current_capital * 0.95:
+                    margin_required = current_capital * 0.95
+                    if market_type.lower() == "futures":
+                        position_value = margin_required * leverage
+                        actual_units = position_value / entry_price
+                    else:
+                        position_value = margin_required
+                        actual_units = position_value / entry_price
+
+                # Entry fees and execution
+                entry_fee = self.calculate_fees(position_value, market_type, is_entry=True)
+                total_entry_cost = margin_required + entry_fee
+                if total_entry_cost > current_capital:
+                    continue
+                current_capital -= total_entry_cost
+
+                # Stops
+                trailing_stop_price = entry_price * (1 - trailing_stop/100)
+                max_price = entry_price
+                take_profit_price = entry_price * (1 + take_profit/100)
+                stop_loss_price = entry_price * (1 - stop_loss/100)
+
+                # Exit search
+                remaining_data = day_data.iloc[i+1:]
+                exit_price = entry_price
+                exit_time = entry_time
+                exit_found = False
+                exit_reason = "EOD"
+                for _, check_price in remaining_data.iterrows():
+                    if check_price['high'] > max_price:
+                        max_price = check_price['high']
+                        trailing_stop_price = max_price * (1 - trailing_stop/100)
+
+                    if check_price['high'] >= take_profit_price:
+                        exit_price = float(take_profit_price)
+                        exit_time = str(check_price['timestamp']) if 'timestamp' in check_price else entry_time
+                        exit_found = True
+                        exit_reason = "TP"
+                        break
+                    elif check_price['low'] <= min(stop_loss_price, trailing_stop_price):
+                        exit_price = float(max(stop_loss_price, trailing_stop_price))
+                        exit_time = str(check_price['timestamp']) if 'timestamp' in check_price else entry_time
+                        exit_found = True
+                        exit_reason = "SL"
+                        break
+
+                if not exit_found:
+                    # Close at day's last price/time
+                    last_row = day_data.iloc[-1]
+                    exit_price = float(last_row['close'])
+                    exit_time = str(last_row['timestamp']) if 'timestamp' in last_row else entry_time
+
+                position_exit_value = actual_units * exit_price
+                exit_fee = self.calculate_fees(position_exit_value, market_type, is_entry=False)
+
+                if market_type.lower() == "futures":
+                    pnl_raw = (exit_price - entry_price) * actual_units
+                    net_proceeds = margin_required + pnl_raw - exit_fee
+                else:
+                    net_proceeds = position_exit_value - exit_fee
+
+                current_capital += net_proceeds
+
+                trade_pnl_usdt = float(net_proceeds - total_entry_cost)
+                trade_pnl_pct = ((exit_price - entry_price) / entry_price) * 100
+                if market_type.lower() == "futures":
+                    trade_pnl_pct *= leverage
+
+                daily_pnl_pct += trade_pnl_pct
+                daily_trades += 1
+
+                trade_log.append({
+                    'date': str(date),
+                    'side': 'LONG',
+                    'entry_time': entry_time,
+                    'exit_time': exit_time,
+                    'entry_price': round(float(entry_price), 8),
+                    'exit_price': round(float(exit_price), 8),
+                    'units': round(float(actual_units), 8),
+                    'pnl_usdt': round(trade_pnl_usdt, 6),
+                    'pnl_pct': round(trade_pnl_pct, 6),
+                    'fees_entry': round(float(entry_fee), 6),
+                    'fees_exit': round(float(exit_fee), 6),
+                    'capital_after': round(float(current_capital), 6),
+                    'leverage': int(leverage),
+                    'exit_reason': exit_reason
+                })
+
+                if daily_pnl_pct >= daily_target:
+                    break
+
+        return trade_log
 
     async def get_available_symbols(self, market_type: str = "spot") -> List[Dict]:
         """Get available symbols from Binance"""

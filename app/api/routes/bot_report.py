@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
+from sqlalchemy import select
 from app.dependencies.auth import get_db, get_current_active_user
 from app.models.user import User
 from app.models.bot_config import BotConfig
 from app.models.trade import Trade
 from app.models.bot_state import BotState
-from typing import List, Optional
+from typing import List, Optional, cast
 from datetime import datetime, timedelta
 
 router = APIRouter(prefix="/api/v1/bots", tags=["bot-report"])
@@ -22,9 +22,9 @@ async def get_bot_performance(bot_config_id: int, db: AsyncSession = Depends(get
     result = await db.execute(select(Trade).where(Trade.bot_config_id == bot_config_id))
     trades = result.scalars().all()
     total_trades = len(trades)
-    total_buy = sum(1 for t in trades if t.side == "BUY")
-    total_sell = sum(1 for t in trades if t.side == "SELL")
-    total_pnl = sum((t.price if t.side == "SELL" else -t.price) for t in trades)
+    total_buy = sum(1 for t in trades if cast(str, t.side) == "BUY")
+    total_sell = sum(1 for t in trades if cast(str, t.side) == "SELL")
+    total_pnl = sum((t.price if cast(str, t.side) == "SELL" else -t.price) for t in trades)
     total_realized_pnl = sum(t.realized_pnl for t in trades if t.realized_pnl is not None)
     last_trade = trades[-1].timestamp if trades else None
     return {
@@ -90,9 +90,9 @@ async def get_all_bots_summary(db: AsyncSession = Depends(get_db), current_user:
         result = await db.execute(select(Trade).where(Trade.bot_config_id == bot.id))
         trades = result.scalars().all()
         total_trades = len(trades)
-        total_buy = sum(1 for t in trades if t.side == "BUY")
-        total_sell = sum(1 for t in trades if t.side == "SELL")
-        total_pnl = sum((t.price if t.side == "SELL" else -t.price) for t in trades)
+        total_buy = sum(1 for t in trades if cast(str, t.side) == "BUY")
+        total_sell = sum(1 for t in trades if cast(str, t.side) == "SELL")
+        total_pnl = sum((t.price if cast(str, t.side) == "SELL" else -t.price) for t in trades)
         total_realized_pnl = sum(t.realized_pnl for t in trades if t.realized_pnl is not None)
         last_trade = trades[-1].timestamp if trades else None
         summary.append({

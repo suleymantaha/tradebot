@@ -17,46 +17,66 @@ class ApiService {
     }
 
     async request(endpoint, options = {}) {
-        const url = `${this.baseURL}${endpoint}`
+        if (import.meta.env.MODE !== 'production') {
+            console.log(`[ApiService] Requesting: ${endpoint}`, options);
+        }
 
-        // Default headers
+        const url = `${this.baseURL}${endpoint}`
+        const method = options.method || 'GET'
+        const body = options.body ? JSON.stringify(options.body) : null
+
         const defaultHeaders = {
             'Content-Type': 'application/json',
         }
 
-        // Add auth token if available
         const token = this.getToken()
-        console.log('🔑 Auth Debug:', {
-            hasStoreToken: !!useAuthStore.getState().token,
-            hasLocalToken: !!localStorage.getItem('token'),
-            tokenUsed: !!token,
-            tokenLength: token?.length,
-            endpoint,
-            url
-        })
+
+        if (import.meta.env.MODE !== 'production') {
+            const debugInfo = {
+                hasStoreToken: !!useAuthStore.getState().token,
+                hasLocalToken: !!localStorage.getItem('token'),
+                tokenUsed: !!token,
+                tokenLength: token ? token.length : 0,
+                endpoint,
+                method
+            };
+            console.log('🔑 Auth Debug:', debugInfo);
+        }
+
 
         if (token) {
             defaultHeaders['Authorization'] = `Bearer ${token}`
         } else {
-            console.warn('⚠️ No authentication token found!')
+            console.warn('⚠️ No authentication token found for request to:', endpoint)
         }
 
         const config = {
-            ...options,
+            method,
             headers: {
                 ...defaultHeaders,
                 ...options.headers,
             },
+            body,
         }
 
-        console.log('📤 Request Config:', { url, headers: config.headers, method: config.method })
+        if (import.meta.env.MODE !== 'production') {
+            // Log için config kopyası oluşturup Authorization başlığını düzenleyelim
+            const configToLog = { ...config, headers: { ...config.headers } };
+            if (configToLog.headers['Authorization']) {
+                configToLog.headers['Authorization'] = 'Bearer [TOKEN_HIDDEN]';
+            }
+            console.log('📤 Request Config:', configToLog);
+        }
+
 
         try {
             const response = await fetch(url, config)
 
             if (!response.ok) {
                 const errorText = await response.text()
-                console.error('❌ Request failed:', { status: response.status, errorText })
+                if (import.meta.env.MODE !== 'production') {
+                    console.error('❌ Request failed:', { status: response.status, errorText })
+                }
 
                 // Handle 401 errors
                 if (response.status === 401) {
@@ -70,9 +90,42 @@ class ApiService {
 
             return await response.json()
         } catch (error) {
-            console.error('API Request failed:', error)
+            if (import.meta.env.MODE !== 'production') {
+                console.error('API Request failed:', error)
+            }
             throw error
         }
+    }
+
+    // CSV indirme için yardımcı: auth header ile blob indirip dosya kaydeder
+    async downloadCSV(endpoint, fallbackFilename) {
+        const url = `${this.baseURL}${endpoint}`
+        const token = this.getToken()
+        const headers = {}
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`
+        }
+        const response = await fetch(url, { headers })
+        if (!response.ok) {
+            const errorText = await response.text()
+            throw new Error(`HTTP ${response.status}: ${errorText}`)
+        }
+        const blob = await response.blob()
+        // Sunucudan gelen dosya adını kullan (Content-Disposition)
+        const cd = response.headers.get('Content-Disposition') || ''
+        let filename = fallbackFilename
+        const match = /filename\s*=\s*"?([^";]+)"?/i.exec(cd)
+        if (match && match[1]) {
+            filename = match[1]
+        }
+        const blobUrl = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = blobUrl
+        a.download = filename
+        document.body.appendChild(a)
+        a.click()
+        a.remove()
+        window.URL.revokeObjectURL(blobUrl)
     }
 
     // Convenience methods
@@ -84,7 +137,7 @@ class ApiService {
         return this.request(endpoint, {
             ...options,
             method: 'POST',
-            body: JSON.stringify(data),
+            body: data,
         })
     }
 
@@ -92,7 +145,7 @@ class ApiService {
         return this.request(endpoint, {
             ...options,
             method: 'PUT',
-            body: JSON.stringify(data),
+            body: data,
         })
     }
 
@@ -122,6 +175,17 @@ class ApiService {
     // Backtest geçmişi
     async getBacktestList() {
         return this.get('/api/v1/backtest/list')
+    }
+
+    // Backtest CSV indirme
+    async downloadBacktestDaily(backtestId) {
+        return this.downloadCSV(`/api/v1/backtest/download/${backtestId}/daily.csv`, `backtest_${backtestId}_daily.csv`)
+    }
+    async downloadBacktestMonthly(backtestId) {
+        return this.downloadCSV(`/api/v1/backtest/download/${backtestId}/monthly.csv`, `backtest_${backtestId}_monthly.csv`)
+    }
+    async downloadBacktestTrades(backtestId) {
+        return this.downloadCSV(`/api/v1/backtest/download/${backtestId}/trades.csv`, `backtest_${backtestId}_trades.csv`)
     }
 }
 

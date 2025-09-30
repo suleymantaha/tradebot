@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
+from sqlalchemy import select
 from app.models.bot_config import BotConfig
 from app.schemas.bot_config import BotConfigCreate, BotConfigUpdate, BotConfigResponse
 from app.dependencies.auth import get_db, get_current_active_user

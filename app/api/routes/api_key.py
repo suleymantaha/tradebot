@@ -1,14 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
+from sqlalchemy import select
 from app.models.api_key import ApiKey
 from app.models.bot_config import BotConfig
 from app.schemas.api_key import ApiKeyCreate, ApiKeyResponse
 from app.core.crypto import encrypt_value, decrypt_value
 from app.dependencies.auth import get_db, get_current_active_user
 from app.models.user import User
-from app.core.binance_client import BinanceClientWrapper
-from typing import Dict
+import app.core.binance_client as binance_client_module
+from typing import Dict, cast
 import logging
 
 router = APIRouter(prefix="/api/v1/api-keys", tags=["api-keys"])
@@ -23,8 +23,8 @@ async def create_api_key(api_key_in: ApiKeyCreate, db: AsyncSession = Depends(ge
 
     # Binance API kimlik bilgilerini doğrula (GERÇEK TRADING İÇİN AKTİF)
     try:
-        binance_client = BinanceClientWrapper(api_key_in.api_key, api_key_in.secret_key, testnet=False)
-        validation_result = binance_client.validate_api_credentials()
+        client = binance_client_module.BinanceClientWrapper(api_key_in.api_key, api_key_in.secret_key, testnet=False)
+        validation_result = client.validate_api_credentials()
 
         if not validation_result["valid"]:
             error_message = f"API anahtarları geçersiz: {validation_result['error']}. "
@@ -99,13 +99,13 @@ async def get_balance(db: AsyncSession = Depends(get_db), current_user: User = D
         logger.info(f"Balance çekiliyor kullanıcı için: {current_user.id}")
 
         # API anahtarlarını çöz
-        api_key_plain = decrypt_value(api_key.encrypted_api_key)
-        secret_key_plain = decrypt_value(api_key.encrypted_secret_key)
+        api_key_plain = decrypt_value(cast(str, api_key.encrypted_api_key))
+        secret_key_plain = decrypt_value(cast(str, api_key.encrypted_secret_key))
 
         logger.info(f"API anahtarları başarıyla çözüldü")
 
         # Binance client oluştur
-        binance_client = BinanceClientWrapper(api_key_plain, secret_key_plain, testnet=False)
+        binance_client = binance_client_module.BinanceClientWrapper(api_key_plain, secret_key_plain, testnet=False)
         logger.info("Binance client oluşturuldu")
 
         # Spot ve Futures bakiyelerini al
