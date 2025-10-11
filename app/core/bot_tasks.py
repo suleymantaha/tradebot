@@ -22,8 +22,13 @@ from sqlalchemy.exc import OperationalError
 logger = logging.getLogger(__name__)
 
 # Sync database connection for Celery tasks
-# Önce SYNC_DATABASE_URL varsa onu kullan; yoksa DATABASE_URL'e düş
-SYNC_DATABASE_URL = os.getenv("SYNC_DATABASE_URL", os.getenv("DATABASE_URL", "postgresql://tradebot_user:baba046532@localhost/tradebot_db"))
+# Production'da veritabanı URL'si zorunlu
+ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
+_sync_url = os.getenv("SYNC_DATABASE_URL")
+_async_url = os.getenv("DATABASE_URL")
+if ENVIRONMENT == "production" and not (_sync_url or _async_url):
+    raise RuntimeError("DATABASE_URL veya SYNC_DATABASE_URL production ortamında zorunludur")
+SYNC_DATABASE_URL = _sync_url or _async_url or "postgresql://tradebot_user:baba046532@localhost/tradebot_db"
 sync_engine = create_engine(SYNC_DATABASE_URL, echo=False)
 SyncSessionLocal = sessionmaker(bind=sync_engine)
 
@@ -332,7 +337,7 @@ def _run_bot(bot_config_id: int):
                 stop_loss_price = price * (1 + stop_loss / 100)
                 take_profit_price = price * (1 - take_profit / 100)
 
-            # Miktarı sembol filtrelerine göre normalize et
+            # Miktarı sembol filtrelerine göre normalize et ve minimum notional koruması
             desired_qty = float(getattr(bot_config, 'position_size_fixed', 0) or 0)
             if desired_qty <= 0:
                 # fallback: notionalı küçük tut
@@ -390,6 +395,14 @@ def _run_bot(bot_config_id: int):
                         cast(Any, bot_state).last_updated_at = datetime.utcnow()
                         session.commit()
                     return "Daily target reached"
+
+            # Ek risk koruması: Aşırı kaldıraç ve miktar guard
+            try:
+                lev = int(getattr(bot_config, 'leverage', 10) or 10)
+                if cast(str, bot_config.position_type) == "futures" and lev > 50:
+                    lev = 50
+            except Exception:
+                lev = 10
             binance_order = None
             if not demo_mode and client is not None:
                 try:

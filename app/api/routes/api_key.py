@@ -10,6 +10,7 @@ from app.models.user import User
 import app.core.binance_client as binance_client_module
 from typing import Dict, cast
 import logging
+import os
 
 router = APIRouter(prefix="/api/v1/api-keys", tags=["api-keys"])
 
@@ -109,8 +110,13 @@ async def get_balance(db: AsyncSession = Depends(get_db), current_user: User = D
 
         logger.info(f"API anahtarları başarıyla çözüldü")
 
-        # Binance client oluştur
-        binance_client = binance_client_module.BinanceClientWrapper(api_key_plain, secret_key_plain, testnet=False)
+        # Binance client oluştur (ortama göre testnet/mainnet)
+        live_trading = os.getenv("LIVE_TRADING_ENABLED", "false").lower() in ["1", "true", "yes"]
+        binance_client = binance_client_module.BinanceClientWrapper(
+            api_key_plain,
+            secret_key_plain,
+            testnet=(not live_trading)
+        )
         logger.info("Binance client oluşturuldu")
 
         # Spot ve Futures bakiyelerini al

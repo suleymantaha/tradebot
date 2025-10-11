@@ -1,6 +1,7 @@
 from celery import Celery
 import os
 from celery.schedules import crontab
+import logging
 
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/0")
 CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "redis://localhost:6379/0")
@@ -17,6 +18,8 @@ celery_app.conf.update(
     task_acks_late=True,            # Worker çökmeden önce tamamlanmayan işler yeniden kuyruğa döner
     worker_prefetch_multiplier=1,   # Aşırı prefetch ile patlama etkisini azalt
     task_reject_on_worker_lost=True,
+    task_time_limit=int(os.getenv("CELERY_TASK_TIME_LIMIT", "180")),
+    task_soft_time_limit=int(os.getenv("CELERY_TASK_SOFT_TIME_LIMIT", "150")),
 )
 
 # Celery Beat schedule ayarları
@@ -35,3 +38,6 @@ celery_app.conf.beat_schedule = {
 def test_celery(x, y):
     """Simple test task."""
     return x + y
+
+# Basic logging config for celery
+logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))

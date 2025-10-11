@@ -25,19 +25,29 @@
 - [ ] **Birim Testleri:** API anahtarı ekleme, getirme, silme ve şifreleme/çözme işlemleri için.
 
 **Teknik Detaylar:**
+
 - API Key'in bir kısmı maskelenerek (örn: son 4 karakteri gösterilerek) kullanıcıya gösterilebilir, ancak Secret Key **asla** gösterilmemelidir.
 - Her kullanıcının sadece bir adet Binance API anahtar setine sahip olmasına izin verilecek (MVP için). Daha sonra birden fazla anahtar yönetimi eklenebilir.
 
 **API Endpointleri:**
+
 - `POST /api/v1/api-keys`
 - `GET /api/v1/api-keys/me`
 - `DELETE /api/v1/api-keys/me`
 
 **Notlar / Riskler / Dikkat Edilmesi Gerekenler:**
+
 - **Güvenlik:** Bu modülün güvenliği kritiktir. [SECURITY_GUIDELINES.md](_PARENT_DIR_/_PARENT_DIR_/SECURITY_GUIDELINES.md) dikkatlice uygulanmalıdır.
 - API anahtarlarının doğrulanması sırasında Binance API'ye istek atılacağı için rate limitlere dikkat edilmelidir.
 - Kullanıcılara API anahtarı oluştururken hangi izinleri vermeleri gerektiği konusunda net talimatlar sunulmalıdır (frontend tarafında).
 
+**Ortam Değişkenleri:**
+
+- `VALIDATE_API_ON_TESTNET` (0/1): API anahtarı doğrulaması için testnet kullanımı.
+- `LIVE_TRADING_ENABLED` (true/false): Canlı işlem modunu açar; kapalıysa testnet istemcisi kullanılır.
+- `TESTNET_URL` (true/false): Public sembol listeleri için testnet URL seçiminde kullanılır.
+
 **Bağımlılıklar:**
+
 - [Kullanıcı Kimlik Doğrulama Sistemi](01_01_BACKEND_USER_AUTH.md) (Kullanıcıya ait API anahtarı saklanacağı için).
 - [Veritabanı Şeması ve Migration'lar](01_07_BACKEND_DATABASE_SCHEMA.md) (ApiKey tablosunun oluşturulmuş olması).

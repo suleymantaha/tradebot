@@ -31,18 +31,23 @@
   - [ ] `docker-compose.yml` dosyasına Flower servisi eklenerek görevlerin durumu izlenebilir.
 - [ ] **Yapılandırma Yönetimi:**
   - [ ] Celery ve mesaj kuyruğu bağlantı bilgileri `.env` dosyalarından okunmalı.
+  - [ ] Görev zaman limiti için `CELERY_TASK_TIME_LIMIT` ve `CELERY_TASK_SOFT_TIME_LIMIT` ortam değişkenleri desteklenmelidir.
 - [ ] **Loglama:**
   - [ ] Celery worker loglarının düzgün bir şekilde yapılandırılması.
 
 **Teknik Detaylar:**
+
 - Broker seçimi: Redis, başlangıç için daha basit ve hızlı kurulabilir. RabbitMQ, daha karmaşık senaryolar ve daha yüksek güvenilirlik için tercih edilebilir. MVP için Redis yeterli olacaktır.
+- Beat schedule örnekleri: Günlük reset ve per-minute bot tetiklemeleri için beat schedule tanımlanabilir (bkz. backend `celery_app`).
 - Her bir aktif bot için ayrı bir Celery görevi mi çalışacak, yoksa tek bir periyodik görev tüm aktif botları mı kontrol edecek? Bu, [Bot Çalıştırma Mantığı](01_06_BACKEND_BOT_EXECUTION_LOGIC.md) görevinde netleştirilecek. MVP için her botun kendi `check_interval`'ine göre dinamik olarak schedule edilmesi (örn: `apply_async` ile `countdown`) veya Celery Beat ile belirli aralıklarla bir "ana dispatch" görevinin çalıştırılması düşünülebilir.
 
 **Notlar / Riskler / Dikkat Edilmesi Gerekenler:**
+
 - Mesaj kuyruğunun ve worker'ların doğru şekilde iletişim kurduğundan emin olunmalı.
 - Worker'ların kaynak kullanımı (CPU, bellek) izlenmeli.
 - Görevlerin idempotent olması (aynı görevin birden fazla kez çalıştırılmasının sorun yaratmaması) bazı senaryolarda önemli olabilir.
 - Hata durumunda görevlerin yeniden denenme (retry) politikaları belirlenmeli.
 
 **Bağımlılıklar:**
+
 - [Geliştirme Ortamı Kurulumu](_PARENT_DIR_/_PARENT_DIR_/00_PLANNING_AND_SETUP/00_03_DEV_ENVIRONMENT_SETUP.md) (Docker Compose, Redis/RabbitMQ).

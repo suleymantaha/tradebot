@@ -220,18 +220,31 @@ POSTGRES_PASSWORD=your_secure_password
 
 # Security
 SECRET_KEY=your_generated_secret_key
-FERNET_KEY=auto_generated_encryption_key
+# Production'da zorunlu (runtime'da otomatik üretilmez)
+FERNET_KEY=your_generated_fernet_key
 
 # Application
 ENVIRONMENT=production
 LOG_LEVEL=INFO
 VITE_API_URL=http://localhost:8000
+LIVE_TRADING_ENABLED=false
+TESTNET_URL=true
+VALIDATE_API_ON_TESTNET=0
+
+# Workers (senkron sürücü için)
+SYNC_DATABASE_URL=postgresql://tradebot_user:${POSTGRES_PASSWORD}@postgres:5432/tradebot_db
 ```
 
 #### 🚨 **Güvenlik Notları**
 
-- 🔐 `SECRET_KEY` ve `FERNET_KEY` otomatik oluşturulur
-- 🔄 Production'da bu anahtarları değiştirmeyin
+- 🔐 `SECRET_KEY` Production'da zorunludur (runtime'da yoksa backend başlatılmaz).
+- 🔐 `FERNET_KEY` Production'da zorunludur ve runtime'da otomatik üretilmez. Installer anahtar üretebilir; manuel üretim için:
+
+```bash
+python3 -c "import base64,os;print(base64.urlsafe_b64encode(os.urandom(32)).decode())"
+```
+
+- 🔄 Development'ta `FERNET_KEY` tanımlı değilse runtime'da geçici üretilir; ancak restart’larda değişeceği için sabit bir değer kullanmanız önerilir.
 - 🛡️ `.env` dosyasını version control'e eklemeyin
 
 ### 📊 **Bot Parametreleri**

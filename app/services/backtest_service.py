@@ -196,7 +196,7 @@ class BacktestService:
                     'limit': 1000
                 }
 
-                async with httpx.AsyncClient(timeout=10.0) as client:
+                async with httpx.AsyncClient(timeout=httpx.Timeout(10.0)) as client:
                     response = await client.get(url, params=params)
                 if response.status_code != 200:
                     print(f"❌ API error: {response.status_code}")
@@ -1130,7 +1130,7 @@ class BacktestService:
                 # Spot symbols
                 url = "https://api.binance.com/api/v3/exchangeInfo"
 
-            async with httpx.AsyncClient(timeout=10.0) as client:
+            async with httpx.AsyncClient(timeout=httpx.Timeout(10.0)) as client:
                 response = await client.get(url)
             if response.status_code != 200:
                 print(f"❌ Failed to fetch symbols: {response.status_code}")

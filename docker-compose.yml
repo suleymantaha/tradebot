@@ -8,7 +8,8 @@ services:
       POSTGRES_DB: tradebot_db
       POSTGRES_USER: tradebot_user
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-tradebot_secure_pass_123}
-      POSTGRES_HOST_AUTH_METHOD: trust
+      # Production profilde trust kullanmayin
+      # POSTGRES_HOST_AUTH_METHOD: trust
     ports:
       - "5432:5432"
     volumes:

@@ -64,6 +64,14 @@ Bu doküman, uygulamanın geliştirme (development), hazırlık (staging) ve ür
 * **Felaket Kurtarma Planı (Disaster Recovery Plan):** Temel bir plan oluşturulmalıdır.
 
 ---
+
+## Production Zorunlulukları ve Güvenlik Notları
+
+* `SECRET_KEY`: Zorunlu. Yoksa backend başlatılmamalı.
+* `FERNET_KEY`: Zorunlu. API anahtarlarının şifrelenmesi için gerekir.
+* `DATABASE_URL`/`SYNC_DATABASE_URL`: Zorunlu. Default fallback yalnızca development için kullanılmalıdır.
+* CORS: Production'da `FRONTEND_URL` ile kısıtlanmalıdır (wildcard `*` kullanmayın).
+* Postgres: Production’da `POSTGRES_HOST_AUTH_METHOD=trust` kullanılmamalıdır; `md5` veya SCRAM.
 **Klasör: `00_PLANNING_AND_SETUP/`**
 
 **`00_PLANNING_AND_SETUP/00_00_PLANNING_AND_SETUP_OVERVIEW.md`**

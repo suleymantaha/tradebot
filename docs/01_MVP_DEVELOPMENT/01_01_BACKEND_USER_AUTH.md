@@ -30,19 +30,23 @@
 - [ ] **Birim Testleri:** Kayıt, giriş, token oluşturma/doğrulama senaryoları için.
 
 **Teknik Detaylar:**
+
 - FastAPI'nin `OAuth2PasswordBearer` ve `OAuth2PasswordRequestForm` sınıfları kullanılacak.
 - Kullanıcı e-postaları benzersiz olmalı (veritabanı seviyesinde `UNIQUE` kısıtlaması).
 
 **API Endpointleri:**
+
 - `POST /api/v1/auth/register`
 - `POST /api/v1/auth/login` (resmi adıyla `token`)
 - `GET /api/v1/users/me`
 
 **Notlar / Riskler / Dikkat Edilmesi Gerekenler:**
+
 - Şifre sıfırlama MVP'de olmayabilir, ancak ileride ekleneceği düşünülerek e-posta alanı zorunlu tutulmalı.
 - E-posta doğrulama MVP sonrası eklenebilir.
-- JWT `exp` (expiration time) süresi makul bir değere ayarlanmalı (örn: 15-60 dakika). Refresh token mekanizması MVP sonrası düşünülebilir.
+- JWT `exp` (expiration time) env ile yönetilir. Mevcut uygulamada varsayılan erişim token süresi 7 gün (`ACCESS_TOKEN_EXPIRE_MINUTES=10080`), "Beni Hatırla" seçilirse 30 gün (`REMEMBER_ME_EXPIRE_MINUTES=43200`). Production için daha kısa süre (örn: 15-60 dk) ve ileride refresh token mekanizması önerilir.
 
 **Bağımlılıklar:**
+
 - [Veritabanı Şeması ve Migration'lar](01_07_BACKEND_DATABASE_SCHEMA.md) (User tablosunun oluşturulmuş olması)
 - [Geliştirme Ortamı Kurulumu](_PARENT_DIR_/_PARENT_DIR_/00_PLANNING_AND_SETUP/00_03_DEV_ENVIRONMENT_SETUP.md)
