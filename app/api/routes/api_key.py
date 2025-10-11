@@ -21,9 +21,14 @@ async def create_api_key(api_key_in: ApiKeyCreate, db: AsyncSession = Depends(ge
     if existing_api_key:
         raise HTTPException(status_code=400, detail="Zaten kayıtlı bir API anahtarınız var. Önce mevcut anahtarı silmelisiniz.")
 
-    # Binance API kimlik bilgilerini doğrula (GERÇEK TRADING İÇİN AKTİF)
+    # Binance API kimlik bilgilerini doğrula (testnet/mainnet seçilebilir)
     try:
-        client = binance_client_module.BinanceClientWrapper(api_key_in.api_key, api_key_in.secret_key, testnet=False)
+        validate_on_testnet = bool(int(os.getenv("VALIDATE_API_ON_TESTNET", "0")))
+        client = binance_client_module.BinanceClientWrapper(
+            api_key_in.api_key,
+            api_key_in.secret_key,
+            testnet=validate_on_testnet
+        )
         validation_result = client.validate_api_credentials()
 
         if not validation_result["valid"]:

@@ -19,12 +19,24 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    """Upgrade schema."""
-    op.add_column('users', sa.Column('reset_token', sa.String(), nullable=True))
-    op.add_column('users', sa.Column('reset_token_expires', sa.DateTime(timezone=True), nullable=True))
+    """Upgrade schema with conditional column creation."""
+    bind = op.get_bind()
+    inspector = sa.inspect(bind)
+    existing_cols = {col['name'] for col in inspector.get_columns('users')}
+
+    if 'reset_token' not in existing_cols:
+        op.add_column('users', sa.Column('reset_token', sa.String(), nullable=True))
+    if 'reset_token_expires' not in existing_cols:
+        op.add_column('users', sa.Column('reset_token_expires', sa.DateTime(timezone=True), nullable=True))
 
 
 def downgrade() -> None:
-    """Downgrade schema."""
-    op.drop_column('users', 'reset_token_expires')
-    op.drop_column('users', 'reset_token')
+    """Downgrade schema with conditional drops."""
+    bind = op.get_bind()
+    inspector = sa.inspect(bind)
+    existing_cols = {col['name'] for col in inspector.get_columns('users')}
+
+    if 'reset_token_expires' in existing_cols:
+        op.drop_column('users', 'reset_token_expires')
+    if 'reset_token' in existing_cols:
+        op.drop_column('users', 'reset_token')

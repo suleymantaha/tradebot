@@ -10,9 +10,9 @@ class DataCache:
         self.cache_dir = cache_dir
         os.makedirs(cache_dir, exist_ok=True)
 
-    def _get_cache_key(self, symbol: str, interval: str, start_date: str, end_date: str) -> str:
-        """Generate a unique cache key for the data"""
-        data_string = f"{symbol}_{interval}_{start_date}_{end_date}"
+    def _get_cache_key(self, symbol: str, interval: str, start_date: str, end_date: str, market_type: str = "spot") -> str:
+        """Generate a unique cache key for the data including market type (spot/futures)"""
+        data_string = f"{symbol}_{interval}_{start_date}_{end_date}_{market_type.lower()}"
         return hashlib.md5(data_string.encode()).hexdigest()
 
     def _get_cache_path(self, cache_key: str) -> str:
@@ -23,9 +23,9 @@ class DataCache:
         """Get the full path for metadata file"""
         return os.path.join(self.cache_dir, f"{cache_key}_meta.json")
 
-    def is_cached(self, symbol: str, interval: str, start_date: str, end_date: str) -> bool:
+    def is_cached(self, symbol: str, interval: str, start_date: str, end_date: str, market_type: str = "spot") -> bool:
         """Check if data is already cached"""
-        cache_key = self._get_cache_key(symbol, interval, start_date, end_date)
+        cache_key = self._get_cache_key(symbol, interval, start_date, end_date, market_type)
         cache_path = self._get_cache_path(cache_key)
         metadata_path = self._get_metadata_path(cache_key)
 
@@ -72,13 +72,13 @@ class DataCache:
             print(f"❌ Cache metadata error: {e}")
             return False
 
-    def get_cached_data(self, symbol: str, interval: str, start_date: str, end_date: str) -> Optional[pd.DataFrame]:
+    def get_cached_data(self, symbol: str, interval: str, start_date: str, end_date: str, market_type: str = "spot") -> Optional[pd.DataFrame]:
         """Get cached data if available"""
-        if not self.is_cached(symbol, interval, start_date, end_date):
+        if not self.is_cached(symbol, interval, start_date, end_date, market_type):
             return None
 
         try:
-            cache_key = self._get_cache_key(symbol, interval, start_date, end_date)
+            cache_key = self._get_cache_key(symbol, interval, start_date, end_date, market_type)
             cache_path = self._get_cache_path(cache_key)
 
             df = pd.read_csv(cache_path)
@@ -91,10 +91,10 @@ class DataCache:
             print(f"Error reading cached data: {e}")
             return None
 
-    def cache_data(self, df: pd.DataFrame, symbol: str, interval: str, start_date: str, end_date: str):
+    def cache_data(self, df: pd.DataFrame, symbol: str, interval: str, start_date: str, end_date: str, market_type: str = "spot"):
         """Cache the dataframe"""
         try:
-            cache_key = self._get_cache_key(symbol, interval, start_date, end_date)
+            cache_key = self._get_cache_key(symbol, interval, start_date, end_date, market_type)
             cache_path = self._get_cache_path(cache_key)
             metadata_path = self._get_metadata_path(cache_key)
 
@@ -107,6 +107,7 @@ class DataCache:
                 'interval': interval,
                 'start_date': start_date,
                 'end_date': end_date,
+                'market_type': market_type.lower(),
                 'cached_at': datetime.now().isoformat(),
                 'rows': len(df),
                 'cache_key': cache_key

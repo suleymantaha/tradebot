@@ -4,6 +4,8 @@ from typing import Dict, Any, Optional, List, cast
 import logging
 import requests
 import os
+import time
+from decimal import Decimal, InvalidOperation
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +60,29 @@ class BinanceClientWrapper:
                 "error": f"Bağlantı hatası: {str(e)}",
                 "account_info": None
             }
+
+    # -------------------------------
+    # Utilities & Retry
+    # -------------------------------
+
+    def _retry(self, func, *args, **kwargs):
+        """Basit retry/backoff yardımcı fonksiyon."""
+        max_attempts = kwargs.pop('_max_attempts', 3)
+        backoff_base = kwargs.pop('_backoff_base', 0.5)
+        for attempt in range(1, max_attempts + 1):
+            try:
+                return func(*args, **kwargs)
+            except BinanceAPIException as e:
+                # Rate limit veya saat senkronizasyonu gibi geçici hatalarda backoff uygula
+                if e.code in (-1003, -1015, -1021):
+                    time.sleep(backoff_base * attempt)
+                    continue
+                raise
+            except Exception:
+                if attempt == max_attempts:
+                    raise
+                time.sleep(backoff_base * attempt)
+        return None
 
     def get_account_info(self) -> Optional[Dict[str, Any]]:
         """Hesap bilgilerini döndürür"""
@@ -114,10 +139,119 @@ class BinanceClientWrapper:
             logger.error(f"Futures sembol filtreleri alınamadı {symbol}: {e}")
             return None
 
+    # -------------------------------
+    # Quantity Normalization
+    # -------------------------------
+
+    @staticmethod
+    def _round_step(quantity: float, step_size: str) -> float:
+        try:
+            q = Decimal(str(quantity))
+            step = Decimal(step_size)
+            if step == 0:
+                return float(q)
+            # En yakın aşağı adım
+            normalized = (q // step) * step
+            return float(normalized.normalize())
+        except (InvalidOperation, ZeroDivisionError):
+            return quantity
+
+    def normalize_spot_quantity(self, symbol: str, price: float, desired_qty: float) -> Optional[float]:
+        filters = self.get_symbol_filters_spot(symbol)
+        if not filters:
+            return None
+        lot = filters.get('LOT_SIZE') or {}
+        min_qty = float(lot.get('minQty', 0) or 0)
+        step_size = lot.get('stepSize', '0.00000001')
+        min_notional_filter = filters.get('MIN_NOTIONAL') or {}
+        min_notional = float(min_notional_filter.get('minNotional', 0) or 0)
+
+        qty = max(desired_qty, min_qty)
+        qty = self._round_step(qty, step_size)
+        notional = qty * price
+        if min_notional > 0 and notional < min_notional:
+            needed_qty = (min_notional / price) * 1.001
+            qty = self._round_step(max(qty, needed_qty), step_size)
+            if qty * price < min_notional:
+                return None
+        return qty if qty >= min_qty and qty > 0 else None
+
+    def normalize_futures_quantity(self, symbol: str, price: float, desired_qty: float) -> Optional[float]:
+        filters = self.get_symbol_filters_futures(symbol)
+        if not filters:
+            return None
+        lot = filters.get('MARKET_LOT_SIZE') or filters.get('LOT_SIZE') or {}
+        min_qty = float(lot.get('minQty', 0) or 0)
+        step_size = lot.get('stepSize', '0.001')
+        min_notional_filter = filters.get('MIN_NOTIONAL') or filters.get('NOTIONAL') or {}
+        min_notional = float(min_notional_filter.get('minNotional', min_notional_filter.get('notional', 0) or 0) or 0)
+
+        qty = max(desired_qty, min_qty)
+        qty = self._round_step(qty, step_size)
+        notional = qty * price
+        if min_notional > 0 and notional < min_notional:
+            needed_qty = (min_notional / price) * 1.001
+            qty = self._round_step(max(qty, needed_qty), step_size)
+            if qty * price < min_notional:
+                return None
+        return qty if qty >= min_qty and qty > 0 else None
+
+    # -------------------------------
+    # Price Normalization (tick size)
+    # -------------------------------
+
+    @staticmethod
+    def _round_price(price: float, tick_size: str) -> float:
+        try:
+            p = Decimal(str(price))
+            step = Decimal(tick_size)
+            if step == 0:
+                return float(p)
+            normalized = (p // step) * step
+            return float(normalized.normalize())
+        except (InvalidOperation, ZeroDivisionError):
+            return price
+
+    def normalize_spot_price(self, symbol: str, price: float) -> Optional[float]:
+        filters = self.get_symbol_filters_spot(symbol)
+        if not filters:
+            return None
+        pf = filters.get('PRICE_FILTER') or {}
+        tick = pf.get('tickSize', '0.01')
+        return self._round_price(price, tick)
+
+    # -------------------------------
+    # Spot OCO helper
+    # -------------------------------
+
+    def place_spot_oco_sell_order(self, symbol: str, quantity: float, take_profit_price: float, stop_price: float) -> Optional[Dict[str, Any]]:
+        """Spot çıkış için OCO satış emri (limit + stop-limit)."""
+        try:
+            tp = self.normalize_spot_price(symbol, take_profit_price) or take_profit_price
+            sp = self.normalize_spot_price(symbol, stop_price) or stop_price
+            # stopLimitPrice'ı stop_price'tan biraz aşağı ayarla
+            sl = sp * 0.999
+            sl = self.normalize_spot_price(symbol, sl) or sl
+            order = self._retry(
+                self.client.create_oco_order,
+                symbol=symbol,
+                side='SELL',
+                quantity=quantity,
+                price=tp,
+                stopPrice=sp,
+                stopLimitPrice=sl,
+                stopLimitTimeInForce='GTC'
+            )
+            logger.info(f"Spot OCO sell emri verildi: {order}")
+            return order
+        except Exception as e:
+            logger.error(f"Spot OCO sell hatası {symbol}: {e}")
+            return None
+
     def place_market_buy_order(self, symbol: str, quantity: float) -> Optional[Dict[str, Any]]:
         """Market alış emri verir"""
         try:
-            order = self.client.order_market_buy(
+            order = self._retry(self.client.order_market_buy,
                 symbol=symbol,
                 quantity=quantity
             )
@@ -133,7 +267,7 @@ class BinanceClientWrapper:
     def place_market_sell_order(self, symbol: str, quantity: float) -> Optional[Dict[str, Any]]:
         """Market satış emri verir"""
         try:
-            order = self.client.order_market_sell(
+            order = self._retry(self.client.order_market_sell,
                 symbol=symbol,
                 quantity=quantity
             )
@@ -259,7 +393,7 @@ class BinanceClientWrapper:
     def transfer_to_futures(self, asset: str, amount: float) -> Optional[Dict[str, Any]]:
         """Spot'tan Futures'a fon transferi"""
         try:
-            result = self.client.futures_account_transfer(
+            result = self._retry(self.client.futures_account_transfer,
                 asset=asset,
                 amount=amount,
                 type=1  # 1: spot to futures, 2: futures to spot
@@ -273,7 +407,7 @@ class BinanceClientWrapper:
     def transfer_to_spot(self, asset: str, amount: float) -> Optional[Dict[str, Any]]:
         """Futures'tan Spot'a fon transferi"""
         try:
-            result = self.client.futures_account_transfer(
+            result = self._retry(self.client.futures_account_transfer,
                 asset=asset,
                 amount=amount,
                 type=2  # 1: spot to futures, 2: futures to spot
@@ -299,7 +433,7 @@ class BinanceClientWrapper:
     def place_futures_market_buy_order(self, symbol: str, quantity: float) -> Optional[Dict[str, Any]]:
         """Futures market alış emri"""
         try:
-            order = self.client.futures_create_order(
+            order = self._retry(self.client.futures_create_order,
                 symbol=symbol,
                 side='BUY',
                 type='MARKET',
@@ -314,7 +448,7 @@ class BinanceClientWrapper:
     def place_futures_market_sell_order(self, symbol: str, quantity: float) -> Optional[Dict[str, Any]]:
         """Futures market satış emri"""
         try:
-            order = self.client.futures_create_order(
+            order = self._retry(self.client.futures_create_order,
                 symbol=symbol,
                 side='SELL',
                 type='MARKET',
@@ -333,7 +467,7 @@ class BinanceClientWrapper:
             if leverage < 1 or leverage > 125:
                 leverage = 10  # Default leverage
 
-            result = self.client.futures_change_leverage(
+            result = self._retry(self.client.futures_change_leverage,
                 symbol=symbol,
                 leverage=leverage
             )
@@ -346,10 +480,68 @@ class BinanceClientWrapper:
     def get_leverage(self, symbol: str) -> Optional[int]:
         """Belirtilen sembol için mevcut kaldıracı döndürür"""
         try:
-            position_info = self.client.futures_position_information(symbol=symbol)
+            position_info = self._retry(self.client.futures_position_information, symbol=symbol)
             if position_info:
                 return int(position_info[0].get('leverage', 1))
             return None
         except Exception as e:
             logger.error(f"Kaldıraç bilgisi alınamadı {symbol}: {e}")
             return None
+
+    # -------------------------------
+    # Futures margin/position mode & SL/TP helpers
+    # -------------------------------
+
+    def ensure_isolated_margin(self, symbol: str) -> bool:
+        try:
+            self._retry(self.client.futures_change_margin_type, symbol=symbol, marginType='ISOLATED')
+            return True
+        except BinanceAPIException as e:
+            # -4046 zaten ISOLATED ise
+            if e.code == -4046:
+                return True
+            logger.error(f"Margin type set failed {symbol}: {e}")
+            return False
+        except Exception as e:
+            logger.error(f"Margin type set failed {symbol}: {e}")
+            return False
+
+    def ensure_one_way_mode(self) -> bool:
+        try:
+            mode = self._retry(self.client.futures_get_position_mode)
+            dual = bool(mode.get('dualSidePosition', False)) if isinstance(mode, dict) else False
+            if dual:
+                self._retry(self.client.futures_change_position_mode, dualSidePosition=False)
+            return True
+        except Exception as e:
+            logger.error(f"Position mode set failed: {e}")
+            return False
+
+    def place_futures_reduce_only_protections(self, symbol: str, side: str, stop_loss_price: Optional[float], take_profit_price: Optional[float], quantity: float) -> bool:
+        """SL/TP için reduceOnly STOP_MARKET ve TAKE_PROFIT_MARKET emirleri yerleştirir."""
+        try:
+            close_side = 'SELL' if side.upper() == 'BUY' else 'BUY'
+            if stop_loss_price is not None:
+                self._retry(
+                    self.client.futures_create_order,
+                    symbol=symbol,
+                    side=close_side,
+                    type='STOP_MARKET',
+                    stopPrice=float(stop_loss_price),
+                    reduceOnly=True,
+                    quantity=quantity
+                )
+            if take_profit_price is not None:
+                self._retry(
+                    self.client.futures_create_order,
+                    symbol=symbol,
+                    side=close_side,
+                    type='TAKE_PROFIT_MARKET',
+                    stopPrice=float(take_profit_price),
+                    reduceOnly=True,
+                    quantity=quantity
+                )
+            return True
+        except Exception as e:
+            logger.error(f"Futures SL/TP placement failed {symbol}: {e}")
+            return False
