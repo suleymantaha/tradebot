@@ -10,17 +10,22 @@ from app.models.user import User
 from app.models.bot_state import BotState
 from typing import cast
 import asyncio
+import os
 
 app = FastAPI(title="TradeBot API")
 
 # CORS middleware ekleme
+ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
+_frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
+allowed_origins = ["*"] if ENVIRONMENT != "production" else [_frontend_url]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Development için tüm origin'lere izin ver
+    allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],  # Tüm HTTP metodlarına izin ver
-    allow_headers=["*"],  # Tüm header'lara izin ver
-    expose_headers=["Content-Disposition"],  # CSV dosya adını istemcinin okuyabilmesi için
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["Content-Disposition"],
 )
 
 app.include_router(auth_router)

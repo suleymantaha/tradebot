@@ -5,9 +5,15 @@ import logging
 import requests
 import os
 import time
+import random
 from decimal import Decimal, InvalidOperation
 
 logger = logging.getLogger(__name__)
+
+# Retry & rate limit configuration via environment
+RETRY_MAX_ATTEMPTS = int(os.getenv("BINANCE_RETRY_MAX_ATTEMPTS", "3"))
+RETRY_BACKOFF_BASE = float(os.getenv("BINANCE_RETRY_BACKOFF_BASE", "0.5"))
+WEIGHT_THRESHOLD = int(os.getenv("BINANCE_WEIGHT_THRESHOLD", "1100"))
 
 class BinanceClientWrapper:
     """Binance API ile etkileşim için wrapper sınıf"""
@@ -67,22 +73,40 @@ class BinanceClientWrapper:
 
     def _retry(self, func, *args, **kwargs):
         """Basit retry/backoff yardımcı fonksiyon."""
-        max_attempts = kwargs.pop('_max_attempts', 3)
-        backoff_base = kwargs.pop('_backoff_base', 0.5)
+        max_attempts = kwargs.pop('_max_attempts', RETRY_MAX_ATTEMPTS)
+        backoff_base = kwargs.pop('_backoff_base', RETRY_BACKOFF_BASE)
         for attempt in range(1, max_attempts + 1):
             try:
                 return func(*args, **kwargs)
             except BinanceAPIException as e:
                 # Rate limit veya saat senkronizasyonu gibi geçici hatalarda backoff uygula
                 if e.code in (-1003, -1015, -1021):
-                    time.sleep(backoff_base * attempt)
+                    # jitter'lı backoff
+                    delay = backoff_base * attempt
+                    delay = delay * (0.8 + 0.4 * random.random())
+                    time.sleep(delay)
                     continue
                 raise
             except Exception:
                 if attempt == max_attempts:
                     raise
-                time.sleep(backoff_base * attempt)
+                delay = backoff_base * attempt
+                delay = delay * (0.8 + 0.4 * random.random())
+                time.sleep(delay)
         return None
+
+    @staticmethod
+    def _respect_rate_limit_from_response(resp: requests.Response) -> None:
+        """Binance weight başlıklarına göre nazik bekleme uygula."""
+        try:
+            weight = resp.headers.get('X-MBX-USED-WEIGHT-1m') or resp.headers.get('X-MBX-USED-WEIGHT')
+            if weight is not None:
+                used = int(str(weight).split(',')[0])  # bazı durumlarda virgüllü gelebilir
+                if used >= WEIGHT_THRESHOLD:
+                    time.sleep(0.5)
+        except Exception:
+            # Başlık yoksa veya parse edilemediyse bekleme uygulama
+            pass
 
     def get_account_info(self) -> Optional[Dict[str, Any]]:
         """Hesap bilgilerini döndürür"""
@@ -95,8 +119,8 @@ class BinanceClientWrapper:
     def get_current_price(self, symbol: str) -> Optional[float]:
         """Belirtilen sembolün güncel fiyatını döndürür"""
         try:
-            ticker = self.client.get_symbol_ticker(symbol=symbol)
-            return float(ticker['price'])
+            ticker = self._retry(self.client.get_symbol_ticker, symbol=symbol)
+            return float(ticker['price']) if ticker else None
         except Exception as e:
             logger.error(f"{symbol} fiyatı alınamadı: {e}")
             return None
@@ -104,7 +128,7 @@ class BinanceClientWrapper:
     def get_historical_klines(self, symbol: str, interval: str, limit: int = 100) -> Optional[List[Any]]:
         """Historik candlestick verilerini döndürür"""
         try:
-            klines = cast(List[Any], self.client.get_klines(
+            klines = cast(List[Any], self._retry(self.client.get_klines,
                 symbol=symbol,
                 interval=interval,
                 limit=limit
@@ -323,6 +347,7 @@ class BinanceClientWrapper:
 
             response = requests.get(url, timeout=10)
             if response.status_code == 200:
+                BinanceClientWrapper._respect_rate_limit_from_response(response)
                 data = response.json()
                 symbols = []
                 for symbol_info in data['symbols']:
@@ -372,6 +397,7 @@ class BinanceClientWrapper:
 
             response = requests.get(url, timeout=10)
             if response.status_code == 200:
+                BinanceClientWrapper._respect_rate_limit_from_response(response)
                 data = response.json()
                 symbols = []
                 for symbol_info in data['symbols']:

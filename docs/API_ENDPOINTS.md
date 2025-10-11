@@ -105,7 +105,7 @@ Bu doküman, AlgoTrade Web Platformu'nun backend API endpoint'lerini listeler ve
 
 * **`GET /bots/{bot_id}/status-stream`** (Aşama 2+)
   * Açıklama: Belirli bir botun durumu için Server-Sent Events (SSE) akışı başlatır.
-  * Kimlik Doğrulama: Gerekli (token query parametresi veya cookie ile yapılabilir).
+  * Kimlik Doğrulama: Gerekli (Authorization: Bearer <token> ile Dependency üzerinden doğrulanır).
   * Response: `text/event-stream`
   * Hatalar: `401 Unauthorized`, `404 Not Found`
 

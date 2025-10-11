@@ -3,7 +3,11 @@ from typing import Optional
 from jose import JWTError, jwt
 import os
 
-SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey")
+ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
+_secret = os.getenv("SECRET_KEY")
+if ENVIRONMENT == "production" and not _secret:
+    raise RuntimeError("SECRET_KEY is required in production")
+SECRET_KEY = _secret or "supersecretkey"
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
 # Token süresini 7 güne çıkardık (10080 dakika = 7 gün)
 # Önceden 30 dakika idi, şimdi kullanıcı 1 hafta login kalmış olacak

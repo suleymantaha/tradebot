@@ -14,7 +14,7 @@ Bu platform, kullanıcıların hassas finansal bilgilerini ve API anahtarların�
 
 3. **Kimlik Doğrulama ve Yetkilendirme:**
     * Kullanıcı şifreleri, güçlü bir hashing algoritması (örn: bcrypt, Argon2 - `passlib` kütüphanesi) ile tuzlanarak (salted) saklanmalıdır.
-    * Oturum yönetimi için güvenli mekanizmalar (örn: JWT - JSON Web Tokens) kullanılmalı. JWT'ler kısa ömürlü olmalı ve refresh token mekanizması kullanılmalıdır.
+    * Oturum yönetimi için güvenli mekanizmalar (örn: JWT - JSON Web Tokens) kullanılmalı. Production'da `SECRET_KEY` zorunludur. JWT'ler kısa ömürlü olmalı (env ile yönetilir); platformda Remember Me desteği uzun süreli token sağlar, ancak prod için kısa access + refresh önerilir.
     * İki Faktörlü Kimlik Doğrulama (2FA - TOTP) kullanıcı hesapları için şiddetle tavsiye edilir ve MVP sonrası bir özellik olarak planlanmalıdır.
     * Tüm API endpoint'leri için uygun yetkilendirme kontrolleri yapılmalıdır. Kullanıcılar sadece kendi verilerine ve botlarına erişebilmelidir.
 
@@ -37,6 +37,10 @@ Bu platform, kullanıcıların hassas finansal bilgilerini ve API anahtarların�
     * Hassas bilgiler (stack trace'ler, API anahtarları, veritabanı detayları) içeren hata mesajları asla son kullanıcıya gösterilmemelidir. Genel hata mesajları kullanılmalı, detaylı teknik hatalar sunucu tarafında güvenli bir şekilde loglanmalıdır.
     * Loglar, yetkisiz erişime karşı korunmalı ve hassas veriler (örn: API secret'ları) içermemelidir.
 
+10. **Konfigürasyon Güvenliği:**
+    * Production ortamında `SECRET_KEY` ve `FERNET_KEY` zorunludur. Yoksa backend başlatılmamalıdır.
+    * CORS, production'da belirli `FRONTEND_URL` ile sınırlandırılmalıdır (wildcard `*` kullanılmamalıdır).
+    * Veritabanı bağlantıları için `DATABASE_URL`/`SYNC_DATABASE_URL` production'da zorunludur; development dışı default fallback kullanılmamalıdır.
 8. **Sunucu ve Altyapı Güvenliği:**
     * İşletim sistemi ve sunucu yazılımları düzenli olarak güncellenmelidir.
     * Firewall kuralları ile gereksiz portlar kapatılmalı, sadece gerekli servislere erişim izni verilmelidir.
