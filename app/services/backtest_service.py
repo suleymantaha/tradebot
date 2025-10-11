@@ -10,8 +10,8 @@ from ta.volatility import BollingerBands
 from ta.utils import dropna
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-import requests
-import time
+import asyncio
+import httpx
 from fastapi import HTTPException
 from sqlalchemy import desc
 import json
@@ -85,12 +85,13 @@ class BacktestService:
             else:
                 # Try to get price without API key (public endpoint)
                 url = f"https://api.binance.com/api/v3/ticker/price?symbol={symbol}"
-                response = requests.get(url, timeout=5)
-                if response.status_code == 200:
-                    data = response.json()
-                    current_price = float(data['price'])
-                    print(f"💰 Current {symbol} price (public): ${current_price}")
-                    return current_price
+                async with httpx.AsyncClient(timeout=5.0) as client:
+                    response = await client.get(url)
+                    if response.status_code == 200:
+                        data = response.json()
+                        current_price = float(data['price'])
+                        print(f"💰 Current {symbol} price (public): ${current_price}")
+                        return current_price
 
         except Exception as e:
             print(f"⚠️ Could not get current price for {symbol}: {e}")
@@ -173,8 +174,9 @@ class BacktestService:
 
         return df
 
-    async def get_historical_data_public(self, symbol: str, interval: str, start_date: str, end_date: str) -> pd.DataFrame:
-        """Get historical data using public Binance API (no auth required)"""
+    async def get_historical_data_public(self, symbol: str, interval: str, start_date: str, end_date: str, market_type: str = "spot") -> pd.DataFrame:
+        """Get historical data using public Binance API (no auth required).
+        Uses fapi for futures and api for spot."""
         try:
             print(f"📥 Downloading public data: {symbol} {interval} from {start_date} to {end_date}")
 
@@ -185,8 +187,8 @@ class BacktestService:
             current_time = start_time
 
             while current_time < end_time:
-                # Public Binance API endpoint
-                url = "https://api.binance.com/api/v3/klines"
+                # Public Binance API endpoint by market type
+                url = "https://fapi.binance.com/fapi/v1/klines" if market_type.lower() == "futures" else "https://api.binance.com/api/v3/klines"
                 params = {
                     'symbol': symbol,
                     'interval': interval,
@@ -194,7 +196,8 @@ class BacktestService:
                     'limit': 1000
                 }
 
-                response = requests.get(url, params=params, timeout=10)
+                async with httpx.AsyncClient(timeout=10.0) as client:
+                    response = await client.get(url, params=params)
                 if response.status_code != 200:
                     print(f"❌ API error: {response.status_code}")
                     break
@@ -209,7 +212,7 @@ class BacktestService:
                 print(f"📊 Progress: {datetime.fromtimestamp(current_time/1000).strftime('%Y-%m-%d')} ({len(all_klines)} candles)")
 
                 # Rate limiting
-                time.sleep(0.1)  # 100ms delay
+                await asyncio.sleep(0.1)  # 100ms delay
 
             if not all_klines:
                 print("⚠️ No data received, falling back to sample data")
@@ -238,8 +241,8 @@ class BacktestService:
             return await self.generate_sample_data(symbol, interval, start_date, end_date)
 
     async def get_historical_data(self, symbol: str = "BNBUSDT", interval: str = "15m",
-                          start_date: Optional[str] = None, end_date: Optional[str] = None) -> pd.DataFrame:
-        """Get historical data with caching"""
+                          start_date: Optional[str] = None, end_date: Optional[str] = None, market_type: str = "spot") -> pd.DataFrame:
+        """Get historical data with caching. Distinguish by market_type (spot/futures)."""
 
         print(f"📅 Using date range: {start_date} to {end_date}")
 
@@ -255,8 +258,8 @@ class BacktestService:
         print(f"📅 Using date range: {start_date} to {end_date}")
 
         # Check cache first
-        print(f"🔍 Checking cache for: {symbol} {interval} {start_date} to {end_date}")
-        cached_data = self.cache.get_cached_data(symbol, interval, start_date, end_date)
+        print(f"🔍 Checking cache for: {symbol} {interval} {start_date} to {end_date} [{market_type}]")
+        cached_data = self.cache.get_cached_data(symbol, interval, start_date, end_date, market_type)
         if cached_data is not None:
             print(f"📦 Using cached data: {len(cached_data)} rows")
             return cached_data
@@ -265,9 +268,9 @@ class BacktestService:
 
         # Try public API first (no auth required)
         try:
-            df = await self.get_historical_data_public(symbol, interval, start_date, end_date)
+            df = await self.get_historical_data_public(symbol, interval, start_date, end_date, market_type)
             # Cache the real data
-            self.cache.cache_data(df, symbol, interval, start_date, end_date)
+            self.cache.cache_data(df, symbol, interval, start_date, end_date, market_type)
             return df
         except Exception as e:
             print(f"❌ Public API failed: {e}")
@@ -288,12 +291,20 @@ class BacktestService:
                 current_time = start_time
 
                 while current_time < end_time:
-                    klines = self.client.get_klines(
-                        symbol=symbol,
-                        interval=interval,
-                        startTime=current_time,
-                        limit=1000
-                    )
+                    if market_type.lower() == "futures":
+                        klines = self.client.futures_klines(
+                            symbol=symbol,
+                            interval=interval,
+                            startTime=current_time,
+                            limit=1000
+                        )
+                    else:
+                        klines = self.client.get_klines(
+                            symbol=symbol,
+                            interval=interval,
+                            startTime=current_time,
+                            limit=1000
+                        )
 
                     if not klines:
                         break
@@ -317,7 +328,7 @@ class BacktestService:
                 df[numeric_columns] = df[numeric_columns].astype(float)
 
                 # Cache the data
-                self.cache.cache_data(df, symbol, interval, start_date, end_date)
+                self.cache.cache_data(df, symbol, interval, start_date, end_date, market_type)
 
                 print(f"✅ Authenticated data downloaded: {len(df)} rows")
                 return df
@@ -328,7 +339,7 @@ class BacktestService:
         # Final fallback to sample data
         print("🔄 Using sample data as final fallback...")
         df = await self.generate_sample_data(symbol, interval, start_date, end_date)
-        self.cache.cache_data(df, symbol, interval, start_date, end_date)
+        self.cache.cache_data(df, symbol, interval, start_date, end_date, market_type)
         return df
 
     def prepare_indicators(self, df: pd.DataFrame, ema_fast: int = 8, ema_slow: int = 21,
@@ -536,6 +547,8 @@ class BacktestService:
         """Run complete backtest with leverage support for futures"""
         try:
             print(f"🚀 Starting {market_type} backtest for {symbol} {interval}")
+            # Ensure client setup (so authenticated path can be used when possible)
+            await self.setup_binance_client()
             if self.test_mode:
                 print("🧪 Running in TEST MODE")
 
@@ -576,7 +589,7 @@ class BacktestService:
             leveraged_position_units: float = 0.0
 
             # Get and prepare data
-            df = await self.get_historical_data(symbol, interval, start_date, end_date)
+            df = await self.get_historical_data(symbol, interval, start_date, end_date, market_type)
             df = self.prepare_indicators(df, ema_fast, ema_slow, rsi_period)
 
             print(f"📊 Data prepared: {len(df)} candles")
@@ -611,15 +624,12 @@ class BacktestService:
                         risk_per_unit = entry_price - stop_loss_price
                         position_units = max_position_size / risk_per_unit if risk_per_unit > 0 else 0
 
-                        # 🆕 Apply leverage for position size calculation
+                        # 🆕 Correct leverage handling: units are NOT multiplied by leverage.
                         if market_type.lower() == "futures":
-                            # In futures, we can trade larger positions with leverage
-                            leveraged_position_units = position_units * leverage
-                            position_value = leveraged_position_units * entry_price
-                            # But we only use our capital as margin
+                            position_value = position_units * entry_price
+                            # Margin required is reduced by leverage
                             margin_required = position_value / leverage
                         else:
-                            # Spot trading
                             position_value = position_units * entry_price
                             margin_required = position_value
 
@@ -647,11 +657,7 @@ class BacktestService:
                         total_fees += entry_fee
 
                         if market_type.lower() == "futures":
-                            # leveraged_position_units her branch'ta set edilsin
-                            leveraged_position_units = (float(leveraged_position_units)
-                                                         if 'leveraged_position_units' in locals()
-                                                         else float(position_units) * float(leverage))
-                            actual_units = leveraged_position_units
+                            actual_units = float(position_units)
                             print(f"📈 Futures Entry: {actual_units:.6f} {symbol} @ ${entry_price:.4f} ({leverage}x), Margin: ${margin_required:.2f}")
                         else:
                             actual_units = position_units
@@ -696,7 +702,7 @@ class BacktestService:
 
                         # 🆕 Calculate P&L for leverage
                         if market_type.lower() == "futures":
-                            # In futures, profit/loss is amplified by leverage
+                            # In futures, margin is returned plus P&L; P&L scales with units, notional fixed by units
                             pnl_raw = (exit_price - entry_price) * actual_units
                             net_proceeds = margin_required + pnl_raw - exit_fee
                         else:
@@ -735,7 +741,7 @@ class BacktestService:
                 if daily_trades > 0:
                     daily_results.append({
                         'date': str(date),
-                        'pnl': daily_pnl,
+                        'pnl_pct': daily_pnl,
                         'trades': daily_trades,
                         'capital': current_capital
                     })
@@ -743,8 +749,8 @@ class BacktestService:
                     # Monthly aggregation
                     month = pd.to_datetime(str(date)).strftime('%Y-%m')
                     if month not in monthly_results:
-                        monthly_results[month] = {'pnl': 0, 'trades': 0}
-                    monthly_results[month]['pnl'] += daily_pnl
+                        monthly_results[month] = {'pnl_pct': 0, 'trades': 0}
+                    monthly_results[month]['pnl_pct'] += daily_pnl
                     monthly_results[month]['trades'] += daily_trades
 
             # Calculate final results
@@ -977,7 +983,7 @@ class BacktestService:
         trade_log: List[Dict[str, Any]] = []
 
         # Prepare data
-        df = await self.get_historical_data(symbol, interval, start_date, end_date)
+        df = await self.get_historical_data(symbol, interval, start_date, end_date, market_type)
         df = self.prepare_indicators(df, ema_fast, ema_slow, rsi_period)
 
         daily_groups = df.groupby(df['timestamp'].dt.date)
@@ -1009,10 +1015,10 @@ class BacktestService:
                 position_units = (max_position_size / risk_per_unit) if risk_per_unit > 0 else 0.0
 
                 if market_type.lower() == "futures":
-                    leveraged_position_units = position_units * leverage
-                    position_value = leveraged_position_units * entry_price
+                    # Units are not multiplied by leverage; margin is reduced by leverage
+                    position_value = position_units * entry_price
                     margin_required = position_value / leverage
-                    actual_units = leveraged_position_units
+                    actual_units = position_units
                 else:
                     position_value = position_units * entry_price
                     margin_required = position_value
@@ -1113,7 +1119,7 @@ class BacktestService:
         return trade_log
 
     async def get_available_symbols(self, market_type: str = "spot") -> List[Dict]:
-        """Get available symbols from Binance"""
+        """Get available symbols from Binance (async)"""
         try:
             print(f"📊 Fetching {market_type} symbols from Binance...")
 
@@ -1124,7 +1130,8 @@ class BacktestService:
                 # Spot symbols
                 url = "https://api.binance.com/api/v3/exchangeInfo"
 
-            response = requests.get(url, timeout=10)
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                response = await client.get(url)
             if response.status_code != 200:
                 print(f"❌ Failed to fetch symbols: {response.status_code}")
                 return self._get_fallback_symbols(market_type)

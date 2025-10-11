@@ -13,7 +13,8 @@ ENV npm_config_platform=linux \
 COPY package*.json ./
 
 # Install all dependencies (including devDependencies for build)
-RUN npm ci && npm i -D esbuild@0.25.9 && npm rebuild esbuild --force
+# Align esbuild host and binary versions to avoid mismatch errors
+RUN npm ci && npm i -D esbuild@0.25.4 && npm rebuild esbuild --force
 
 # Copy source code
 COPY . .

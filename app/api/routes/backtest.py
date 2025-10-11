@@ -214,11 +214,11 @@ async def download_backtest_daily_csv(backtest_id: int, current_user = Depends(g
 
         output = io.StringIO()
         writer = csv.writer(output)
-        writer.writerow(["date", "pnl", "trades", "capital"])
+        writer.writerow(["date", "pnl_pct", "trades", "capital"])
         for row in daily_results:
             writer.writerow([
                 row.get("date"),
-                row.get("pnl", 0),
+                row.get("pnl_pct", 0),
                 row.get("trades", 0),
                 row.get("capital", 0)
             ])
@@ -251,12 +251,12 @@ async def download_backtest_monthly_csv(backtest_id: int, current_user = Depends
 
         output = io.StringIO()
         writer = csv.writer(output)
-        writer.writerow(["month", "pnl", "trades"])
+        writer.writerow(["month", "pnl_pct", "trades"])
         for month in sorted(monthly_results.keys()):
             vals = monthly_results.get(month) or {}
             writer.writerow([
                 month,
-                vals.get("pnl", 0),
+                vals.get("pnl_pct", 0),
                 vals.get("trades", 0)
             ])
 
