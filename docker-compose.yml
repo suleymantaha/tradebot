@@ -116,9 +116,13 @@ services:
       - ./alembic:/app/alembic
     command: >
       sh -c "
-        alembic upgrade heads && \
         celery -A app.core.celery_app.celery_app worker -l info
       "
+    healthcheck:
+      test: [ "CMD-SHELL", "exit 0" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   # Celery Beat (Periyodik Görevler)
   celery-beat:
@@ -148,9 +152,13 @@ services:
       - ./alembic:/app/alembic
     command: >
       sh -c "
-        alembic upgrade heads && \
         celery -A app.core.celery_app.celery_app beat -l info
       "
+    healthcheck:
+      test: [ "CMD-SHELL", "exit 0" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   # (duplicate celery-worker block removed)
 

@@ -16,6 +16,9 @@
     - [ ] Komisyon oranları, potansiyel slippage gibi faktörleri simüle edebilmeli.
     - [ ] Her bir sanal işlem ve pozisyon değişikliği loglanmalı.
     - [ ] Backtesting işlemi asenkron bir Celery görevi olarak çalışmalı, çünkü uzun sürebilir.
+    - [ ] Piyasa türü desteği: Spot ve Futures (USDⓢ-M). `market_type` ile ayrım yapılır.
+    - [ ] Kaldıraç yalnızca Futures için uygulanır; Spot margin (kaldıraçlı spot) kapsam dışıdır ve ileride ayrı kapsam olarak ele alınabilir.
+    - [ ] Ücret/slippage parametreleştirilebilir (örn. `maker_fee`, `taker_fee`, `slippage_bps`).
 3. **Kullanıcı Arayüzü (Frontend):**
     - [ ] **Backtest Konfigürasyon Formu:**
         - Sembol seçimi.
@@ -45,16 +48,19 @@
     - [ ] Kullanıcı arayüzünün verileri doğru gösterip interaktif olduğunu test et.
 
 **Teknik Detaylar:**
+
 - Geçmiş veri miktarı büyük olabileceği için verimli veri işleme ve depolama önemlidir.
 - Backtesting motorunun performansı, özellikle uzun tarih aralıkları veya çok sayıda test için kritik olacaktır. Optimizasyon gerekebilir.
 - `vectorbt` gibi kütüphaneler, özellikle pandas tabanlı stratejiler için çok hızlı vektörize backtesting imkanı sunar.
 
 **Notlar / Riskler / Dikkat Edilmesi Gerekenler:**
+
 - **Overfitting (Aşırı Uyum):** Kullanıcılar, stratejilerini geçmiş verilere aşırı uyumlu hale getirip gelecekte aynı performansı bekleyebilirler. Bu risk hakkında bilgilendirme yapılmalı.
 - Geçmiş performans, gelecekteki performansın garantisi değildir.
 - Binance'ten geçmiş veri çekme API limitleri (örn: 1000 mum limiti) dikkate alınmalı, gerekirse parçalar halinde çekilip birleştirilmeli.
 - Look-ahead bias (gelecekten bilgi sızması) gibi yaygın backtesting hatalarından kaçınılmalı.
 
 **Bağımlılıklar:**
+
 - [Strateji Çekirdeği](_PARENT_DIR_/_PARENT_DIR_/01_MVP_DEVELOPMENT/01_03_BACKEND_STRATEGY_CORE_REFACTOR.md)
 - [Celery Worker Kurulumu](_PARENT_DIR_/_PARENT_DIR_/01_MVP_DEVELOPMENT/01_05_BACKEND_CELERY_WORKER_SETUP.md)

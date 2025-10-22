@@ -37,7 +37,11 @@ const BacktestPage = () => {
         take_profit: 1.5,
         trailing_stop: 0.3,
         risk_per_trade: 2.0,
-        leverage: 10  // 🆕 Kaldıraç parametresi
+        leverage: 10, // Kaldıraç parametresi
+        // Ücret/slippage parametreleri (bps ve oranlar)
+        maker_fee: 0.0002,
+        taker_fee: 0.0004,
+        slippage_bps: 1.0
     })
 
     // Teknik indikatör parametreleri
@@ -62,6 +66,25 @@ const BacktestPage = () => {
         { value: '4h', label: '4 Saat' },
         { value: '1d', label: '1 Gün' }
     ]
+
+    // Parametre alanı başlıkları (fallback ile)
+    const getParameterLabel = (key) => {
+        switch (key) {
+            case 'initial_capital': return 'Başlangıç Sermayesi (USDT)'
+            case 'daily_target': return 'Günlük Hedef (%)'
+            case 'max_daily_loss': return 'Maks. Günlük Kayıp (%)'
+            case 'stop_loss': return 'Stop Loss (%)'
+            case 'take_profit': return 'Take Profit (%)'
+            case 'trailing_stop': return 'Trailing Stop (%)'
+            case 'risk_per_trade': return 'Risk Per Trade (%)'
+            case 'leverage': return '⚡ Kaldıraç (Futures)'
+            case 'maker_fee': return 'Maker Komisyon (oran)'
+            case 'taker_fee': return 'Taker Komisyon (oran)'
+            case 'slippage_bps': return 'Slippage (bps)'
+            default:
+                return key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+        }
+    }
 
     // Auth kontrolü
     useEffect(() => {
@@ -411,7 +434,11 @@ const BacktestPage = () => {
                                                 setSearchTerm(e.target.value)
                                                 setIsDropdownOpen(true)
                                             }}
-                                            onFocus={() => setIsDropdownOpen(true)}
+                                            onFocus={(e) => { setIsDropdownOpen(true); try { e.target.select() } catch { } }}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Escape') { setSearchTerm(''); setIsDropdownOpen(false) }
+                                                if (e.key === 'ArrowDown') { setIsDropdownOpen(true) }
+                                            }}
                                             className={`w-full px-4 py-2 rounded-xl border transition-colors focus:ring-2 focus:ring-indigo-500 focus:outline-none ${isDark
                                                 ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
                                                 : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
@@ -420,6 +447,18 @@ const BacktestPage = () => {
                                             disabled={symbolsLoading}
                                             autoComplete="off"
                                         />
+
+                                        {/* Clear button */}
+                                        {!symbolsLoading && searchTerm && (
+                                            <button
+                                                type="button"
+                                                onClick={() => { setSearchTerm(''); setIsDropdownOpen(true) }}
+                                                className={`absolute inset-y-0 right-8 flex items-center px-1 text-sm ${isDark ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'}`}
+                                                aria-label="Temizle"
+                                            >
+                                                ✕
+                                            </button>
+                                        )}
 
                                         {/* Dropdown Icon */}
                                         <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
@@ -447,7 +486,7 @@ const BacktestPage = () => {
                                                             className={`px-4 py-3 cursor-pointer transition-colors duration-150 ${isDark
                                                                 ? 'hover:bg-gray-600 text-white'
                                                                 : 'hover:bg-gray-50 text-gray-900'
-                                                                } ${selectedSymbol === sym.symbol ? 'bg-indigo-50 border-l-4 border-indigo-500' : ''}`}
+                                                                } ${selectedSymbol === sym.symbol ? (isDark ? 'bg-indigo-500/25 border-l-4 border-indigo-400' : 'bg-indigo-50 border-l-4 border-indigo-500') : ''}`}
                                                             onClick={() => {
                                                                 setSymbol(sym.symbol)
                                                                 setSearchTerm(sym.symbol)
@@ -620,22 +659,17 @@ const BacktestPage = () => {
 
                                         return (
                                             <div key={key}>
-                                                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                                                    {key === 'initial_capital' && 'Başlangıç Sermayesi (USDT)'}
-                                                    {key === 'daily_target' && 'Günlük Hedef (%)'}
-                                                    {key === 'max_daily_loss' && 'Maks. Günlük Kayıp (%)'}
-                                                    {key === 'stop_loss' && 'Stop Loss (%)'}
-                                                    {key === 'take_profit' && 'Take Profit (%)'}
-                                                    {key === 'trailing_stop' && 'Trailing Stop (%)'}
-                                                    {key === 'risk_per_trade' && 'Risk Per Trade (%)'}
-                                                    {key === 'leverage' && '⚡ Kaldıraç (Futures)'}
-                                                </label>
+                                                {key === 'maker_fee' && (
+                                                    <h3 className={`text-sm font-semibold mb-2 ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>💸 Ücret ve Slippage</h3>
+                                                )}
+                                                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{getParameterLabel(key)}</label>
                                                 <input
                                                     type="number"
-                                                    step={key === 'leverage' ? "1" : "0.1"}
-                                                    min={key === 'leverage' ? "1" : undefined}
+                                                    step={key === 'leverage' ? "1" : (key === 'maker_fee' || key === 'taker_fee' ? "0.0001" : "0.1")}
+                                                    min={key === 'leverage' ? "1" : (key === 'maker_fee' || key === 'taker_fee' || key === 'slippage_bps' ? "0" : undefined)}
                                                     max={key === 'leverage' ? "125" : undefined}
                                                     value={value}
+                                                    placeholder={getParameterLabel(key)}
                                                     onChange={(e) => handleParameterChange(key, e.target.value)}
                                                     className={`w-full px-3 py-2 rounded-lg border transition-colors ${isDark ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:ring-2 focus:ring-indigo-500`}
                                                 />
@@ -867,8 +901,8 @@ const BacktestPage = () => {
                                                                 <span className={`text-sm ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                                                     {data.trades} işlem
                                                                 </span>
-                                                                <span className={`text-sm font-medium ${data.pnl >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                                                                    %{data.pnl?.toFixed(2)}
+                                                                <span className={`text-sm font-medium ${data.pnl_pct >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                                                                    %{data.pnl_pct?.toFixed(2)}
                                                                 </span>
                                                             </div>
                                                         </div>

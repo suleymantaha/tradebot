@@ -23,6 +23,7 @@
 - [⚙️ Konfigürasyon](#️-konfigürasyon)
 - [🐳 Docker](#-docker)
 - [🔧 Geliştirme](#-geliştirme)
+- [⬇️ Güncelleme & Paketleme](#️-güncelleme--paketleme)
 - [🆘 Sorun Giderme](#-sorun-giderme)
 - [📄 Lisans](#-lisans)
 
@@ -363,6 +364,55 @@ tradebot/
 ├── 🔧 install.sh             # Installation script
 └── 📄 README.md              # This file
 ```
+
+---
+
+## ⬇️ Güncelleme & Paketleme
+
+### 📦 Paket oluşturma
+
+```bash
+# Manifest üret
+make manifest
+
+# Paket oluştur (dist/tradebot-YYYYMMDD-HHMMSS.tar.gz)
+make package
+```
+
+### ✅ Doğrulama
+
+```bash
+# Var olan manifest ile dosyaları doğrula (eksik/değişik/fazla)
+make verify
+```
+
+### 🔄 Güncelleme / Onarım
+
+```bash
+# Paketten eksik/bozuk dosyaları senkronize et
+make update PKG=dist/tradebot-YYYYMMDD-HHMMSS.tar.gz
+
+# Aynı işlem (alias)
+make repair PKG=dist/tradebot-YYYYMMDD-HHMMSS.tar.gz
+```
+
+### 🎯 İleri seviye: CLI kullanımı
+
+```bash
+# Hariç tutulacak desenleri görüntüleme
+python3 scripts/tradebotctl.py print-ignore
+
+# Kaynak dizin + manifest ile (paketsiz) güncelleme
+python3 scripts/tradebotctl.py update --source /path/to/source --manifest /path/to/source/tradebot.manifest.json
+
+# Dry-run (kopyalamadan göster)
+python3 scripts/tradebotctl.py update --package dist/tradebot-YYYYMMDD-HHMMSS.tar.gz --dry-run
+```
+
+Notlar:
+
+- `.manifestignore` ile paket dışında bırakılacak dosyaları belirleyebilirsiniz.
+- `.env`, `logs/`, `node_modules/`, `venv/` gibi çalışma zamanı/çıktı dizinleri varsayılan olarak hariç tutulur.
 
 ### 🛠️ **Backend Development**
 

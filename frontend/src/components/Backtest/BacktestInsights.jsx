@@ -8,6 +8,11 @@ const computeInsights = (results) => {
     const totalReturn = results.total_return ?? 0
     const winRate = results.win_rate ?? 0
     const totalTrades = results.total_trades ?? 0
+    const maxDrawdown = results.max_drawdown ?? 0
+    const sharpe = results.sharpe ?? 0
+    const sortino = results.sortino ?? 0
+    const profitFactor = results.profit_factor ?? 0
+    const cagr = results.cagr ?? 0
     const winning = results.winning_trades ?? 0
     const losing = results.losing_trades ?? 0
     const marketType = results.market_type
@@ -15,7 +20,7 @@ const computeInsights = (results) => {
 
     const monthly = results.monthly_results || {}
     const months = Object.keys(monthly)
-    const monthPnls = months.map((m) => monthly[m]?.pnl ?? 0)
+    const monthPnls = months.map((m) => monthly[m]?.pnl_pct ?? 0)
     const posMonths = monthPnls.filter((x) => x >= 0).length
     const negMonths = monthPnls.filter((x) => x < 0).length
     const bestIdx = monthPnls.length ? monthPnls.indexOf(Math.max(...monthPnls)) : -1
@@ -38,6 +43,8 @@ const computeInsights = (results) => {
 
     // Genel performans
     bullets.push(`Toplam getiri: ${formatPct(totalReturn)}, Kazanma oranı: ${formatPct(winRate)} (${winning}/${totalTrades})`)
+    bullets.push(`Maks. Drawdown: ${formatPct(Math.abs(maxDrawdown))}`)
+    bullets.push(`Sharpe: ${(sharpe ?? 0).toFixed(2)}, Sortino: ${(sortino ?? 0).toFixed(2)}, PF: ${(profitFactor ?? 0).toFixed(2)}, CAGR: ${formatPct(cagr)}`)
     if (posMonths + negMonths > 0) {
         bullets.push(`Aylık dağılım: ${posMonths} pozitif, ${negMonths} negatif`)
     }

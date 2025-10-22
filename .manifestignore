@@ -1,0 +1,35 @@
+# VCS
+.git/
+.gitignore
+.gitattributes
+
+# OS & misc
+.DS_Store
+logs/
+*.log
+dump.rdb
+
+# Python
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Node / Frontend
+node_modules/
+frontend/node_modules/
+frontend/dist/
+dist/
+build/
+
+# Runtime & secrets
+.env
+*.db
+celerybeat-schedule*
+cache/data/
+
+# Docker runtime
+*.pid
+

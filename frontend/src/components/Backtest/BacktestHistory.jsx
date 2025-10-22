@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { format } from 'date-fns';
 import BacktestInsights from './BacktestInsights';
 import apiService from '../../services/api';
@@ -63,6 +63,19 @@ const BacktestHistory = ({ onSelectBacktest }) => {
         if (winRate >= 40) return 'text-yellow-500';
         return 'text-red-500';
     };
+
+    // UI'da gösterilen parametreleri normalize et (spot için leverage=1, futures için backend'deki değer)
+    const paramsDisplay = useMemo(() => {
+        if (!selectedBacktest) return {};
+        const p = { ...(selectedBacktest.parameters || {}) };
+        const mt = String(selectedBacktest.market_type || 'spot').toLowerCase();
+        if (mt !== 'futures') {
+            p.leverage = 1;
+        } else if (typeof selectedBacktest.leverage === 'number') {
+            p.leverage = selectedBacktest.leverage;
+        }
+        return p;
+    }, [selectedBacktest]);
 
     if (loading) {
         return (
@@ -282,7 +295,7 @@ const BacktestHistory = ({ onSelectBacktest }) => {
                                 <h4 className="text-md font-semibold text-gray-900 dark:text-white mb-3">Kullanılan Parametreler</h4>
                                 <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
                                     <pre className="text-sm text-gray-600 dark:text-gray-300 overflow-x-auto">
-                                        {JSON.stringify(selectedBacktest.parameters, null, 2)}
+                                        {JSON.stringify(paramsDisplay, null, 2)}
                                     </pre>
                                 </div>
                             </div>

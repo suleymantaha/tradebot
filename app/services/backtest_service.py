@@ -440,6 +440,75 @@ class BacktestService:
             df_basic['trend_strength'] = 0.1
             return df_basic
 
+    @staticmethod
+    def _compute_max_drawdown(equity_curve: List[float]) -> float:
+        """Return max drawdown percentage (negative or zero)."""
+        if not equity_curve:
+            return 0.0
+        peak = equity_curve[0]
+        max_dd = 0.0
+        for val in equity_curve:
+            if val > peak:
+                peak = val
+            drawdown = (val - peak) / peak * 100.0
+            if drawdown < max_dd:
+                max_dd = drawdown
+        return float(max_dd)
+
+    @staticmethod
+    def _safe_pct(v: float) -> float:
+        try:
+            return float(v)
+        except Exception:
+            return 0.0
+
+    @staticmethod
+    def _compute_sharpe(returns_pct: List[float], periods_per_year: int = 252) -> float:
+        if not returns_pct:
+            return 0.0
+        rets = np.array(returns_pct, dtype=float) / 100.0
+        mu = np.mean(rets)
+        sigma = np.std(rets, ddof=1) if len(rets) > 1 else 0.0
+        if sigma == 0:
+            return 0.0
+        sharpe = (mu * periods_per_year) / (sigma * np.sqrt(periods_per_year))
+        return float(sharpe)
+
+    @staticmethod
+    def _compute_sortino(returns_pct: List[float], periods_per_year: int = 252) -> float:
+        if not returns_pct:
+            return 0.0
+        rets = np.array(returns_pct, dtype=float) / 100.0
+        downside = rets[rets < 0]
+        ds_sigma = np.std(downside, ddof=1) if len(downside) > 1 else 0.0
+        mu = np.mean(rets)
+        if ds_sigma == 0:
+            return 0.0
+        sortino = (mu * periods_per_year) / (ds_sigma * np.sqrt(periods_per_year))
+        return float(sortino)
+
+    @staticmethod
+    def _compute_profit_factor(trade_pnls: List[float]) -> float:
+        gains = sum(p for p in trade_pnls if p > 0)
+        losses = -sum(p for p in trade_pnls if p < 0)
+        if losses == 0:
+            return float('inf') if gains > 0 else 0.0
+        return float(gains / losses)
+
+    @staticmethod
+    def _compute_cagr(initial_capital: float, final_capital: float, start_date: str, end_date: str) -> float:
+        try:
+            start = datetime.strptime(start_date, "%Y-%m-%d")
+            end = datetime.strptime(end_date, "%Y-%m-%d")
+            days = max((end - start).days, 1)
+            years = days / 365.25
+            if initial_capital <= 0 or years <= 0:
+                return 0.0
+            cagr = (final_capital / initial_capital) ** (1 / years) - 1
+            return float(cagr * 100.0)
+        except Exception:
+            return 0.0
+
     def check_entry_signal(self, current: pd.Series, previous: pd.Series,
                           rsi_oversold: float = 35, rsi_overbought: float = 65) -> bool:
         """Check if entry conditions are met"""
@@ -521,26 +590,31 @@ class BacktestService:
             print(f"❌ Error checking entry signal: {e}")
             return False
 
-    def calculate_fees(self, position_size: float, market_type: str = "spot", is_entry: bool = True) -> float:
-        """Calculate trading fees based on market type"""
-        if market_type.lower() == "futures":
-            # Futures fees (generally lower)
-            maker_fee = 0.0001  # 0.01% maker fee for futures
-            taker_fee = 0.0004  # 0.04% taker fee for futures
-        else:
-            # Spot fees
-            maker_fee = 0.0002  # 0.02% maker fee for spot
-            taker_fee = 0.0004  # 0.04% taker fee for spot
+    def calculate_fees(self, position_size: float, market_type: str = "spot", is_entry: bool = True,
+                       maker_fee: Optional[float] = None, taker_fee: Optional[float] = None,
+                       slippage_bps: Optional[float] = None) -> float:
+        """Calculate trading fees based on market type or explicit params.
 
-        slippage = 0.0001   # 0.01% slippage
+        Args:
+            position_size: Notional value of the trade (quote currency, e.g., USDT)
+            market_type: 'spot' or 'futures'
+            is_entry: True for entry leg (taker varsayımı), False for exit leg (maker varsayımı)
+            maker_fee: Maker fee rate (e.g., 0.0002 for 2 bps). If None, default by market.
+            taker_fee: Taker fee rate (e.g., 0.0004 for 4 bps). If None, default by market.
+            slippage_bps: Slippage in basis points (1 bps = 0.01%). If None, default 1 bps.
+        """
+        mkt = market_type.lower()
+        default_maker = 0.0001 if mkt == "futures" else 0.0002
+        default_taker = 0.0004  # both spot and futures commonly 4 bps taker by default
+        maker = default_maker if maker_fee is None else float(maker_fee)
+        taker = default_taker if taker_fee is None else float(taker_fee)
+        slip_bps = 1.0 if slippage_bps is None else float(slippage_bps)
+        slip_rate = slip_bps / 10000.0
 
-        if is_entry:
-            commission = position_size * taker_fee
-        else:
-            commission = position_size * maker_fee
-
-        slippage_cost = position_size * slippage
-        return commission + slippage_cost
+        commission_rate = taker if is_entry else maker
+        commission = position_size * commission_rate
+        slippage_cost = position_size * slip_rate
+        return float(commission + slippage_cost)
 
     async def run_backtest(self, symbol: str, interval: str, start_date: str, end_date: str,
                     parameters: Dict[str, Any], market_type: str = "spot") -> Dict[str, Any]:
@@ -559,7 +633,7 @@ class BacktestService:
             stop_loss = parameters.get('stop_loss', 0.5)
             take_profit = parameters.get('take_profit', 1.5)
             trailing_stop = parameters.get('trailing_stop', 0.3)
-            leverage = parameters.get('leverage', 1)  # 🆕 Kaldıraç parametresi
+            leverage = parameters.get('leverage', 1)  # Kaldıraç parametresi
 
             # Validate leverage for futures
             if market_type.lower() == "futures":
@@ -576,6 +650,13 @@ class BacktestService:
             rsi_period = int(parameters.get('rsi_period', 7))
             rsi_oversold = parameters.get('rsi_oversold', 35)
             rsi_overbought = parameters.get('rsi_overbought', 65)
+
+            # Fee & slippage parameters (overrides defaults)
+            default_maker = 0.0001 if market_type.lower() == "futures" else 0.0002
+            default_taker = 0.0004
+            maker_fee = float(parameters.get('maker_fee', default_maker))
+            taker_fee = float(parameters.get('taker_fee', default_taker))
+            slippage_bps = float(parameters.get('slippage_bps', 1.0))
 
             # Initialize variables
             current_capital = initial_capital
@@ -624,13 +705,11 @@ class BacktestService:
                         risk_per_unit = entry_price - stop_loss_price
                         position_units = max_position_size / risk_per_unit if risk_per_unit > 0 else 0
 
-                        # 🆕 Correct leverage handling: units are NOT multiplied by leverage.
+                        # Leverage handling: notional is independent of leverage; margin reduces with leverage
+                        position_value = position_units * entry_price
                         if market_type.lower() == "futures":
-                            position_value = position_units * entry_price
-                            # Margin required is reduced by leverage
                             margin_required = position_value / leverage
                         else:
-                            position_value = position_units * entry_price
                             margin_required = position_value
 
                         # Don't exceed available capital
@@ -638,14 +717,15 @@ class BacktestService:
                             margin_required = current_capital * 0.95
                             if market_type.lower() == "futures":
                                 position_value = margin_required * leverage
-                                leveraged_position_units = position_value / entry_price
-                                position_units = leveraged_position_units / leverage
+                                position_units = position_value / entry_price
                             else:
                                 position_value = margin_required
                                 position_units = position_value / entry_price
 
-                        # Calculate entry fees
-                        entry_fee = self.calculate_fees(position_value, market_type, is_entry=True)
+                        # Calculate entry fees (use parametrized fees)
+                        entry_fee = self.calculate_fees(position_value, market_type, is_entry=True,
+                                                        maker_fee=maker_fee, taker_fee=taker_fee,
+                                                        slippage_bps=slippage_bps)
                         total_entry_cost = margin_required + entry_fee
 
                         # Skip if not enough capital
@@ -656,11 +736,11 @@ class BacktestService:
                         current_capital -= total_entry_cost
                         total_fees += entry_fee
 
+                        # Compute executed units from notional
+                        actual_units = float(position_value / entry_price)
                         if market_type.lower() == "futures":
-                            actual_units = float(position_units)
                             print(f"📈 Futures Entry: {actual_units:.6f} {symbol} @ ${entry_price:.4f} ({leverage}x), Margin: ${margin_required:.2f}")
                         else:
-                            actual_units = position_units
                             print(f"📈 Spot Entry: {actual_units:.6f} {symbol} @ ${entry_price:.4f}, Cost: ${total_entry_cost:.2f}")
 
                         # Set stops
@@ -698,7 +778,9 @@ class BacktestService:
 
                         # Calculate exit proceeds
                         position_exit_value = actual_units * exit_price
-                        exit_fee = self.calculate_fees(position_exit_value, market_type, is_entry=False)
+                        exit_fee = self.calculate_fees(position_exit_value, market_type, is_entry=False,
+                                                       maker_fee=maker_fee, taker_fee=taker_fee,
+                                                       slippage_bps=slippage_bps)
 
                         # 🆕 Calculate P&L for leverage
                         if market_type.lower() == "futures":
@@ -768,6 +850,30 @@ class BacktestService:
             print(f"   Win Rate: {win_rate:.2f}%")
             print(f"   Total Return: {total_return:.2f}%")
 
+            # Build equity curve from daily results (capital per day)
+            equity_curve = [float(x.get('capital', current_capital)) for x in daily_results] if daily_results else [float(current_capital)]
+
+            # Day-level returns for risk metrics
+            day_returns = [float(x.get('pnl_pct', 0)) for x in daily_results]
+
+            # Advanced metrics
+            max_drawdown = self._compute_max_drawdown(equity_curve)
+            sharpe = self._compute_sharpe(day_returns)
+            sortino = self._compute_sortino(day_returns)
+            profit_factor = self._compute_profit_factor([
+                # approximate trade PnLs from daily totals (coarse), could be refined to per-trade log
+                # keep signs in percentage * capital proxy not needed for PF scale, but consistency kept simple
+                float(x.get('pnl_pct', 0)) for x in daily_results
+            ])
+            cagr = self._compute_cagr(float(initial_capital), float(current_capital), start_date, end_date)
+
+            # Normalize parameters for output (ensure leverage reflects applied value)
+            parameters_out = dict(parameters)
+            try:
+                parameters_out['leverage'] = int(leverage)
+            except Exception:
+                parameters_out['leverage'] = leverage
+
             results: Dict[str, Any] = {
                 'initial_capital': initial_capital,
                 'final_capital': current_capital,
@@ -780,13 +886,18 @@ class BacktestService:
                 'avg_profit': avg_profit,
                 'daily_results': daily_results,
                 'monthly_results': monthly_results,
+                'max_drawdown': max_drawdown,
+                'sharpe': sharpe,
+                'sortino': sortino,
+                'profit_factor': profit_factor,
+                'cagr': cagr,
                 'symbol': symbol,
                 'interval': interval,
                 'start_date': start_date,
                 'end_date': end_date,
                 'market_type': market_type,
                 'leverage': leverage,
-                'parameters': parameters,
+                'parameters': parameters_out,
                 'test_mode': self.test_mode
             }
 
@@ -881,13 +992,36 @@ class BacktestService:
             if not backtest:
                 raise HTTPException(status_code=404, detail="Backtest not found")
 
+            # Determine leverage to return: 1x for spot, else from stored parameters if present
+            market_type_val = getattr(backtest, 'market_type', 'spot')
+            leverage_val = 1
+            try:
+                if isinstance(backtest.parameters, dict):
+                    leverage_val = int(backtest.parameters.get('leverage', 1))
+            except Exception:
+                leverage_val = backtest.parameters.get('leverage', 1) if isinstance(backtest.parameters, dict) else 1
+            if str(market_type_val).lower() != 'futures':
+                leverage_val = 1
+
+            # Normalize parameters to reflect applied leverage in response as well
+            params_out: Dict[str, Any] = {}
+            try:
+                if isinstance(backtest.parameters, dict):
+                    params_out = dict(cast(Dict[str, Any], backtest.parameters))
+                    params_out['leverage'] = int(leverage_val)
+                else:
+                    params_out = {}
+                    params_out['leverage'] = int(leverage_val)
+            except Exception:
+                params_out = {"leverage": int(leverage_val)}
+
             return {
                 "id": backtest.id,
                 "symbol": backtest.symbol,
                 "interval": backtest.interval,
                 "start_date": backtest.start_date,
                 "end_date": backtest.end_date,
-                "parameters": backtest.parameters,
+                "parameters": params_out,
                 "initial_capital": backtest.initial_capital,
                 "final_capital": backtest.final_capital,
                 "total_return": round(cast(float, backtest.total_return or 0.0), 2),
@@ -900,7 +1034,8 @@ class BacktestService:
                 "daily_results": backtest.daily_results,
                 "monthly_results": backtest.monthly_results,
                 "test_mode": backtest.test_mode,
-                "market_type": getattr(backtest, 'market_type', 'spot'),
+                "market_type": market_type_val,
+                "leverage": leverage_val,
                 "created_at": backtest.created_at
             }
 
@@ -979,6 +1114,13 @@ class BacktestService:
         rsi_oversold = parameters.get('rsi_oversold', 35)
         rsi_overbought = parameters.get('rsi_overbought', 65)
 
+        # Fee & slippage parameters for log consistency
+        default_maker = 0.0001 if market_type.lower() == "futures" else 0.0002
+        default_taker = 0.0004
+        maker_fee = float(parameters.get('maker_fee', default_maker))
+        taker_fee = float(parameters.get('taker_fee', default_taker))
+        slippage_bps = float(parameters.get('slippage_bps', 1.0))
+
         current_capital = float(initial_capital)
         trade_log: List[Dict[str, Any]] = []
 
@@ -1014,28 +1156,25 @@ class BacktestService:
                 risk_per_unit = entry_price - stop_loss_price
                 position_units = (max_position_size / risk_per_unit) if risk_per_unit > 0 else 0.0
 
+                # Notional is independent of leverage; margin is reduced by leverage in futures
+                position_value = position_units * entry_price
                 if market_type.lower() == "futures":
-                    # Units are not multiplied by leverage; margin is reduced by leverage
-                    position_value = position_units * entry_price
                     margin_required = position_value / leverage
-                    actual_units = position_units
                 else:
-                    position_value = position_units * entry_price
                     margin_required = position_value
-                    actual_units = position_units
 
                 # Capital guard
                 if margin_required > current_capital * 0.95:
                     margin_required = current_capital * 0.95
                     if market_type.lower() == "futures":
                         position_value = margin_required * leverage
-                        actual_units = position_value / entry_price
                     else:
                         position_value = margin_required
-                        actual_units = position_value / entry_price
 
                 # Entry fees and execution
-                entry_fee = self.calculate_fees(position_value, market_type, is_entry=True)
+                entry_fee = self.calculate_fees(position_value, market_type, is_entry=True,
+                                                maker_fee=maker_fee, taker_fee=taker_fee,
+                                                slippage_bps=slippage_bps)
                 total_entry_cost = margin_required + entry_fee
                 if total_entry_cost > current_capital:
                     continue
@@ -1077,8 +1216,12 @@ class BacktestService:
                     exit_price = float(last_row['close'])
                     exit_time = str(last_row['timestamp']) if 'timestamp' in last_row else entry_time
 
+                # Executed units from notional
+                actual_units = float(position_value / entry_price)
                 position_exit_value = actual_units * exit_price
-                exit_fee = self.calculate_fees(position_exit_value, market_type, is_entry=False)
+                exit_fee = self.calculate_fees(position_exit_value, market_type, is_entry=False,
+                                               maker_fee=maker_fee, taker_fee=taker_fee,
+                                               slippage_bps=slippage_bps)
 
                 if market_type.lower() == "futures":
                     pnl_raw = (exit_price - entry_price) * actual_units

@@ -146,6 +146,37 @@ Bu doküman, AlgoTrade Web Platformu'nun backend API endpoint'lerini listeler ve
   * Response: `200 OK` - `BacktestResultResponse` (durum, P&L, metrikler, işlemler)
   * Hatalar: `401 Unauthorized`, `404 Not Found`
 
+## Backtest (Gerçekleşen rota) (`/api/v1/backtest`)
+
+* **`POST /api/v1/backtest/run`**
+  * Açıklama: Yeni bir backtest başlatır ve sonucu döndürür.
+  * Kimlik Doğrulama: Gerekli.
+  * Request Body: `{ symbol, interval, start_date, end_date, market_type: 'spot'|'futures', parameters: { ... } }`
+  * Response: `200 OK` - Backtest sonuçları (öz/ayrıntı metrikleri, günlük/aylık özetler)
+
+* **`GET /api/v1/backtest/list`**
+  * Açıklama: Mevcut kullanıcının backtest listesini döndürür.
+  * Kimlik Doğrulama: Gerekli.
+  * Response: `200 OK` - Liste (id, sembol, aralık, tarih, kâr, win rate vb.)
+
+* **`GET /api/v1/backtest/detail/{backtest_id}`**
+  * Açıklama: Belirli bir backtest’in tüm detaylarını döndürür.
+  * Kimlik Doğrulama: Gerekli.
+  * Path Parametre: `backtest_id` (Integer)
+  * Response: `200 OK` - Ayrıntılar (parametreler, günlük/aylık sonuçlar, metrikler)
+
+* **`GET /api/v1/backtest/symbols/{market_type}`**
+  * Açıklama: Spot veya Futures için kullanılabilir semboller.
+  * Kimlik Doğrulama: Gerekli.
+  * Path Parametre: `market_type` (`spot`|`futures`)
+  * Response: `200 OK` - `{ market_type, symbols[], count }`
+
+* CSV İndirme
+  * `GET /api/v1/backtest/download/{backtest_id}/daily.csv`
+  * `GET /api/v1/backtest/download/{backtest_id}/monthly.csv`
+  * `GET /api/v1/backtest/download/{backtest_id}/trades.csv`
+  * Kimlik Doğrulama: Gerekli.
+
 ---
 Pydantic Şema Referansları (Örnekler):
 (Bu kısım API dokümanında veya ayrı bir şema dokümanında detaylandırılabilir)

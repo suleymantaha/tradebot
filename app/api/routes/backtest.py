@@ -204,7 +204,7 @@ async def get_symbols(market_type: str, current_user = Depends(get_current_user)
 async def download_backtest_daily_csv(backtest_id: int, current_user = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     """
     Belirli bir backtest için günlük sonuçları CSV olarak indir
-    Kolonlar: date, pnl, trades, capital
+    Kolonlar: date, pnl_usdt, trades, capital
     """
     try:
         backtest_service = BacktestService()
@@ -214,14 +214,19 @@ async def download_backtest_daily_csv(backtest_id: int, current_user = Depends(g
 
         output = io.StringIO()
         writer = csv.writer(output)
-        writer.writerow(["date", "pnl_pct", "trades", "capital"])
+        writer.writerow(["date", "pnl_usdt", "trades", "capital"])
+
+        prev_capital = float(detail.get('initial_capital', 0) or 0)
         for row in daily_results:
+            capital = float(row.get("capital", prev_capital) or prev_capital)
+            pnl_usdt = capital - prev_capital
             writer.writerow([
                 row.get("date"),
-                row.get("pnl_pct", 0),
+                round(float(pnl_usdt), 6),
                 row.get("trades", 0),
-                row.get("capital", 0)
+                round(float(capital), 6)
             ])
+            prev_capital = capital
 
         csv_data = output.getvalue()
         symbol = str(detail.get('symbol', 'SYMBOL'))
