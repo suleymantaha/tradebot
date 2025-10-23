@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { authAPI } from '../../services/api'
 import { useTheme } from '../../contexts/ThemeContext'
+import { extractErrorMessage } from '../../utils/error'
 
 const ResetPasswordPage = () => {
     const { isDark } = useTheme()
@@ -71,7 +72,7 @@ const ResetPasswordPage = () => {
 
         } catch (err) {
             setError(
-                err.response?.data?.detail ||
+                extractErrorMessage(err) ||
                 'Şifre sıfırlama işlemi sırasında bir hata oluştu.'
             )
         } finally {
@@ -326,4 +327,4 @@ const ResetPasswordPage = () => {
     )
 }
 
-export default ResetPasswordPage
+export default ResetPasswordPage

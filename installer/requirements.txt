@@ -16,3 +16,6 @@ cryptography>=3.4.0
 
 # Building executable
 pyinstaller>=5.0.0
+
+# Windows specific dependencies
+pywin32>=306; sys_platform == "win32"

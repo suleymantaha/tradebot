@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { botConfigAPI, apiKeyAPI, symbolsAPI } from '../../services/api'
 import { useTheme } from '../../contexts/ThemeContext'
+import { extractErrorMessage } from '../../utils/error'
 
 const BotEditPage = () => {
     const { isDark } = useTheme()
@@ -160,7 +161,7 @@ const BotEditPage = () => {
             navigate(`/bots/${id}`)
         } catch (err) {
             setError(
-                err.response?.data?.detail ||
+                extractErrorMessage(err) ||
                 'Bot güncellenirken bir hata oluştu.'
             )
         } finally {

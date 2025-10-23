@@ -12,8 +12,8 @@ def test_api_key_crud():
 
         with TestClient(app) as ac:
             # Kullanıcı kaydı ve login
-            ac.post("/api/v1/auth/register", json={"email": "apikeyuser@example.com", "password": "testpass"})
-            login_resp = ac.post("/api/v1/auth/login", json={"email": "apikeyuser@example.com", "password": "testpass"})
+            ac.post("/api/v1/auth/register", json={"email": "apikeyuser@example.com", "password": "Str0ngP@ssword!"})
+            login_resp = ac.post("/api/v1/auth/login", json={"email": "apikeyuser@example.com", "password": "Str0ngP@ssword!"})
             token = login_resp.json()["access_token"]
             headers = {"Authorization": f"Bearer {token}"}
 
@@ -61,8 +61,8 @@ def test_api_key_invalid_credentials():
 
         with TestClient(app) as ac:
             # Kullanıcı kaydı ve login
-            ac.post("/api/v1/auth/register", json={"email": "invalidapi@example.com", "password": "testpass"})
-            login_resp = ac.post("/api/v1/auth/login", json={"email": "invalidapi@example.com", "password": "testpass"})
+            ac.post("/api/v1/auth/register", json={"email": "invalidapi@example.com", "password": "Str0ngP@ssword!"})
+            login_resp = ac.post("/api/v1/auth/login", json={"email": "invalidapi@example.com", "password": "Str0ngP@ssword!"})
             token = login_resp.json()["access_token"]
             headers = {"Authorization": f"Bearer {token}"}
 
@@ -80,8 +80,8 @@ def test_api_key_duplicate():
 
         with TestClient(app) as ac:
             # Kullanıcı kaydı ve login
-            ac.post("/api/v1/auth/register", json={"email": "duplicate@example.com", "password": "testpass"})
-            login_resp = ac.post("/api/v1/auth/login", json={"email": "duplicate@example.com", "password": "testpass"})
+            ac.post("/api/v1/auth/register", json={"email": "duplicate@example.com", "password": "Str0ngP@ssword!"})
+            login_resp = ac.post("/api/v1/auth/login", json={"email": "duplicate@example.com", "password": "Str0ngP@ssword!"})
             token = login_resp.json()["access_token"]
             headers = {"Authorization": f"Bearer {token}"}
 

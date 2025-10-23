@@ -1,8 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from datetime import datetime, timedelta, timezone
 import secrets
+import hashlib
+from app.core.rate_limit import enforce_rate_limit, get_client_ip
 from app.models.user import User
 from app.schemas.user import UserCreate, UserLogin, UserResponse, ForgotPasswordRequest, ResetPasswordRequest, PasswordResetResponse
 from app.schemas.token import Token
@@ -28,7 +30,12 @@ async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)):
     return new_user
 
 @router.post("/login", response_model=Token)
-async def login(user_in: UserLogin, db: AsyncSession = Depends(get_db)):
+async def login(user_in: UserLogin, request: Request, db: AsyncSession = Depends(get_db)):
+    # Rate limit: IP and email
+    client_ip = get_client_ip(request)
+    await enforce_rate_limit(f"rl:login:ip:{client_ip}", limit=5, window_seconds=60)
+    await enforce_rate_limit(f"rl:login:email:{user_in.email.lower()}", limit=10, window_seconds=3600)
+
     result = await db.execute(select(User).where(User.email == user_in.email))
     user = result.scalars().first()
     if not user or not verify_password(user_in.password, cast(str, user.hashed_password)):
@@ -59,11 +66,17 @@ async def get_me(current_user: User = Depends(get_current_active_user)):
 # 🆕 Şifre sıfırlama endpoint'leri
 @router.post("/forgot-password", response_model=PasswordResetResponse)
 async def forgot_password(
+    req: Request,
     request: ForgotPasswordRequest,
     db: AsyncSession = Depends(get_db)
 ):
     """Şifre sıfırlama talebi oluştur ve email gönder"""
     try:
+        # Rate limit: IP and email
+        client_ip = get_client_ip(req)
+        await enforce_rate_limit(f"rl:forgot:ip:{client_ip}", limit=5, window_seconds=60)
+        await enforce_rate_limit(f"rl:forgot:email:{request.email.lower()}", limit=3, window_seconds=3600)
+
         # Kullanıcıyı bul
         result = await db.execute(select(User).where(User.email == request.email))
         user = result.scalars().first()
@@ -77,10 +90,11 @@ async def forgot_password(
 
         # Reset token oluştur (güvenli random string)
         reset_token = secrets.token_urlsafe(32)
+        reset_token_hash = hashlib.sha256(reset_token.encode()).hexdigest()
         expires_at = datetime.now(timezone.utc) + timedelta(hours=1)
 
-        # Database'de token'ı sakla
-        cast(Any, user).reset_token = reset_token
+        # Database'de token'ı hash olarak sakla
+        cast(Any, user).reset_token = reset_token_hash
         cast(Any, user).reset_token_expires = expires_at
         await db.commit()
 
@@ -115,9 +129,10 @@ async def reset_password(request: ResetPasswordRequest, db: AsyncSession = Depen
     """Reset token ile şifreyi sıfırla"""
     try:
         # Token'ı ve süresini kontrol et
+        token_hash = hashlib.sha256(request.token.encode()).hexdigest()
         result = await db.execute(
             select(User).where(
-                User.reset_token == request.token,
+                User.reset_token == token_hash,
                 User.reset_token_expires > datetime.now(timezone.utc)
             )
         )
@@ -129,9 +144,14 @@ async def reset_password(request: ResetPasswordRequest, db: AsyncSession = Depen
         if not cast(bool, user.is_active):
             raise HTTPException(status_code=400, detail="Hesap aktif değil.")
 
-        # Şifre geçerliliğini kontrol et
-        if len(request.new_password) < 6:
-            raise HTTPException(status_code=400, detail="Şifre en az 6 karakter olmalıdır.")
+        # Şifre politikası kontrolü
+        pw = request.new_password
+        if (len(pw) < 12
+            or not any(c.islower() for c in pw)
+            or not any(c.isupper() for c in pw)
+            or not any(c.isdigit() for c in pw)
+            or not any(not c.isalnum() for c in pw)):
+            raise HTTPException(status_code=400, detail="Şifre politikası: en az 12 karakter, büyük/küçük harf, rakam ve özel karakter içermelidir.")
 
         # Yeni şifreyi hashle ve kaydet
         cast(Any, user).hashed_password = get_password_hash(request.new_password)

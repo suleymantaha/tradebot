@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { authAPI } from '../../services/api'
 import { useTheme } from '../../contexts/ThemeContext'
+import { extractErrorMessage } from '../../utils/error'
 
 const RegisterPage = () => {
     const { isDark } = useTheme()
@@ -36,7 +37,7 @@ const RegisterPage = () => {
             }, 2000)
         } catch (err) {
             setError(
-                err.response?.data?.detail ||
+                extractErrorMessage(err) ||
                 'Kayıt olurken bir hata oluştu. Lütfen tekrar deneyin.'
             )
         } finally {
@@ -214,3 +215,4 @@ const RegisterPage = () => {
 }
 
 export default RegisterPage
+

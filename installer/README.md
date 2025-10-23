@@ -80,18 +80,30 @@ python installer/main.py
 
 #### Build (Standalone Executable)
 
+**Linux/macOS:**
 ```bash
 # Build script'i çalıştır
 cd installer
 chmod +x build.sh
 ./build.sh
+```
+
+**Windows:**
+```powershell
+# PowerShell script'i çalıştır
+cd installer
+.\build.ps1
+
+# Veya bash script'i (WSL/Git Bash ile)
+cd installer
+bash build.sh
+```
 
 # Çıktılar
 ls dist/
 # - TradeBot-Installer-Windows.exe (Windows için)
 # - TradeBot-Installer-macOS.dmg (macOS için)
 # - TradeBot-Installer-Linux.tar.gz (Linux için)
-```
 
 ### 📱 Platform Desteği
 
@@ -166,9 +178,13 @@ stop_tradebot.bat
 
 #### Yaygın Hatalar
 
-1. **Docker başlatılamıyor**: `sudo systemctl start docker`
+1. **Docker başlatılamıyor**: `sudo systemctl start docker` (Linux) veya Docker Desktop'ı başlatın (Windows)
 2. **Port çakışması**: Port numaralarını değiştirin
-3. **İzin hatası**: Script'leri executable yapın: `chmod +x *.sh`
+3. **İzin hatası**: Script'leri executable yapın: `chmod +x *.sh` (Linux/macOS)
+4. **pywin32 hatası (Windows)**: `pip install pywin32` komutunu çalıştırın
+5. **Encoding hatası (Windows)**: Batch script'lerde UTF-8 encoding sorunu - installer otomatik düzeltir
+6. **Docker Desktop bulunamadı**: Windows'ta Docker Desktop'ın kurulu olduğundan emin olun
+7. **PowerShell execution policy**: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
 
 #### Masaüstü İkonu Sorunları
 

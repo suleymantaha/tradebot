@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { botConfigAPI, apiKeyAPI, symbolsAPI } from '../../services/api'
 import { useTheme } from '../../contexts/ThemeContext'
+import { extractErrorMessage } from '../../utils/error'
 
 const BotCreatePage = () => {
     const { isDark } = useTheme()
@@ -143,7 +144,7 @@ const BotCreatePage = () => {
             navigate(`/bots/${response.data.id}`)
         } catch (err) {
             setError(
-                err.response?.data?.detail ||
+                extractErrorMessage(err) ||
                 'Bot oluşturulurken bir hata oluştu.'
             )
         } finally {

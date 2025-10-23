@@ -2,6 +2,16 @@
 
 Bu platform, kullanıcıların hassas finansal bilgilerini ve API anahtarlarını işleyeceği için güvenlik en yüksek öncelik olmalıdır. Aşağıdaki yönergeler, geliştirme ve operasyon süreçlerinde dikkate alınmalıdır.
 
+## Uygulanan Sertleştirmeler (Güncel)
+
+- Güçlü şifre politikası zorunlu: min 12 karakter, büyük/küçük harf, rakam ve özel karakter.
+- Reset token’lar veritabanında SHA-256 hash olarak saklanır; doğrulama hash ile yapılır.
+- Rate limiting: IP ve e-posta bazlı limitler Redis üzerinde, Redis yoksa geliştirme/testte graceful degrade.
+- Production’da `DATABASE_URL` zorunlu, development dışındaki default fallback’ler kaldırıldı; `SQLALCHEMY_ECHO` env ile yönetilebilir (varsayılan `False`).
+- Docker Compose’da `SECRET_KEY` default fallback kaldırıldı; env zorunlu.
+- Nginx güvenlik başlıkları eklendi: HSTS, COOP/COEP, Permissions-Policy, X-Content-Type-Options, X-Frame-Options, Referrer-Policy.
+
+
 1. **API Anahtarı Yönetimi (Kritik):**
     * Kullanıcıların Binance API anahtarları (API Key ve Secret Key) veritabanında **her zaman** güçlü bir şifreleme algoritması (örn: AES-256, Fernet - `cryptography` kütüphanesi) kullanılarak şifrelenmiş olarak saklanmalıdır. Şifreleme anahtarı (encryption key) güvenli bir şekilde yönetilmeli (örn: environment variable, secrets manager).
     * API secret key'leri, sadece bot operasyonları sırasında geçici olarak bellekte çözülmeli ve işlem bittikten sonra derhal bellekten silinmelidir.

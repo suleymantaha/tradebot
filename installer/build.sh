@@ -145,11 +145,16 @@ if [ -f "dist/TradeBot_Installer" ] || [ -f "dist/TradeBot_Installer.exe" ]; the
             print_success "macOS paketi: TradeBot_Installer_macOS.tar.gz"
         fi
 
-    elif [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]]; then
+    elif [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "win32" ]]; then
         # Windows - Create .zip
         if command -v zip &> /dev/null; then
             zip -r TradeBot_Installer_Windows.zip TradeBot_Installer.exe
             print_success "Windows paketi: TradeBot_Installer_Windows.zip"
+        elif command -v powershell &> /dev/null; then
+            powershell -Command "Compress-Archive -Path 'TradeBot_Installer.exe' -DestinationPath 'TradeBot_Installer_Windows.zip'"
+            print_success "Windows paketi: TradeBot_Installer_Windows.zip"
+        else
+            print_warning "Windows paketi oluşturulamadı (zip veya powershell bulunamadı)"
         fi
     fi
 

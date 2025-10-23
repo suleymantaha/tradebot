@@ -23,9 +23,17 @@ Bu görev, kullanıcıların platforma kaydolmasını, giriş yapmasını ve otu
 
 ### API Endpointleri (Örnek)
 
-* `POST /auth/register`
-* `POST /auth/login` (token döner)
+* `POST /auth/register` (güçlü şifre politikası zorunlu: min 12 karakter, büyük/küçük, rakam, özel)
+* `POST /auth/login` (token döner; IP/email bazlı rate limiting uygulanır)
+* `POST /auth/forgot-password` (IP/email rate limiting; reset token üretimi ve email)
+* `POST /auth/reset-password` (reset token hash ile doğrulanır; güçlü şifre politikası zorunlu)
 * `GET /users/me` (korumalı, mevcut kullanıcı bilgilerini döner)
+
+### Güvenlik Notları
+
+* Reset token’lar veritabanında plaintext yerine SHA-256 hash olarak saklanır.
+* Production’da `DATABASE_URL` ve `SECRET_KEY` zorunludur; `SQLALCHEMY_ECHO` varsayılan kapalıdır.
+* Rate limiting Redis ile yapılır; Redis erişilemezse geliştirme/test ortamında graceful degrade uygulanır.
 
 ### Yapılacaklar Listesi
 

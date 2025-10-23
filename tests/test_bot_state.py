@@ -7,8 +7,8 @@ async def test_bot_state_get_and_update():
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         # Kullanıcı kaydı ve login
-        await ac.post("/api/v1/auth/register", json={"email": "stateuser@example.com", "password": "testpass"})
-        login_resp = await ac.post("/api/v1/auth/login", json={"email": "stateuser@example.com", "password": "testpass"})
+        await ac.post("/api/v1/auth/register", json={"email": "stateuser@example.com", "password": "Str0ngP@ssword!"})
+        login_resp = await ac.post("/api/v1/auth/login", json={"email": "stateuser@example.com", "password": "Str0ngP@ssword!"})
         token = login_resp.json()["access_token"]
         headers = {"Authorization": f"Bearer {token}"}
 
@@ -69,4 +69,4 @@ async def test_bot_state_unauthorized():
         assert resp.status_code == 401
         # Yetkisiz güncelleme
         resp = await ac.put("/api/v1/bot-states/1", json={"status": "running"})
-        assert resp.status_code == 401
+        assert resp.status_code == 401

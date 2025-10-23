@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { apiKeyAPI } from '../../services/api'
 import { useTheme } from '../../contexts/ThemeContext'
+import { extractErrorMessage } from '../../utils/error'
 
 const ApiKeysPage = () => {
     const { isDark } = useTheme()
@@ -54,7 +55,7 @@ const ApiKeysPage = () => {
             await fetchApiKey() // Listeyi yenile
         } catch (err) {
             setError(
-                err.response?.data?.detail ||
+                extractErrorMessage(err) ||
                 'API anahtarı eklenirken bir hata oluştu.'
             )
         } finally {
@@ -77,7 +78,7 @@ const ApiKeysPage = () => {
             setApiKey(null)
         } catch (err) {
             setError(
-                err.response?.data?.detail ||
+                extractErrorMessage(err) ||
                 'API anahtarı silinirken bir hata oluştu.'
             )
         } finally {
@@ -446,3 +447,4 @@ const ApiKeysPage = () => {
 }
 
 export default ApiKeysPage
+

@@ -29,6 +29,9 @@ RUN node ./node_modules/vite/bin/vite.js build
 # Production stage with Nginx
 FROM nginx:alpine
 
+# Ensure healthcheck tools are available
+RUN apk add --no-cache wget
+
 # Copy built assets from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
@@ -40,7 +43,7 @@ EXPOSE 80
 
 # Health check (use wget to avoid installing curl)
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget -qO- http://localhost/ > /dev/null 2>&1 || exit 1
+    CMD wget -qO- http://localhost/health > /dev/null 2>&1 || exit 1
 
 # Start nginx
 CMD ["nginx", "-g", "daemon off;"]

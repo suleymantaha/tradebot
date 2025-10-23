@@ -553,6 +553,36 @@ const BacktestPage = () => {
                                             <option key={int.value} value={int.value}>{int.label}</option>
                                         ))}
                                     </select>
+
+                                    {/* ⚡ Hızlı Zaman Dilimi Seçimi */}
+                                    <div className="mt-3">
+                                        <label className={`block text-xs font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                                            ⚡ Hızlı Zaman Dilimi
+                                        </label>
+                                        <div className="grid grid-cols-3 gap-2">
+                                            {intervals.map(({ value, label }) => (
+                                                <button
+                                                    key={value}
+                                                    onClick={() => setInterval(value)}
+                                                    disabled={!symbol}
+                                                    className={`px-3 py-2 text-xs rounded-lg border transition-colors
+                                                        ${interval === value
+                                                            ? isDark ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-indigo-600 border-indigo-500 text-white'
+                                                            : isDark ? 'bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600' : 'bg-gray-50 border-gray-300 text-gray-700 hover:bg-gray-100'
+                                                        }
+                                                        ${!symbol ? 'opacity-60 cursor-not-allowed' : ''}
+                                                    `}
+                                                >
+                                                    {label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                        {!symbol && (
+                                            <p className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                                Önce işlem çiftini seçin
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
 
                                 {/* Tarih Aralığı */}

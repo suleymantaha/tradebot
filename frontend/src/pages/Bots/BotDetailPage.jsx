@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { botConfigAPI, botStateAPI, botRunnerAPI, apiKeyAPI } from '../../services/api'
 import { useTheme } from '../../contexts/ThemeContext'
+import { extractErrorMessage } from '../../utils/error'
 
 const BotDetailPage = () => {
     const { isDark } = useTheme()
@@ -53,7 +54,7 @@ const BotDetailPage = () => {
             await fetchBotData() // Verileri yenile
         } catch (err) {
             setError(
-                err.response?.data?.detail ||
+                extractErrorMessage(err) ||
                 'Bot başlatılırken bir hata oluştu.'
             )
         } finally {
@@ -72,7 +73,7 @@ const BotDetailPage = () => {
             await fetchBotData() // Verileri yenile
         } catch (err) {
             setError(
-                err.response?.data?.detail ||
+                extractErrorMessage(err) ||
                 'Bot durdurulurken bir hata oluştu.'
             )
         } finally {
@@ -106,7 +107,7 @@ const BotDetailPage = () => {
             }, 2000)
         } catch (err) {
             setError(
-                err.response?.data?.detail ||
+                extractErrorMessage(err) ||
                 'Bot silinirken bir hata oluştu.'
             )
         } finally {

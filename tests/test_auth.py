@@ -10,14 +10,14 @@ async def test_register_and_login():
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         # Register
-        response = await ac.post("/api/v1/auth/register", json={"email": "test@example.com", "password": "testpass"})
+        response = await ac.post("/api/v1/auth/register", json={"email": "test@example.com", "password": "Str0ngP@ssword!"})
         assert response.status_code == 201
         data = response.json()
         assert data["email"] == "test@example.com"
         assert data["is_active"] is True
 
         # Login
-        response = await ac.post("/api/v1/auth/login", json={"email": "test@example.com", "password": "testpass"})
+        response = await ac.post("/api/v1/auth/login", json={"email": "test@example.com", "password": "Str0ngP@ssword!"})
         assert response.status_code == 200
         token_data = response.json()
         assert "access_token" in token_data
@@ -35,15 +35,16 @@ async def test_register_duplicate():
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         # İlk kayıt
-        await ac.post("/api/v1/auth/register", json={"email": "dupe@example.com", "password": "testpass"})
+        await ac.post("/api/v1/auth/register", json={"email": "dupe@example.com", "password": "Str0ngP@ssword!"})
         # Aynı email ile tekrar kayıt
-        response = await ac.post("/api/v1/auth/register", json={"email": "dupe@example.com", "password": "testpass"})
+        response = await ac.post("/api/v1/auth/register", json={"email": "dupe@example.com", "password": "Str0ngP@ssword!"})
         assert response.status_code == 409
 
 @pytest.mark.asyncio
 async def test_login_wrong_password():
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
-        await ac.post("/api/v1/auth/register", json={"email": "wrongpass@example.com", "password": "rightpass"})
-        response = await ac.post("/api/v1/auth/login", json={"email": "wrongpass@example.com", "password": "wrongpass"})
+        await ac.post("/api/v1/auth/register", json={"email": "wrongpass@example.com", "password": "Str0ngP@ssword!"})
+        response = await ac.post("/api/v1/auth/login", json={"email": "wrongpass@example.com", "password": "WrongPass123!"})
         assert response.status_code == 401
+

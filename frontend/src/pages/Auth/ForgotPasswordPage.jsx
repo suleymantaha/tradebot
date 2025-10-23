@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { authAPI } from '../../services/api'
 import { useTheme } from '../../contexts/ThemeContext'
+import { extractErrorMessage } from '../../utils/error'
 
 const ForgotPasswordPage = () => {
     const { isDark } = useTheme()
@@ -26,7 +27,7 @@ const ForgotPasswordPage = () => {
             setSuccess(response.data.message)
         } catch (err) {
             setError(
-                err.response?.data?.detail ||
+                extractErrorMessage(err) ||
                 'Şifre sıfırlama talebi gönderilirken bir hata oluştu.'
             )
         } finally {
@@ -184,3 +185,4 @@ const ForgotPasswordPage = () => {
 }
 
 export default ForgotPasswordPage
+
