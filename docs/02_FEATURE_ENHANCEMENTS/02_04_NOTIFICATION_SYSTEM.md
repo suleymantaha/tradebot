@@ -50,5 +50,5 @@
 - Telegram, Discord gibi platformlara bildirim MVP sonrası düşünülebilir.
 
 **Bağımlılıklar:**
-- [Backend: Bot Çalıştırma Mantığı](_PARENT_DIR_/_PARENT_DIR_/01_MVP_DEVELOPMENT/01_06_BACKEND_BOT_EXECUTION_LOGIC.md) (Bildirimleri tetikleyecek olaylar burada oluşur).
-- [Celery Worker Kurulumu](_PARENT_DIR_/_PARENT_DIR_/01_MVP_DEVELOPMENT/01_05_BACKEND_CELERY_WORKER_SETUP.md)
+- [Backend: Bot Çalıştırma Mantığı](../01_MVP_DEVELOPMENT/01_06_BACKEND_BOT_EXECUTION_LOGIC.md) (Bildirimleri tetikleyecek olaylar burada oluşur).
+- [Celery Worker Kurulumu](../01_MVP_DEVELOPMENT/01_05_BACKEND_CELERY_WORKER_SETUP.md)

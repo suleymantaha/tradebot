@@ -4,183 +4,209 @@ Bu doküman, AlgoTrade Web Platformu'nun backend API endpoint'lerini listeler ve
 
 ## Kimlik Doğrulama (`/auth`)
 
-* **`POST /auth/register`**
-  * Açıklama: Yeni bir kullanıcı kaydı oluşturur.
-  * Request Body: `UserCreate` (email, password)
-  * Response: `201 Created` - `UserResponse` (id, email, is_active)
-  * Hatalar: `400 Bad Request`, `409 Conflict` (e-posta zaten kullanımda)
+- **`POST /auth/register`**
 
-* **`POST /auth/login`** (veya `/auth/token`)
-  * Açıklama: Kullanıcı girişi yapar ve JWT access token döndürür.
-  * Request Body: `OAuth2PasswordRequestForm` (username=email, password)
-  * Response: `200 OK` - `Token` (access_token, token_type)
-  * Hatalar: `400 Bad Request`, `401 Unauthorized`
+  - Açıklama: Yeni bir kullanıcı kaydı oluşturur.
+  - Request Body: `UserCreate` (email, password)
+  - Response: `201 Created` - `UserResponse` (id, email, is_active)
+  - Hatalar: `400 Bad Request`, `409 Conflict` (e-posta zaten kullanımda)
+
+- **`POST /auth/login`** (veya `/auth/token`)
+  - Açıklama: Kullanıcı girişi yapar ve JWT access token döndürür.
+  - Request Body: `OAuth2PasswordRequestForm` (username=email, password)
+  - Response: `200 OK` - `Token` (access_token, token_type)
+  - Hatalar: `400 Bad Request`, `401 Unauthorized`
 
 ## Kullanıcılar (`/users`)
 
-* **`GET /users/me`**
-  * Açıklama: Mevcut giriş yapmış kullanıcının bilgilerini döndürür.
-  * Kimlik Doğrulama: Gerekli.
-  * Response: `200 OK` - `UserResponse`
-  * Hatalar: `401 Unauthorized`
+- **`GET /users/me`**
 
-* **`PUT /users/me`** (MVP Sonrası)
-  * Açıklama: Mevcut kullanıcının profil bilgilerini (örn: şifre) günceller.
-  * Kimlik Doğrulama: Gerekli.
-  * Request Body: `UserUpdate` (örn: new_password, current_password)
-  * Response: `200 OK` - `UserResponse`
-  * Hatalar: `400 Bad Request`, `401 Unauthorized`
+  - Açıklama: Mevcut giriş yapmış kullanıcının bilgilerini döndürür.
+  - Kimlik Doğrulama: Gerekli.
+  - Response: `200 OK` - `UserResponse`
+  - Hatalar: `401 Unauthorized`
+
+- **`PUT /users/me`** (MVP Sonrası)
+  - Açıklama: Mevcut kullanıcının profil bilgilerini (örn: şifre) günceller.
+  - Kimlik Doğrulama: Gerekli.
+  - Request Body: `UserUpdate` (örn: new_password, current_password)
+  - Response: `200 OK` - `UserResponse`
+  - Hatalar: `400 Bad Request`, `401 Unauthorized`
 
 ## API Anahtarları (`/api-keys`)
 
-* **`POST /api-keys`**
-  * Açıklama: Mevcut kullanıcı için yeni bir borsa API anahtarı ekler.
-  * Kimlik Doğrulama: Gerekli.
-  * Request Body: `ApiKeyCreate` (api_key, secret_key, exchange_name - eğer çoklu borsa desteği varsa)
-  * Response: `201 Created` - `ApiKeyResponse` (maskelenmiş anahtar, geçerlilik durumu)
-  * Hatalar: `400 Bad Request`, `401 Unauthorized`, `409 Conflict` (zaten anahtar var - MVP için)
+- **`POST /api-keys`**
 
-* **`GET /api-keys/me`**
-  * Açıklama: Mevcut kullanıcının kayıtlı API anahtar bilgisini döndürür.
-  * Kimlik Doğrulama: Gerekli.
-  * Response: `200 OK` - `ApiKeyResponse` (veya `404 Not Found` eğer anahtar yoksa)
-  * Hatalar: `401 Unauthorized`
+  - Açıklama: Mevcut kullanıcı için yeni bir borsa API anahtarı ekler.
+  - Kimlik Doğrulama: Gerekli.
+  - Request Body: `ApiKeyCreate` (api_key, secret_key, exchange_name - eğer çoklu borsa desteği varsa)
+  - Response: `201 Created` - `ApiKeyResponse` (maskelenmiş anahtar, geçerlilik durumu)
+  - Hatalar: `400 Bad Request`, `401 Unauthorized`, `409 Conflict` (zaten anahtar var - MVP için)
 
-* **`DELETE /api-keys/me`**
-  * Açıklama: Mevcut kullanıcının kayıtlı API anahtarını siler.
-  * Kimlik Doğrulama: Gerekli.
-  * Response: `204 No Content`
-  * Hatalar: `401 Unauthorized`, `404 Not Found`
+- **`GET /api-keys/me`**
+
+  - Açıklama: Mevcut kullanıcının kayıtlı API anahtar bilgisini döndürür.
+  - Kimlik Doğrulama: Gerekli.
+  - Response: `200 OK` - `ApiKeyResponse` (veya `404 Not Found` eğer anahtar yoksa)
+  - Hatalar: `401 Unauthorized`
+
+- **`DELETE /api-keys/me`**
+  - Açıklama: Mevcut kullanıcının kayıtlı API anahtarını siler.
+  - Kimlik Doğrulama: Gerekli.
+  - Response: `204 No Content`
+  - Hatalar: `401 Unauthorized`, `404 Not Found`
 
 ## Botlar (`/bots`)
 
-* **`POST /bots`**
-  * Açıklama: Mevcut kullanıcı için yeni bir ticaret botu konfigürasyonu oluşturur.
-  * Kimlik Doğrulama: Gerekli.
-  * Request Body: `BotConfigCreate` (tüm bot parametreleri)
-  * Response: `201 Created` - `BotConfigResponse` (oluşturulan botun detayları)
-  * Hatalar: `400 Bad Request`, `401 Unauthorized`
+- **`POST /bots`**
 
-* **`GET /bots`**
-  * Açıklama: Mevcut kullanıcının tüm botlarını listeler.
-  * Kimlik Doğrulama: Gerekli.
-  * Response: `200 OK` - `List[BotConfigResponse]`
-  * Hatalar: `401 Unauthorized`
+  - Açıklama: Mevcut kullanıcı için yeni bir ticaret botu konfigürasyonu oluşturur.
+  - Kimlik Doğrulama: Gerekli.
+  - Request Body: `BotConfigCreate` (tüm bot parametreleri)
+  - Response: `201 Created` - `BotConfigResponse` (oluşturulan botun detayları)
+  - Hatalar: `400 Bad Request`, `401 Unauthorized`
 
-* **`GET /bots/{bot_id}`**
-  * Açıklama: Belirli bir botun detaylarını (konfigürasyon ve durum) getirir.
-  * Kimlik Doğrulama: Gerekli.
-  * Path Parametre: `bot_id` (Integer)
-  * Response: `200 OK` - `BotConfigResponse` (içinde `BotState` bilgisi de olabilir veya ayrı bir alan olarak)
-  * Hatalar: `401 Unauthorized`, `404 Not Found`
+- **`GET /bots`**
 
-* **`PUT /bots/{bot_id}`**
-  * Açıklama: Belirli bir botun konfigürasyonunu günceller.
-  * Kimlik Doğrulama: Gerekli.
-  * Path Parametre: `bot_id` (Integer)
-  * Request Body: `BotConfigUpdate` (güncellenecek parametreler)
-  * Response: `200 OK` - `BotConfigResponse`
-  * Hatalar: `400 Bad Request`, `401 Unauthorized`, `404 Not Found`
+  - Açıklama: Mevcut kullanıcının tüm botlarını listeler.
+  - Kimlik Doğrulama: Gerekli.
+  - Response: `200 OK` - `List[BotConfigResponse]`
+  - Hatalar: `401 Unauthorized`
 
-* **`DELETE /bots/{bot_id}`**
-  * Açıklama: Belirli bir botu siler.
-  * Kimlik Doğrulama: Gerekli.
-  * Path Parametre: `bot_id` (Integer)
-  * Response: `204 No Content`
-  * Hatalar: `401 Unauthorized`, `404 Not Found`
+- **`GET /bots/{bot_id}`**
 
-* **`POST /bots/{bot_id}/start`**
-  * Açıklama: Belirli bir botu başlatır.
-  * Kimlik Doğrulama: Gerekli.
-  * Path Parametre: `bot_id` (Integer)
-  * Response: `200 OK` - Mesaj (örn: `{"message": "Bot started successfully"}`)
-  * Hatalar: `401 Unauthorized`, `404 Not Found`, `409 Conflict` (bot zaten çalışıyor)
+  - Açıklama: Belirli bir botun detaylarını (konfigürasyon ve durum) getirir.
+  - Kimlik Doğrulama: Gerekli.
+  - Path Parametre: `bot_id` (Integer)
+  - Response: `200 OK` - `BotConfigResponse` (içinde `BotState` bilgisi de olabilir veya ayrı bir alan olarak)
+  - Hatalar: `401 Unauthorized`, `404 Not Found`
 
-* **`POST /bots/{bot_id}/stop`**
-  * Açıklama: Belirli bir botu durdurur.
-  * Kimlik Doğrulama: Gerekli.
-  * Path Parametre: `bot_id` (Integer)
-  * Response: `200 OK` - Mesaj (örn: `{"message": "Bot stopped successfully"}`)
-  * Hatalar: `401 Unauthorized`, `404 Not Found`, `409 Conflict` (bot zaten durmuş)
+- **`PUT /bots/{bot_id}`**
 
-* **`GET /bots/{bot_id}/status-stream`** (Aşama 2+)
-  * Açıklama: Belirli bir botun durumu için Server-Sent Events (SSE) akışı başlatır.
-  * Kimlik Doğrulama: Gerekli (Authorization: Bearer <token> ile Dependency üzerinden doğrulanır).
-  * Response: `text/event-stream`
-  * Hatalar: `401 Unauthorized`, `404 Not Found`
+  - Açıklama: Belirli bir botun konfigürasyonunu günceller.
+  - Kimlik Doğrulama: Gerekli.
+  - Path Parametre: `bot_id` (Integer)
+  - Request Body: `BotConfigUpdate` (güncellenecek parametreler)
+  - Response: `200 OK` - `BotConfigResponse`
+  - Hatalar: `400 Bad Request`, `401 Unauthorized`, `404 Not Found`
+
+- **`DELETE /bots/{bot_id}`**
+
+  - Açıklama: Belirli bir botu siler.
+  - Kimlik Doğrulama: Gerekli.
+  - Path Parametre: `bot_id` (Integer)
+  - Response: `204 No Content`
+  - Hatalar: `401 Unauthorized`, `404 Not Found`
+
+- **`POST /bots/{bot_id}/start`**
+
+  - Açıklama: Belirli bir botu başlatır.
+  - Kimlik Doğrulama: Gerekli.
+  - Path Parametre: `bot_id` (Integer)
+  - Response: `200 OK` - Mesaj (örn: `{"message": "Bot started successfully"}`)
+  - Hatalar: `401 Unauthorized`, `404 Not Found`, `409 Conflict` (bot zaten çalışıyor)
+
+- **`POST /bots/{bot_id}/stop`**
+
+  - Açıklama: Belirli bir botu durdurur.
+  - Kimlik Doğrulama: Gerekli.
+  - Path Parametre: `bot_id` (Integer)
+  - Response: `200 OK` - Mesaj (örn: `{"message": "Bot stopped successfully"}`)
+  - Hatalar: `401 Unauthorized`, `404 Not Found`, `409 Conflict` (bot zaten durmuş)
+
+- **`GET /bots/{bot_id}/status-stream`** (Aşama 2+)
+  - Açıklama: Belirli bir botun durumu için Server-Sent Events (SSE) akışı başlatır.
+  - Kimlik Doğrulama: Gerekli (Authorization: Bearer <token> ile Dependency üzerinden doğrulanır).
+  - Response: `text/event-stream`
+  - Hatalar: `401 Unauthorized`, `404 Not Found`
 
 ## İşlemler (`/trades`) (Aşama 2+)
 
-* **`GET /trades`**
-  * Açıklama: Mevcut kullanıcının tüm işlemlerini listeler. Query parametreleri ile filtrelenebilir (bot_id, symbol, date_from, date_to).
-  * Kimlik Doğrulama: Gerekli.
-  * Response: `200 OK` - `List[TradeResponse]`
-  * Hatalar: `401 Unauthorized`
+- **`GET /trades`**
 
-* **`GET /trades/{trade_id}`**
-  * Açıklama: Belirli bir işlemin detaylarını getirir.
-  * Kimlik Doğrulama: Gerekli.
-  * Path Parametre: `trade_id` (Integer)
-  * Response: `200 OK` - `TradeResponse`
-  * Hatalar: `401 Unauthorized`, `404 Not Found`
+  - Açıklama: Mevcut kullanıcının tüm işlemlerini listeler. Query parametreleri ile filtrelenebilir (bot_id, symbol, date_from, date_to).
+  - Kimlik Doğrulama: Gerekli.
+  - Response: `200 OK` - `List[TradeResponse]`
+  - Hatalar: `401 Unauthorized`
+
+- **`GET /trades/{trade_id}`**
+  - Açıklama: Belirli bir işlemin detaylarını getirir.
+  - Kimlik Doğrulama: Gerekli.
+  - Path Parametre: `trade_id` (Integer)
+  - Response: `200 OK` - `TradeResponse`
+  - Hatalar: `401 Unauthorized`, `404 Not Found`
 
 ## Backtests (`/backtests`) (Aşama 3+)
 
-* **`POST /backtests`**
-  * Açıklama: Yeni bir backtest görevi başlatır.
-  * Kimlik Doğrulama: Gerekli.
-  * Request Body: `BacktestConfigCreate` (sembol, timeframe, başlangıç/bitiş tarihi, strateji, parametreler)
-  * Response: `202 Accepted` - `BacktestJobResponse` (backtest_id, status)
-  * Hatalar: `400 Bad Request`, `401 Unauthorized`
+- **`POST /backtests`**
 
-* **`GET /backtests`**
-  * Açıklama: Mevcut kullanıcının tüm backtest görevlerini listeler.
-  * Kimlik Doğrulama: Gerekli.
-  * Response: `200 OK` - `List[BacktestJobResponse]`
-  * Hatalar: `401 Unauthorized`
+  - Açıklama: Yeni bir backtest görevi başlatır.
+  - Kimlik Doğrulama: Gerekli.
+  - Request Body: `BacktestConfigCreate` (sembol, timeframe, başlangıç/bitiş tarihi, strateji, parametreler)
+  - Response: `202 Accepted` - `BacktestJobResponse` (backtest_id, status)
+  - Hatalar: `400 Bad Request`, `401 Unauthorized`
 
-* **`GET /backtests/{backtest_id}`**
-  * Açıklama: Belirli bir backtest'in durumunu ve sonuçlarını (tamamlandıysa) getirir.
-  * Kimlik Doğrulama: Gerekli.
-  * Path Parametre: `backtest_id` (String/UUID)
-  * Response: `200 OK` - `BacktestResultResponse` (durum, P&L, metrikler, işlemler)
-  * Hatalar: `401 Unauthorized`, `404 Not Found`
+- **`GET /backtests`**
+
+  - Açıklama: Mevcut kullanıcının tüm backtest görevlerini listeler.
+  - Kimlik Doğrulama: Gerekli.
+  - Response: `200 OK` - `List[BacktestJobResponse]`
+  - Hatalar: `401 Unauthorized`
+
+- **`GET /backtests/{backtest_id}`**
+  - Açıklama: Belirli bir backtest'in durumunu ve sonuçlarını (tamamlandıysa) getirir.
+  - Kimlik Doğrulama: Gerekli.
+  - Path Parametre: `backtest_id` (String/UUID)
+  - Response: `200 OK` - `BacktestResultResponse` (durum, P&L, metrikler, işlemler)
+  - Hatalar: `401 Unauthorized`, `404 Not Found`
 
 ## Backtest (Gerçekleşen rota) (`/api/v1/backtest`)
 
-* **`POST /api/v1/backtest/run`**
-  * Açıklama: Yeni bir backtest başlatır ve sonucu döndürür.
-  * Kimlik Doğrulama: Gerekli.
-  * Request Body: `{ symbol, interval, start_date, end_date, market_type: 'spot'|'futures', parameters: { ... } }`
-  * Response: `200 OK` - Backtest sonuçları (öz/ayrıntı metrikleri, günlük/aylık özetler)
+- **`POST /api/v1/backtest/run`**
 
-* **`GET /api/v1/backtest/list`**
-  * Açıklama: Mevcut kullanıcının backtest listesini döndürür.
-  * Kimlik Doğrulama: Gerekli.
-  * Response: `200 OK` - Liste (id, sembol, aralık, tarih, kâr, win rate vb.)
+  - Açıklama: Yeni bir backtest başlatır ve sonucu döndürür.
+  - Kimlik Doğrulama: Gerekli.
+  - Request Body: `{ symbol, interval, start_date, end_date, market_type: 'spot'|'futures', parameters: { ... } }`
+  - Response: `200 OK` - Backtest sonuçları (öz/ayrıntı metrikleri, günlük/aylık özetler)
 
-* **`GET /api/v1/backtest/detail/{backtest_id}`**
-  * Açıklama: Belirli bir backtest’in tüm detaylarını döndürür.
-  * Kimlik Doğrulama: Gerekli.
-  * Path Parametre: `backtest_id` (Integer)
-  * Response: `200 OK` - Ayrıntılar (parametreler, günlük/aylık sonuçlar, metrikler)
+- **`GET /api/v1/backtest/list`**
 
-* **`GET /api/v1/backtest/symbols/{market_type}`**
-  * Açıklama: Spot veya Futures için kullanılabilir semboller.
-  * Kimlik Doğrulama: Gerekli.
-  * Path Parametre: `market_type` (`spot`|`futures`)
-  * Response: `200 OK` - `{ market_type, symbols[], count }`
+  - Açıklama: Mevcut kullanıcının backtest listesini döndürür.
+  - Kimlik Doğrulama: Gerekli.
+  - Response: `200 OK` - Liste (id, sembol, aralık, tarih, kâr, win rate vb.)
 
-* CSV İndirme
-  * `GET /api/v1/backtest/download/{backtest_id}/daily.csv`
-  * `GET /api/v1/backtest/download/{backtest_id}/monthly.csv`
-  * `GET /api/v1/backtest/download/{backtest_id}/trades.csv`
-  * Kimlik Doğrulama: Gerekli.
+- **`GET /api/v1/backtest/detail/{backtest_id}`**
+
+  - Açıklama: Belirli bir backtest’in tüm detaylarını döndürür.
+  - Kimlik Doğrulama: Gerekli.
+  - Path Parametre: `backtest_id` (Integer)
+  - Response: `200 OK` - Ayrıntılar (parametreler, günlük/aylık sonuçlar, metrikler)
+
+- **`GET /api/v1/backtest/symbols/{market_type}`**
+
+  - Açıklama: Spot veya Futures için kullanılabilir semboller.
+  - Kimlik Doğrulama: Gerekli.
+  - Path Parametre: `market_type` (`spot`|`futures`)
+  - Response: `200 OK` - `{ market_type, symbols[], count }`
+
+- CSV İndirme
+  - `GET /api/v1/backtest/download/{backtest_id}/daily.csv`
+  - `GET /api/v1/backtest/download/{backtest_id}/monthly.csv`
+  - `GET /api/v1/backtest/download/{backtest_id}/trades.csv`
+  - Kimlik Doğrulama: Gerekli.
 
 ---
+
 Pydantic Şema Referansları (Örnekler):
 (Bu kısım API dokümanında veya ayrı bir şema dokümanında detaylandırılabilir)
 
-* `UserCreate`: `{ "email": "user@example.com", "password": "securepassword123" }`
-* `BotConfigCreate`: `{ "name": "My BTC Bot", "symbol": "BTC/USDT", "timeframe": "1h", ... }`
-* ...diğer şemalar
+- `UserCreate`: `{ "email": "user@example.com", "password": "securepassword123" }`
+- `BotConfigCreate`: `{ "name": "My BTC Bot", "symbol": "BTC/USDT", "timeframe": "1h", ... }`
+- Kullanılan Şema Modelleri:
+  - `UserCreate`, `UserLogin`, `UserResponse`
+  - `ForgotPasswordRequest`, `ResetPasswordRequest`, `PasswordResetResponse`
+  - `ApiKeyCreate`, `ApiKeyResponse`
+  - `BotConfigCreate`, `BotConfigUpdate`, `BotConfigResponse`
+  - `BotStateCreate`, `BotStateUpdate`, `BotStateResponse`
+  - `TradeCreate`, `TradeUpdate`, `TradeResponse`
+  - `BacktestCreate`, `BacktestSummary`, `BacktestDetail`

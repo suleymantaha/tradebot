@@ -37,7 +37,7 @@
 
 **Notlar / Riskler / Dikkat Edilmesi Gerekenler:**
 
-- **Güvenlik:** Bu modülün güvenliği kritiktir. [SECURITY_GUIDELINES.md](_PARENT_DIR_/_PARENT_DIR_/SECURITY_GUIDELINES.md) dikkatlice uygulanmalıdır.
+- **Güvenlik:** Bu modülün güvenliği kritiktir. [SECURITY_GUIDELINES.md](../SECURITY_GUIDELINES.md) dikkatlice uygulanmalıdır.
 - API anahtarlarının doğrulanması sırasında Binance API'ye istek atılacağı için rate limitlere dikkat edilmelidir.
 - Kullanıcılara API anahtarı oluştururken hangi izinleri vermeleri gerektiği konusunda net talimatlar sunulmalıdır (frontend tarafında).
 
@@ -50,4 +50,4 @@
 **Bağımlılıklar:**
 
 - [Kullanıcı Kimlik Doğrulama Sistemi](01_01_BACKEND_USER_AUTH.md) (Kullanıcıya ait API anahtarı saklanacağı için).
-- [Veritabanı Şeması ve Migration'lar](01_07_BACKEND_DATABASE_SCHEMA.md) (ApiKey tablosunun oluşturulmuş olması).
+- [Veritabanı Şeması ve Migration'lar](01_07_BACKEND_DATABASE_SCHEMA.md) (ApiKey tablosunun oluşturulmuş olması).

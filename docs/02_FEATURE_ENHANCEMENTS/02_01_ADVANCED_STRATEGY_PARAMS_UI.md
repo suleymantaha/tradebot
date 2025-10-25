@@ -44,6 +44,6 @@
 - Çok fazla gelişmiş ayar eklemek, arayüzü karmaşıklaştırabilir. Dengeli bir yaklaşım benimsenmeli.
 
 **Bağımlılıklar:**
-- [MVP Bot Oluşturma Formu](_PARENT_DIR_/_PARENT_DIR_/01_MVP_DEVELOPMENT/01_10_FRONTEND_BOT_CREATION_FORM.md)
-- [Backend: Strateji Çekirdeği](_PARENT_DIR_/_PARENT_DIR_/01_MVP_DEVELOPMENT/01_03_BACKEND_STRATEGY_CORE_REFACTOR.md)
-- [Backend: Bot Konfigürasyonu CRUD](_PARENT_DIR_/_PARENT_DIR_/01_MVP_DEVELOPMENT/01_04_BACKEND_BOT_CONFIG_CRUD.md)
+- [MVP Bot Oluşturma Formu](../01_MVP_DEVELOPMENT/01_10_FRONTEND_BOT_CREATION_FORM.md)
+- [Backend: Strateji Çekirdeği](../01_MVP_DEVELOPMENT/01_03_BACKEND_STRATEGY_CORE_REFACTOR.md)
+- [Backend: Bot Konfigürasyonu CRUD](../01_MVP_DEVELOPMENT/01_04_BACKEND_BOT_CONFIG_CRUD.md)

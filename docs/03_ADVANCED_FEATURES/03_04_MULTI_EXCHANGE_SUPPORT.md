@@ -43,5 +43,5 @@
 
 **Bağımlılıklar:**
 - Mevcut Binance API entegrasyonu.
-- [API Anahtarı Yönetimi](_PARENT_DIR_/_PARENT_DIR_/01_MVP_DEVELOPMENT/01_11_FRONTEND_API_KEY_MANAGEMENT.md) (arayüz değişiklikleri için).
-- [Bot Oluşturma Formu](_PARENT_DIR_/_PARENT_DIR_/01_MVP_DEVELOPMENT/01_10_FRONTEND_BOT_CREATION_FORM.md) (arayüz değişiklikleri için).
+- [API Anahtarı Yönetimi](../01_MVP_DEVELOPMENT/01_11_FRONTEND_API_KEY_MANAGEMENT.md) (arayüz değişiklikleri için).
+- [Bot Oluşturma Formu](../01_MVP_DEVELOPMENT/01_10_FRONTEND_BOT_CREATION_FORM.md) (arayüz değişiklikleri için).

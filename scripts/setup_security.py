@@ -14,7 +14,7 @@ from cryptography.fernet import Fernet
 def generate_secure_password(length=32):
     """Güvenli şifre oluştur"""
     # URL-safe karakterler kullan
-    alphabet = string.ascii_letters + string.digits + "!@#$%^&-_"
+    alphabet = string.ascii_letters + string.digits
     return ''.join(secrets.choice(alphabet) for _ in range(length))
 
 def generate_secret_key():

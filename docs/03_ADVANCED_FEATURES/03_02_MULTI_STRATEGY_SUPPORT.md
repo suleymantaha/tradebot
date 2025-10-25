@@ -49,6 +49,6 @@
 - Kullanıcıların kendi stratejilerini paylaşması/kopyalaması sonraki bir özellik olabilir ([Sosyal Ticaret](03_03_SOCIAL_TRADING_FEATURES.md)).
 
 **Bağımlılıklar:**
-- [Strateji Çekirdeği](_PARENT_DIR_/_PARENT_DIR_/01_MVP_DEVELOPMENT/01_03_BACKEND_STRATEGY_CORE_REFACTOR.md)
-- [Bot Oluşturma Formu](_PARENT_DIR_/_PARENT_DIR_/01_MVP_DEVELOPMENT/01_10_FRONTEND_BOT_CREATION_FORM.md)
+- [Strateji Çekirdeği](../01_MVP_DEVELOPMENT/01_03_BACKEND_STRATEGY_CORE_REFACTOR.md)
+- [Bot Oluşturma Formu](../01_MVP_DEVELOPMENT/01_10_FRONTEND_BOT_CREATION_FORM.md)
 - [Backtesting Modülü](03_01_BACKTESTING_MODULE.md) (entegrasyon için)

@@ -36,13 +36,15 @@ services:
       - redis_data:/data
     networks:
       - tradebot-network
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
     healthcheck:
       test: [ "CMD-SHELL", 'if [ -n "$REDIS_PASSWORD" ]; then redis-cli -a "$REDIS_PASSWORD" ping; else redis-cli ping; fi' ]
       interval: 10s
       timeout: 5s
       retries: 5
     command: >
-      sh -c "redis-server --appendonly yes ${REDIS_PASSWORD:+--requirepass $REDIS_PASSWORD}"
+      sh -c 'if [ -n "$REDIS_PASSWORD" ]; then redis-server --appendonly yes --requirepass "$REDIS_PASSWORD"; else redis-server --appendonly yes; fi'
 
   # Backend API
   backend:
@@ -55,9 +57,9 @@ services:
     restart: unless-stopped
     environment:
       - DATABASE_URL=${DATABASE_URL}
-      - REDIS_URL=redis://redis:6379/0
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - REDIS_URL=${REDIS_URL}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
       - SECRET_KEY=${SECRET_KEY:-super_secret_key_change_in_production_12345}
       - FERNET_KEY=${FERNET_KEY:-}
       - ALGORITHM=${ALGORITHM:-HS256}
@@ -99,9 +101,9 @@ services:
     restart: unless-stopped
     environment:
       - DATABASE_URL=${SYNC_DATABASE_URL}
-      - REDIS_URL=redis://redis:6379/0
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - REDIS_URL=${REDIS_URL}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
       - SECRET_KEY=${SECRET_KEY:-super_secret_key_change_in_production_12345}
       - FERNET_KEY=${FERNET_KEY:-}
       - ALGORITHM=${ALGORITHM:-HS256}
@@ -135,9 +137,9 @@ services:
     restart: unless-stopped
     environment:
       - DATABASE_URL=${SYNC_DATABASE_URL}
-      - REDIS_URL=redis://redis:6379/0
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - REDIS_URL=${REDIS_URL}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
       - SECRET_KEY=${SECRET_KEY:-super_secret_key_change_in_production_12345}
       - FERNET_KEY=${FERNET_KEY:-}
       - ALGORITHM=${ALGORITHM:-HS256}
@@ -239,5 +241,4 @@ volumes:
 networks:
   tradebot-network:
     driver: bridge
-
 

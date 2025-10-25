@@ -1,6 +1,6 @@
 # Aşama 2: Özellik Geliştirmeleri ve İyileştirmeler - Genel Bakış
 
-Bu aşama, MVP (Minimum Uygulanabilir Ürün) üzerine inşa edilerek kullanıcı deneyimini zenginleştirmeyi, mevcut işlevselliği derinleştirmeyi ve platformun genel kalitesini artırmayı hedefler. Kullanıcı geri bildirimleri ve MVP sonrası analizler bu aşamanın önceliklerini belirlemede önemli rol oynar.
+Bu aşama, MVP (Minimum Uygulanabilir Ürün) üzerine inşa edilerek kullanıcı deneyimini zenginleştirmeyi, mevcut işlevselliği derinleştirmeyi ve platformun genel kalitesini artırmayı hedefler. Kullanıcı geri bildirimleri ve MVP sonrası analizler bu aşamanın önceliklerini belirlemede temel girdi olacaktır; öncelikler veriyle desteklenir ve iteratif sprint’lerle hayata geçirilir.
 
 ## Bu Aşamanın Ana Hedefleri
 

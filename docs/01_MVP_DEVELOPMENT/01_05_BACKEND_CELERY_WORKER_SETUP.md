@@ -50,4 +50,4 @@
 
 **Bağımlılıklar:**
 
-- [Geliştirme Ortamı Kurulumu](_PARENT_DIR_/_PARENT_DIR_/00_PLANNING_AND_SETUP/00_03_DEV_ENVIRONMENT_SETUP.md) (Docker Compose, Redis/RabbitMQ).
+- [Geliştirme Ortamı Kurulumu](../00_PLANNING_AND_SETUP/00_03_DEV_ENVIRONMENT_SETUP.md) (Docker Compose, Redis/RabbitMQ).

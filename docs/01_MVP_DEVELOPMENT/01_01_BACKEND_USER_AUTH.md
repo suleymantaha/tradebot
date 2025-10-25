@@ -49,4 +49,4 @@
 **Bağımlılıklar:**
 
 - [Veritabanı Şeması ve Migration'lar](01_07_BACKEND_DATABASE_SCHEMA.md) (User tablosunun oluşturulmuş olması)
-- [Geliştirme Ortamı Kurulumu](_PARENT_DIR_/_PARENT_DIR_/00_PLANNING_AND_SETUP/00_03_DEV_ENVIRONMENT_SETUP.md)
+- [Geliştirme Ortamı Kurulumu](../00_PLANNING_AND_SETUP/00_03_DEV_ENVIRONMENT_SETUP.md)

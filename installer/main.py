@@ -811,7 +811,7 @@ http {
             import string
             
             def generate_secure_password(length=24):
-                alphabet = string.ascii_letters + string.digits + "!@#$%^&*"
+                alphabet = string.ascii_letters + string.digits
                 return ''.join(secrets.choice(alphabet) for _ in range(length))
             
             def generate_secret_key():
@@ -829,6 +829,7 @@ http {
             # Güvenli şifreler oluştur
             secure_postgres_password = generate_secure_password(24)
             secure_pgadmin_password = generate_secure_password(16)
+            secure_redis_password = generate_secure_password(24)
             secure_secret_key = generate_secret_key()
             from urllib.parse import quote
             encoded_postgres_password = quote(secure_postgres_password, safe='')
@@ -894,9 +895,10 @@ LOG_FILE=/app/logs/tradebot.log
 # ====================================
 # REDIS / CELERY CONFIGURATION
 # ====================================
-REDIS_URL=redis://redis:6379
-CELERY_BROKER_URL=redis://redis:6379/0
-CELERY_RESULT_BACKEND=redis://redis:6379/0
+REDIS_PASSWORD={secure_redis_password}
+REDIS_URL=redis://:{secure_redis_password}@redis:6379/0
+CELERY_BROKER_URL=redis://:{secure_redis_password}@redis:6379/0
+CELERY_RESULT_BACKEND=redis://:{secure_redis_password}@redis:6379/0
 
 # ====================================
 # DATABASE URL
@@ -1145,6 +1147,35 @@ SYNC_DATABASE_URL=postgresql://tradebot_user:{encoded_postgres_password}@postgre
             elif backup_password and _psql_ok(backup_password):
                 current_pw = backup_password
 
+            # Şifre uyumsuzluğu için otomatik düzeltme: hiçbir aday çalışmıyorsa volume sıfırla
+            if not current_pw:
+                self.log_warning("Postgres şifresi mevcut volume ile uyuşmuyor. Otomatik onarım başlatılıyor: veritabanı volume yeniden oluşturulacak.")
+                self.log("🛠️ Postgres volume sıfırlanıyor ve servisler yeniden başlatılıyor...")
+                reset_res = subprocess.run(compose_cmd + ['-f', compose_file, 'down', '-v'],
+                                           capture_output=True, text=True, encoding='utf-8', errors='replace')
+                if reset_res.returncode != 0:
+                    self.log_warning(f"Postgres volume sıfırlama uyarısı: {reset_res.stderr}")
+
+                pre_start2 = subprocess.run(compose_cmd + ['-f', compose_file, 'up', '-d', 'postgres', 'redis'],
+                                            capture_output=True, text=True, encoding='utf-8', errors='replace')
+                if pre_start2.returncode != 0:
+                    self.log_warning(f"Ön başlatma uyarısı (yeniden): {pre_start2.stderr}")
+
+                for attempt in range(1, 11):
+                    ready = subprocess.run(['docker', 'exec', 'tradebot-postgres', 'pg_isready', '-U', 'tradebot_user', '-d', 'tradebot_db'],
+                                           capture_output=True, text=True, encoding='utf-8', errors='replace')
+                    if ready.returncode == 0:
+                        break
+                    time.sleep(3)
+
+                # Volume yeniden oluşturulduktan sonra .env şifresi ile doğrula
+                if env_password and _psql_ok(env_password):
+                    current_pw = env_password
+                    self.log_info("Postgres volume yeniden oluşturuldu ve .env şifresi ile eşlendi.")
+                else:
+                    self.log_error("Postgres volume sonrası .env şifresi ile bağlantı kurulamadı.")
+                    raise Exception("PostgreSQL şifre uyumsuzluğu devam ediyor")
+
             if current_pw and env_password and current_pw != env_password:
                 self.log_info("Postgres şifresi .env ile farklı, güncelleniyor...")
                 alter_cmd = ['docker', 'exec', 'tradebot-postgres', 'bash', '-lc',
@@ -1245,6 +1276,9 @@ SYNC_DATABASE_URL=postgresql://tradebot_user:{encoded_postgres_password}@postgre
         from urllib.parse import quote
         _pgpass = self.postgres_pass_var.get()
         _pgpass_enc = quote(_pgpass, safe='')
+        import secrets, string
+        _alphabet = string.ascii_letters + string.digits
+        _redispass = ''.join(secrets.choice(_alphabet) for _ in range(24))
         env_content = f"""# TradeBot Environment Configuration
 # Otomatik oluşturuldu - GUI Installer
 
@@ -1263,7 +1297,8 @@ LOG_LEVEL=INFO
 VITE_API_URL=http://localhost:{self.port_vars['backend_port'].get()}
 
 LOG_FILE=/app/logs/tradebot.log
-REDIS_URL=redis://redis:6379
+REDIS_PASSWORD={_redispass}
+REDIS_URL=redis://:{_redispass}@redis:6379/0
 
 DATABASE_URL=postgresql+asyncpg://tradebot_user:{_pgpass_enc}@postgres:5432/tradebot_db
 SYNC_DATABASE_URL=postgresql://tradebot_user:{_pgpass_enc}@postgres:5432/tradebot_db

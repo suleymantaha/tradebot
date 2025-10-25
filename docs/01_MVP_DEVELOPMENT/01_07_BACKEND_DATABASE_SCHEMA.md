@@ -110,5 +110,5 @@
 - Şifrelenmiş veriler (API anahtarları) için `String` veya `Text` tipi kullanılabilir, şifreleme/çözme uygulama katmanında yapılır.
 
 **Bağımlılıklar:**
-- [Geliştirme Ortamı Kurulumu](_PARENT_DIR_/_PARENT_DIR_/00_PLANNING_AND_SETUP/00_03_DEV_ENVIRONMENT_SETUP.md) (SQLAlchemy, Alembic, PostgreSQL).
+- [Geliştirme Ortamı Kurulumu](../00_PLANNING_AND_SETUP/00_03_DEV_ENVIRONMENT_SETUP.md) (SQLAlchemy, Alembic, PostgreSQL).
 - Diğer backend görevleri bu modellere bağımlı olacaktır.

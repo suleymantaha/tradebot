@@ -24,7 +24,7 @@
         - Backend'den dönen verilerin frontend'de doğru gösterilmesi.
     - [ ] Celery görevlerinin temel entegrasyonu (bir görev tetiklenip, basit bir işlem yapıp yapmadığı).
 3. **Kullanıcı Kabul Testleri (UAT - User Acceptance Testing):**
-    - [ ] [Detaylı Gereksinimler](_PARENT_DIR_/_PARENT_DIR_/00_PLANNING_AND_SETUP/00_01_DETAILED_REQUIREMENTS.md) dokümanındaki MVP özelliklerinin tamamının manuel olarak test edilmesi.
+    - [ ] [Detaylı Gereksinimler](../00_PLANNING_AND_SETUP/00_01_DETAILED_REQUIREMENTS.md) dokümanındaki MVP özelliklerinin tamamının manuel olarak test edilmesi.
     - [ ] Gerçek bir Binance testnet hesabı veya çok düşük miktarlarla canlı hesap kullanılarak botların alım-satım yapıp yapmadığının kontrolü.
     - [ ] Farklı kullanıcı senaryolarının (yeni kullanıcı, mevcut kullanıcı, hatalı veri girişi vb.) denenmesi.
     - [ ] Tarayıcı uyumluluk testleri (Chrome, Firefox, Edge - temel seviyede).
@@ -64,4 +64,4 @@
 
 **Bağımlılıklar:**
 - MVP kapsamındaki tüm geliştirme görevlerinin tamamlanmış olması.
-- [Deployment Stratejisi](_PARENT_DIR_/_PARENT_DIR_/DEPLOYMENT_STRATEGY.md) dokümanındaki temel prensipler.
+- [Deployment Stratejisi](../DEPLOYMENT_STRATEGY.md) dokümanındaki temel prensipler.

@@ -51,7 +51,7 @@
     * Sosyal ticaret özellikleri
 4. **Fonksiyonel Olmayan Gereksinimler:**
     * **Performans:** Ortalama sayfa yükleme süresi, bot tepki süresi.
-    * **Güvenlik:** [SECURITY_GUIDELINES.md](_PARENT_DIR_/_PARENT_DIR_/SECURITY_GUIDELINES.md) referans alınacak.
+    * **Güvenlik:** [SECURITY_GUIDELINES.md](../SECURITY_GUIDELINES.md) referans alınacak.
     * **Ölçeklenebilirlik:** Belirli sayıda eş zamanlı kullanıcı ve botu destekleyebilme.
     * **Kullanılabilirlik:** Sezgisel ve kullanıcı dostu arayüz.
     * **Güvenilirlik:** Botların 7/24 kesintisiz çalışması, hata toleransı.
@@ -64,4 +64,4 @@
 
 * MVP kapsamını çok geniş tutmamak, hızlı bir şekilde çalışan bir ürün ortaya çıkarmak önemlidir.
 * Kullanıcı geri bildirimleri MVP sonrası geliştirmeler için kritik olacaktır.
-* Binance API limitleri ve değişiklikleri takip edilmelidir.
+* Binance API limitleri ve değişiklikleri takip edilmelidir.

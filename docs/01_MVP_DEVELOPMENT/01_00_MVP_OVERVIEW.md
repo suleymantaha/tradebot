@@ -4,7 +4,7 @@ Bu aşama, projenin temel işlevselliğe sahip, kullanıcıların ilk sürümde 
 
 ## Bu Aşamanın Ana Hedefleri
 
-* [Detaylı Gereksinimler](_PARENT_DIR_/_PARENT_DIR_/00_PLANNING_AND_SETUP/00_01_DETAILED_REQUIREMENTS.md) dokümanında tanımlanan MVP özelliklerinin tamamını implemente etmek.
+* [Detaylı Gereksinimler](../00_PLANNING_AND_SETUP/00_01_DETAILED_REQUIREMENTS.md) dokümanında tanımlanan MVP özelliklerinin tamamını implemente etmek.
 * Güvenli ve stabil bir kullanıcı kimlik doğrulama sistemi oluşturmak.
 * Kullanıcıların Binance API anahtarlarını güvenli bir şekilde kaydedip yönetebilmesini sağlamak.
 * Belirlenen tek bir stratejiye dayalı olarak bot oluşturma, başlatma, durdurma ve temel konfigürasyonunu yapabilme imkanı sunmak.
@@ -31,4 +31,4 @@ Bu aşama, projenin temel işlevselliğe sahip, kullanıcıların ilk sürümde 
 
 * Fonksiyonel bir MVP web uygulaması.
 * Kullanıcıların kaydolup giriş yapabildiği, API anahtarlarını ekleyebildiği, bot oluşturup çalıştırabildiği ve temel performansını görebildiği bir sistem.
-* Projenin bir sonraki aşaması için temel oluşturacak sağlam bir kod tabanı.
+* Projenin bir sonraki aşaması için temel oluşturacak sağlam bir kod tabanı.

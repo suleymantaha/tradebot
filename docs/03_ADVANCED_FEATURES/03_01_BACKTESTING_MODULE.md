@@ -11,7 +11,7 @@
     - [ ] **Veri Depolama (Opsiyonel ama Önerilir):** Sık kullanılan semboller/timeframe'ler için çekilen geçmiş verileri kendi veritabanınızda (örn: TimescaleDB, InfluxDB veya PostgreSQL'de optimize edilmiş tablolar) saklamak, API yükünü azaltır ve backtest hızını artırır.
     - [ ] Veri temizleme ve doğrulama (eksik veri, hatalı veri).
 2. **Backtesting Motoru (Backend):**
-    - [ ] Mevcut strateji çekirdeğini ([Strateji Çekirdeği](_PARENT_DIR_/_PARENT_DIR_/01_MVP_DEVELOPMENT/01_03_BACKEND_STRATEGY_CORE_REFACTOR.md)) backtesting için uyarlamak veya yeniden kullanılabilir bir kütüphane (örn: `backtrader`, `vectorbt` - Python için) ile entegre etmek.
+    - [ ] Mevcut strateji çekirdeğini ([Strateji Çekirdeği](../01_MVP_DEVELOPMENT/01_03_BACKEND_STRATEGY_CORE_REFACTOR.md)) backtesting için uyarlamak veya yeniden kullanılabilir bir kütüphane (örn: `backtrader`, `vectorbt` - Python için) ile entegre etmek.
     - [ ] Motor, geçmiş veriler üzerinde adım adım ilerleyerek (her bir mum çubuğu için) strateji mantığını (sinyal üretme, sanal emirler, pozisyon yönetimi) çalıştırmalı.
     - [ ] Komisyon oranları, potansiyel slippage gibi faktörleri simüle edebilmeli.
     - [ ] Her bir sanal işlem ve pozisyon değişikliği loglanmalı.
@@ -62,5 +62,5 @@
 
 **Bağımlılıklar:**
 
-- [Strateji Çekirdeği](_PARENT_DIR_/_PARENT_DIR_/01_MVP_DEVELOPMENT/01_03_BACKEND_STRATEGY_CORE_REFACTOR.md)
-- [Celery Worker Kurulumu](_PARENT_DIR_/_PARENT_DIR_/01_MVP_DEVELOPMENT/01_05_BACKEND_CELERY_WORKER_SETUP.md)
+- [Strateji Çekirdeği](../01_MVP_DEVELOPMENT/01_03_BACKEND_STRATEGY_CORE_REFACTOR.md)
+- [Celery Worker Kurulumu](../01_MVP_DEVELOPMENT/01_05_BACKEND_CELERY_WORKER_SETUP.md)

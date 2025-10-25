@@ -45,5 +45,5 @@
 
 **Bağımlılıklar:**
 
-* [Backend: Bot Çalıştırma Mantığı](_PARENT_DIR_/_PARENT_DIR_/01_MVP_DEVELOPMENT/01_06_BACKEND_BOT_EXECUTION_LOGIC.md) (BotState güncellemeleri buradan tetiklenecek).
-* [Frontend: Gösterge Paneli](_PARENT_DIR_/_PARENT_DIR_/01_MVP_DEVELOPMENT/01_09_FRONTEND_DASHBOARD_PAGE.md)
+* [Backend: Bot Çalıştırma Mantığı](../01_MVP_DEVELOPMENT/01_06_BACKEND_BOT_EXECUTION_LOGIC.md) (BotState güncellemeleri buradan tetiklenecek).
+* [Frontend: Gösterge Paneli](../01_MVP_DEVELOPMENT/01_09_FRONTEND_DASHBOARD_PAGE.md)
