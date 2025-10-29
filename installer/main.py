@@ -17,6 +17,10 @@ import datetime
 from pathlib import Path
 import platform
 
+# BuildKit ve cache’li build için varsayılan ortam değişkenleri
+os.environ.setdefault('DOCKER_BUILDKIT', '1')
+os.environ.setdefault('COMPOSE_DOCKER_CLI_BUILD', '1')
+
 class TradeBotInstaller:
     def __init__(self, root):
         self.root = root
@@ -502,6 +506,9 @@ Kurulum yaklaşık 5-10 dakika sürer.
             # 1. System requirements check (already done in previous step)
             self.log_info("Sistem gereksinimleri kontrol edildi")
             self.log("✅ Sistem gereksinimleri kontrol edildi")
+
+            # 1.1 Akıllı güncelleme kontrolü (opsiyonel)
+            self.check_for_updates()
 
             # 2. Create .env file
             self.log_info("Environment dosyası oluşturuluyor...")
@@ -1050,10 +1057,21 @@ SYNC_DATABASE_URL=postgresql://tradebot_user:{encoded_postgres_password}@postgre
                     self.log(f"❌ {error_msg}")
                     raise Exception(error_msg)
             
-            # Build images
-            self.log_info(f"Docker images build ediliyor... (compose file: {compose_file})")
+            # Önce mevcut imajları çek (pull-first)
+            self.log_info(f"Docker images pull ediliyor... (compose file: {compose_file})")
+            self.log("📥 Docker images pull ediliyor...")
+            pull_result = subprocess.run(compose_cmd + ['-f', compose_file, 'pull'],
+                                         capture_output=True, text=True, encoding='utf-8', errors='replace')
+            if pull_result.returncode != 0:
+                self.log_warning(f"Pull sırasında uyarı/başarısızlık: {pull_result.stderr}")
+                self.log("ℹ️ Pull başarısız oldu veya bazı servisler için imaj bulunamadı, build adımına devam ediliyor...")
+
+            # Build images (cache’li, opsiyonel no-cache)
+            use_no_cache = str(os.environ.get('INSTALLER_NO_CACHE', '0')).lower() in ('1', 'true', 'yes')
+            build_cmd = compose_cmd + ['-f', compose_file, 'build'] + (['--no-cache'] if use_no_cache else [])
+            self.log_info(f"Docker images build ediliyor... (compose file: {compose_file}, no-cache={use_no_cache})")
             self.log("🔨 Docker images build ediliyor...")
-            build_result = subprocess.run(compose_cmd + ['-f', compose_file, 'build', '--no-cache'],
+            build_result = subprocess.run(build_cmd,
                                           capture_output=True, text=True, encoding='utf-8', errors='replace')
             if build_result.returncode != 0:
                 # Yaygın hataları daha anlaşılır hale getir
@@ -1222,6 +1240,39 @@ SYNC_DATABASE_URL=postgresql://tradebot_user:{encoded_postgres_password}@postgre
                 self.log_error(f"Servis başlatma genel hatası: {str(e)}", e)
                 self.log(f"❌ Beklenmeyen hata: {str(e)}")
             raise
+
+    def check_for_updates(self):
+        """Opsiyonel uzak manifest ile akıllı güncelleme kontrolü yapar."""
+        try:
+            import requests
+            local_version = None
+            version_path = os.path.join(self.install_path, 'version.json')
+            if os.path.exists(version_path):
+                with open(version_path, 'r', encoding='utf-8') as vf:
+                    try:
+                        data = json.load(vf)
+                        local_version = data.get('version')
+                    except Exception:
+                        self.log_warning('Yerel version.json okunamadı veya geçersiz')
+
+            manifest_url = os.environ.get('UPDATE_MANIFEST_URL')
+            if not manifest_url:
+                self.log_info('Güncelleme manifest URL’i yapılandırılmamış, güncelleme kontrolü atlandı')
+                return
+
+            self.log_info('Uzak manifest alınıyor ve sürüm karşılaştırması yapılıyor...')
+            resp = requests.get(manifest_url, timeout=5)
+            if resp.status_code != 200:
+                self.log_warning(f'Manifest alınamadı: HTTP {resp.status_code}')
+                return
+            remote = resp.json()
+            remote_version = remote.get('version')
+            if local_version and remote_version and local_version != remote_version:
+                self.log(f"🔔 Yeni sürüm bulundu: {remote_version} (yerel: {local_version})")
+            else:
+                self.log("ℹ️ Sürüm güncel veya karşılaştırma yapılamadı")
+        except Exception as e:
+            self.log_warning(f"Güncelleme kontrolü sırasında uyarı: {str(e)}")
 
     def wait_for_services(self):
         """Servislerin hazır olmasını bekle"""

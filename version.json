@@ -1,0 +1,10 @@
+{
+  "app": "TradeBot",
+  "version": "2.1.0",
+  "build": "2025-10-29",
+  "components": {
+    "backend": { "version": "2.1.0", "digest": "", "path": "backend" },
+    "frontend": { "version": "2.1.0", "digest": "", "path": "frontend" },
+    "db": { "version": "2.1.0", "digest": "", "path": "postgres" }
+  }
+}
