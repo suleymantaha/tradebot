@@ -47,6 +47,9 @@ class TradeBotInstaller:
 
         # Error logging
         self.error_log = []
+        # Tekrarlanan hata bastırma için sayaçlar
+        self._error_counters = {}
+        self._suppress_duplicate_errors = True
         self.setup_logging()
 
         # Create notebook for pages
@@ -86,22 +89,36 @@ class TradeBotInstaller:
     def log_error(self, message, exception=None):
         """Hata loglar"""
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        log_entry = f"[ERROR {timestamp}] {message}"
+        msg_key = str(message).strip()
 
-        if exception:
-            log_entry += f"\nException: {str(exception)}"
+        # Tekrarlanan hataları bastır
+        repeat_count = self._error_counters.get(msg_key, 0)
+        self._error_counters[msg_key] = repeat_count + 1
 
-        self.error_log.append(log_entry)
-
-        # Log dosyasına yaz
-        try:
-            with open(self.log_file, "a", encoding="utf-8") as f:
-                f.write(log_entry + "\n\n")
-        except Exception:
+        # İlk hata: ERROR olarak yaz, sonraki aynı hatalar: bir kez WARNING, sonra bastır
+        if not self._suppress_duplicate_errors or repeat_count == 0:
+            log_entry = f"[ERROR {timestamp}] {message}"
+            if exception:
+                log_entry += f"\nException: {str(exception)}"
+            self.error_log.append(log_entry)
+            try:
+                with open(self.log_file, "a", encoding="utf-8") as f:
+                    f.write(log_entry + "\n\n")
+            except Exception:
+                pass
+            print(log_entry)
+        elif repeat_count == 1:
+            # Aynı hatanın tekrarında kullanıcıyı bilgilendir, seviyeyi WARNING yap
+            warn_entry = f"[WARNING {timestamp}] Aynı hata tekrarlandı, log azaltıldı: {message}"
+            try:
+                with open(self.log_file, "a", encoding="utf-8") as f:
+                    f.write(warn_entry + "\n")
+            except Exception:
+                pass
+            print(warn_entry)
+        else:
+            # 3. ve sonrası tekrarları sessizce bastır
             pass
-
-        # Console'a da yazdır
-        print(log_entry)
 
     def log_warning(self, message):
         """Uyarı loglar"""
@@ -1615,7 +1632,7 @@ echo "TradeBot durduruldu!"
         try:
             desktop_path = self.get_desktop_path()
             if not desktop_path or not os.path.exists(desktop_path):
-                self.log_error("Masaüstü klasörü bulunamadı")
+                self.log_warning("Masaüstü klasörü bulunamadı")
                 return
 
             if platform.system() == "Windows":
@@ -1628,7 +1645,9 @@ echo "TradeBot durduruldu!"
             self.log_info("Masaüstü ikonu oluşturuldu")
 
         except Exception as e:
-            self.log_error("Masaüstü ikonu oluşturulamadı", e)
+            # Masaüstü ikonu oluşturulamaması kurulumun tamamını engellemez
+            self.log_warning("Masaüstü ikonu oluşturulamadı")
+            self.log_info(f"Masaüstü ikonu hata detayı: {str(e)}")
 
     def get_desktop_path(self):
         """Platform'a göre masaüstü yolunu döndürür"""
@@ -1678,7 +1697,9 @@ echo "TradeBot durduruldu!"
             self.log_info(f"Windows shortcut oluşturuldu: {shortcut_path}")
 
         except ImportError as e:
-            self.log_error("pywin32 modülü bulunamadı, batch file fallback kullanılıyor", e)
+            # pywin32 opsiyonel; fallback ile devam edilebilir
+            self.log_warning("pywin32 modülü bulunamadı, batch file fallback kullanılıyor")
+            self.log_info(f"pywin32 import hatası detayı: {str(e)}")
             # Fallback: Create batch file
             shortcut_content = f"""@echo off
 cd /d "{self.install_path}"
@@ -1690,7 +1711,9 @@ start start_tradebot.bat
             self.log_info(f"Fallback batch file oluşturuldu: {shortcut_path}")
             
         except Exception as e:
-            self.log_error("Windows shortcut oluşturulamadı", e)
+            # Kısayol oluşturulamazsa fallback batch dosyası denenir
+            self.log_warning("Windows shortcut oluşturulamadı")
+            self.log_info(f"Windows shortcut hata detayı: {str(e)}")
             # Son çare: Basit batch file
             shortcut_content = f"""@echo off
 cd /d "{self.install_path}"
@@ -1702,7 +1725,8 @@ start start_tradebot.bat
                     f.write(shortcut_content)
                 self.log_info(f"Basit batch file oluşturuldu: {shortcut_path}")
             except Exception as fallback_error:
-                self.log_error("Batch file bile oluşturulamadı", fallback_error)
+                self.log_warning("Fallback batch file oluşturulamadı")
+                self.log_info(f"Fallback hata detayı: {str(fallback_error)}")
 
     def create_linux_shortcut(self, desktop_path):
         """Linux için .desktop dosyası oluştur"""
@@ -1774,7 +1798,8 @@ cd "{self.install_path}"
             else:  # Linux
                 subprocess.run(["xdg-open", self.log_file])
         except Exception as e:
-            self.log_error("Log dosyası açılamadı", e)
+            self.log_warning("Log dosyası açılamadı")
+            self.log_info(f"Log açma hata detayı: {str(e)}")
 
     def open_install_directory(self):
         """Kurulum klasörünü aç"""
@@ -1786,7 +1811,8 @@ cd "{self.install_path}"
             else:  # Linux
                 subprocess.run(["xdg-open", self.install_path])
         except Exception as e:
-            self.log_error("Kurulum klasörü açılamadı", e)
+            self.log_warning("Kurulum klasörü açılamadı")
+            self.log_info(f"Klasör açma hata detayı: {str(e)}")
             messagebox.showerror("Hata", f"Kurulum klasörü açılamadı: {str(e)}")
 
     def recreate_desktop_shortcut(self):
@@ -1795,7 +1821,8 @@ cd "{self.install_path}"
             self.create_desktop_shortcut()
             messagebox.showinfo("Başarılı", "Masaüstü ikonu tekrar oluşturuldu!")
         except Exception as e:
-            self.log_error("Masaüstü ikonu oluşturulamadı", e)
+            self.log_warning("Masaüstü ikonu oluşturulamadı")
+            self.log_info(f"Masaüstü ikon hata detayı: {str(e)}")
             messagebox.showerror("Hata", f"Masaüstü ikonu oluşturulamadı: {str(e)}")
 
     def quick_fix_docker_cleanup(self):
