@@ -436,25 +436,60 @@ Kurulum yaklaşık 5-10 dakika sürer.
             if isinstance(widget, ttk.Label) and hasattr(widget, 'check_result'):
                 widget.destroy()
 
-        checks = [
-            ("Docker", "docker --version"),
-            ("Docker Compose", "docker-compose --version"),
-            ("curl", "curl --version"),
-            ("git", "git --version")
-        ]
+        # Docker
+        try:
+            res = subprocess.run(["docker", "--version"], capture_output=True, text=True, timeout=5)
+            status = "✅ Kurulu" if res.returncode == 0 else "❌ Eksik"
+            color = "green" if res.returncode == 0 else "red"
+        except Exception:
+            status = "❌ Eksik"
+            color = "red"
+        label = ttk.Label(self.check_frame, text=f"Docker: {status}", foreground=color)
+        setattr(label, "check_result", status)
+        label.pack(anchor="w", pady=2)
 
-        for name, command in checks:
-            try:
-                result = subprocess.run(command.split(), capture_output=True, text=True, timeout=5)
-                status = "✅ Kurulu" if result.returncode == 0 else "❌ Eksik"
-                color = "green" if result.returncode == 0 else "red"
-            except Exception:
-                status = "❌ Eksik"
-                color = "red"
+        # Docker Compose (V2 öncelikli, V1 fallback)
+        compose_status = "❌ Eksik"
+        compose_color = "red"
+        try:
+            v2 = subprocess.run(["docker", "compose", "version"], capture_output=True, text=True, timeout=5)
+            if v2.returncode == 0:
+                compose_status = "✅ Kurulu (V2)"
+                compose_color = "green"
+            else:
+                v1 = subprocess.run(["docker-compose", "--version"], capture_output=True, text=True, timeout=5)
+                if v1.returncode == 0:
+                    compose_status = "✅ Kurulu (V1)"
+                    compose_color = "green"
+        except Exception:
+            pass
+        label = ttk.Label(self.check_frame, text=f"Docker Compose: {compose_status}", foreground=compose_color)
+        setattr(label, "check_result", compose_status)
+        label.pack(anchor="w", pady=2)
 
-            label = ttk.Label(self.check_frame, text=f"{name}: {status}", foreground=color)
-            setattr(label, "check_result", status)
-            label.pack(anchor="w", pady=2)
+        # git
+        try:
+            res = subprocess.run(["git", "--version"], capture_output=True, text=True, timeout=5)
+            status = "✅ Kurulu" if res.returncode == 0 else "❌ Eksik"
+            color = "green" if res.returncode == 0 else "red"
+        except Exception:
+            status = "❌ Eksik"
+            color = "red"
+        label = ttk.Label(self.check_frame, text=f"git: {status}", foreground=color)
+        setattr(label, "check_result", status)
+        label.pack(anchor="w", pady=2)
+
+        # curl (opsiyonel, eksik olduğunda kurulum engellenmez)
+        try:
+            res = subprocess.run(["curl", "--version"], capture_output=True, text=True, timeout=5)
+            status = "✅ Kurulu" if res.returncode == 0 else "ℹ️ Opsiyonel: Yok"
+            color = "green" if res.returncode == 0 else "orange"
+        except Exception:
+            status = "ℹ️ Opsiyonel: Yok"
+            color = "orange"
+        label = ttk.Label(self.check_frame, text=f"curl: {status}", foreground=color)
+        setattr(label, "check_result", status)
+        label.pack(anchor="w", pady=2)
 
     def validate_system(self):
         """Sistem kontrolü validasyonu"""
@@ -1444,10 +1479,6 @@ SYNC_DATABASE_URL=postgresql://tradebot_user:{_pgpass_enc}@postgres:5432/tradebo
                     f.write(start_script_content)
                 with open("stop_tradebot.bat", "w", encoding="utf-8") as f:
                     f.write(stop_script_content)
-
-                # Make executable
-                os.chmod("start_tradebot.bat", 0o755)
-                os.chmod("stop_tradebot.bat", 0o755)
 
                 # Hidden launcher with VBS (runs batch without console window)
                 batch_path = os.path.join(self.install_path, "start_tradebot.bat").replace("\\", "\\\\")
