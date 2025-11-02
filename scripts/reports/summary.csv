@@ -1,0 +1,2 @@
+symbol,total_trades,wins,losses,win_rate_pct,sum_pnl_usdt,sum_fees_usdt,avg_fee_per_trade_usdt,initial_capital,last_capital,total_return_pct,fees_to_abs_pnl_pct,avg_daily_trades,best_day,best_day_pnl_usdt,worst_day,worst_day_pnl_usdt
+BNBUSDT,822,476,346,57.9075,63343.888616,10407.364348,12.661027,1000.0,64343.888616,6334.388862,16.429942,4.491803,2025-10-22,2108.706816,2025-10-20,-838.151115

@@ -10,7 +10,7 @@ services:
       # ÖNEMLİ: POSTGRES_PASSWORD .env dosyasından alınır
       # Eğer .env dosyası yoksa varsayılan şifre kullanılır
       # Installer otomatik olarak güvenli şifre oluşturur
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-tradebot_secure_pass_123}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       # Production profilde trust kullanmayin
       # POSTGRES_HOST_AUTH_METHOD: trust
     ports:
@@ -37,7 +37,7 @@ services:
     networks:
       - tradebot-network
     environment:
-      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
     healthcheck:
       test: [ "CMD-SHELL", 'if [ -n "$REDIS_PASSWORD" ]; then redis-cli -a "$REDIS_PASSWORD" ping; else redis-cli ping; fi' ]
       interval: 10s
@@ -60,10 +60,10 @@ services:
       - REDIS_URL=${REDIS_URL}
       - CELERY_BROKER_URL=${CELERY_BROKER_URL}
       - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
-      - SECRET_KEY=${SECRET_KEY:-super_secret_key_change_in_production_12345}
-      - FERNET_KEY=${FERNET_KEY:-}
-      - ALGORITHM=${ALGORITHM:-HS256}
-      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-30}
+      - SECRET_KEY=${SECRET_KEY}
+      - FERNET_KEY=${FERNET_KEY}
+      - ALGORITHM=${ALGORITHM:-HS512}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-10080}
       - ENVIRONMENT=${ENVIRONMENT:-production}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
@@ -80,6 +80,13 @@ services:
       - ./cache:/app/cache
       - ./logs:/app/logs
       - ./alembic:/app/alembic
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    cap_drop:
+      - ALL
+    tmpfs:
+      - /tmp
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
       interval: 30s
@@ -88,7 +95,7 @@ services:
     command: >
       sh -c "
         echo '🔄 Database migration başlatılıyor...' &&
-        alembic upgrade heads &&
+        alembic upgrade head &&
         echo '✅ Database migration tamamlandı!' &&
         echo '🚀 Backend server başlatılıyor...' &&
         /usr/local/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000
@@ -104,10 +111,10 @@ services:
       - REDIS_URL=${REDIS_URL}
       - CELERY_BROKER_URL=${CELERY_BROKER_URL}
       - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
-      - SECRET_KEY=${SECRET_KEY:-super_secret_key_change_in_production_12345}
-      - FERNET_KEY=${FERNET_KEY:-}
-      - ALGORITHM=${ALGORITHM:-HS256}
-      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-30}
+      - SECRET_KEY=${SECRET_KEY}
+      - FERNET_KEY=${FERNET_KEY}
+      - ALGORITHM=${ALGORITHM:-HS512}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-10080}
       - ENVIRONMENT=${ENVIRONMENT:-production}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     depends_on:
@@ -120,6 +127,13 @@ services:
     volumes:
       - ./logs:/app/logs
       - ./alembic:/app/alembic
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    cap_drop:
+      - ALL
+    tmpfs:
+      - /tmp
     command: >
       sh -c "
         celery -A app.core.celery_app.celery_app worker -l info
@@ -140,10 +154,10 @@ services:
       - REDIS_URL=${REDIS_URL}
       - CELERY_BROKER_URL=${CELERY_BROKER_URL}
       - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
-      - SECRET_KEY=${SECRET_KEY:-super_secret_key_change_in_production_12345}
-      - FERNET_KEY=${FERNET_KEY:-}
-      - ALGORITHM=${ALGORITHM:-HS256}
-      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-30}
+      - SECRET_KEY=${SECRET_KEY}
+      - FERNET_KEY=${FERNET_KEY}
+      - ALGORITHM=${ALGORITHM:-HS512}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-10080}
       - ENVIRONMENT=${ENVIRONMENT:-production}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     depends_on:
@@ -156,9 +170,16 @@ services:
     volumes:
       - ./logs:/app/logs
       - ./alembic:/app/alembic
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    cap_drop:
+      - ALL
+    tmpfs:
+      - /tmp
     command: >
       sh -c "
-        celery -A app.core.celery_app.celery_app beat -l info
+        celery -A app.core.celery_app.celery_app beat -l info --schedule=/tmp/celerybeat-schedule --pidfile=/tmp/celerybeat.pid
       "
     healthcheck:
       test: [ "CMD-SHELL", "exit 0" ]
@@ -213,6 +234,13 @@ services:
       - tradebot-network
     profiles:
       - production
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    cap_drop:
+      - ALL
+    tmpfs:
+      - /var/cache/nginx
 
   # pgAdmin for PostgreSQL Management
   pgadmin:
@@ -220,8 +248,8 @@ services:
     container_name: tradebot-pgadmin
     restart: unless-stopped
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@tradebot.local}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin123}
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
       PGADMIN_CONFIG_SERVER_MODE: 'False'
     ports:
       - "5050:80"
@@ -241,4 +269,7 @@ volumes:
 networks:
   tradebot-network:
     driver: bridge
+    # Allow containers to reach external networks (e.g., Binance API)
+    # Previously set to internal: true, which blocked outbound internet access
+    # Removed to restore external connectivity needed by symbols endpoints and API clients
 

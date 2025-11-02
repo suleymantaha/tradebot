@@ -10,7 +10,7 @@ celery_app = Celery(
     "tradebot",
     broker=CELERY_BROKER_URL,
     backend=CELERY_RESULT_BACKEND,
-    include=['app.core.bot_tasks']
+    include=['app.core.bot_tasks', 'app.core.cache_warmup_tasks']
 )
 
 # Güvenli görev ayarları

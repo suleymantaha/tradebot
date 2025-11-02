@@ -191,9 +191,20 @@ setup_environment() {
     sed -i "s/PGADMIN_DEFAULT_PASSWORD=admin123/PGADMIN_DEFAULT_PASSWORD=$PGADMIN_PASSWORD/" .env
     print_success "pgAdmin şifresi oluşturuldu"
 
+    # Generate random Redis password and update URLs
+    REDIS_PASSWORD=$(openssl rand -base64 24 | tr -d "=+/" | cut -c1-24)
+    sed -i "s/^REDIS_PASSWORD=.*/REDIS_PASSWORD=$REDIS_PASSWORD/" .env
+    sed -i "s|^REDIS_URL=.*|REDIS_URL=redis://:$REDIS_PASSWORD@redis:6379/0|" .env
+    sed -i "s|^CELERY_BROKER_URL=.*|CELERY_BROKER_URL=redis://:$REDIS_PASSWORD@redis:6379/0|" .env
+    sed -i "s|^CELERY_RESULT_BACKEND=.*|CELERY_RESULT_BACKEND=redis://:$REDIS_PASSWORD@redis:6379/0|" .env
+    print_success "Redis şifresi ve URL'ler güncellendi"
+
     # Update DATABASE_URL with new password
     sed -i "s|\${POSTGRES_PASSWORD}|$POSTGRES_PASSWORD|g" .env
 
+    # Enforce strong JWT settings
+    sed -i "s/^ALGORITHM=.*/ALGORITHM=HS512/" .env
+    sed -i "s/^ACCESS_TOKEN_EXPIRE_MINUTES=.*/ACCESS_TOKEN_EXPIRE_MINUTES=10080/" .env
     print_success "Environment dosyası hazırlandı"
 }
 

@@ -15,8 +15,10 @@ const BotEditPage = lazy(() => import('./pages/Bots/BotEditPage'))
 const BotTrades = lazy(() => import('./pages/Bots/BotTrades'))
 const BotPerformance = lazy(() => import('./pages/Bots/BotPerformance'))
 const BacktestPage = lazy(() => import('./pages/Backtest/BacktestPage'))
+const BacktestReportPage = lazy(() => import('./pages/Backtest/BacktestReportPage'))
 const MarketsPage = lazy(() => import('./pages/Markets/MarketsPage'))
 import { ThemeProvider } from './contexts/ThemeContext'
+import MarketsErrorBoundary from './components/ErrorBoundary/MarketsErrorBoundary'
 import useAuthStore from './store/authStore'
 
 function App() {
@@ -149,10 +151,20 @@ function App() {
                                 }
                             />
                             <Route
+                                path="backtest/report"
+                                element={
+                                    <PrivateRoute>
+                                        <BacktestReportPage />
+                                    </PrivateRoute>
+                                }
+                            />
+                            <Route
                                 path="markets"
                                 element={
                                     <PrivateRoute>
-                                        <MarketsPage />
+                                        <MarketsErrorBoundary>
+                                            <MarketsPage />
+                                        </MarketsErrorBoundary>
                                     </PrivateRoute>
                                 }
                             />

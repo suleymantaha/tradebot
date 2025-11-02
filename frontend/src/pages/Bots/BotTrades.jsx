@@ -1,8 +1,14 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useTheme } from '../../contexts/ThemeContext'
 import apiServiceInstance from '../../services/api' // Import the ApiService instance
 import useAuthStore from '../../store/authStore' // useAuthStore'u import et
+import { unstable_batchedUpdates } from 'react-dom'
+
+const VIRTUAL_ROW_HEIGHT = 56
+const VIRTUAL_BUFFER = 6
+const VIRTUAL_THRESHOLD = 300
+const VIRTUAL_MAX_HEIGHT = 520
 
 const BotTrades = () => {
     const { isDark } = useTheme()
@@ -12,42 +18,113 @@ const BotTrades = () => {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
     const isAuthenticated = useAuthStore(state => state.isAuthenticated)
-    console.log('[BotTrades] Component rendered, isAuthenticated from store:', isAuthenticated);
+    const tradesScrollRef = useRef(null)
+    const [tradesRange, setTradesRange] = useState({ start: 0, end: 0 })
 
-    useEffect(() => {
-        console.log('[BotTrades] useEffect triggered, id:', id, 'isAuthenticated:', isAuthenticated);
-
-        const fetchData = async () => {
-            console.log('[BotTrades] fetchData called, isAuthenticated check:', isAuthenticated);
-            if (!isAuthenticated) {
-                console.log('[BotTrades] Not authenticated, skipping API calls.');
+    const fetchData = useCallback(async () => {
+        if (!isAuthenticated) {
+            unstable_batchedUpdates(() => {
                 setLoading(false)
                 setError('Lütfen giriş yapınız.')
                 setTrades([])
-                return
-            }
-            setLoading(true)
-            console.log('[BotTrades] Attempting to fetch bot and trades data...')
-            try {
-                const botData = await apiServiceInstance.get(`/api/v1/bot-configs/${id}`)
-                console.log('[BotTrades] Bot data fetched:', botData)
-                setBot(botData)
-
-                const tradesData = await apiServiceInstance.get(`/api/v1/bots/${id}/trades`)
-                console.log('[BotTrades] Trades data fetched:', tradesData)
-                setTrades(tradesData || [])
-                setError('')
-
-            } catch (err) {
-                console.error("[BotTrades] Error in fetchData:", err)
-                setError('Trade verileri yüklenirken hata oluştu.')
-            } finally {
-                setLoading(false)
-            }
+                setBot(null)
+            })
+            return
         }
 
-        fetchData()
+        setLoading(true)
+        setError('')
+
+        try {
+            const [botResult, tradesResult] = await Promise.allSettled([
+                apiServiceInstance.get(`/api/v1/bot-configs/${id}`),
+                apiServiceInstance.get(`/api/v1/bots/${id}/trades`)
+            ])
+
+            let nextBot = null
+            let nextTrades = []
+            const errors = []
+
+            if (botResult.status === 'fulfilled') {
+                nextBot = botResult.value
+            } else {
+                console.error('Bot detail fetch error:', botResult.reason)
+                errors.push('Bot bilgisi yüklenemedi.')
+            }
+
+            if (tradesResult.status === 'fulfilled') {
+                const resultData = tradesResult.value
+                nextTrades = Array.isArray(resultData) ? resultData : []
+            } else {
+                console.error('Bot trades fetch error:', tradesResult.reason)
+                errors.push('Trade verileri yüklenemedi.')
+            }
+
+            unstable_batchedUpdates(() => {
+                setBot(nextBot)
+                setTrades(nextTrades)
+                setError(errors.join(' ') || '')
+                setLoading(false)
+            })
+        } catch (err) {
+            console.error('Bot trades fetch unexpected error:', err)
+            unstable_batchedUpdates(() => {
+                setBot(null)
+                setTrades([])
+                setError('Veriler alınırken beklenmeyen bir hata oluştu.')
+                setLoading(false)
+            })
+        }
     }, [id, isAuthenticated])
+
+    useEffect(() => {
+        fetchData()
+    }, [fetchData])
+
+    const useVirtualizedTrades = trades.length > VIRTUAL_THRESHOLD
+
+    const handleTradesScroll = useCallback((event) => {
+        if (!useVirtualizedTrades) return
+        const { scrollTop, clientHeight } = event.currentTarget
+        const start = Math.max(0, Math.floor(scrollTop / VIRTUAL_ROW_HEIGHT) - VIRTUAL_BUFFER)
+        const visibleCount = Math.ceil(clientHeight / VIRTUAL_ROW_HEIGHT) + VIRTUAL_BUFFER * 2
+        const end = Math.min(trades.length, start + visibleCount)
+
+        setTradesRange((prev) => {
+            if (prev.start === start && prev.end === end) {
+                return prev
+            }
+            return { start, end }
+        })
+    }, [trades.length, useVirtualizedTrades])
+
+    useEffect(() => {
+        if (!useVirtualizedTrades) {
+            setTradesRange({ start: 0, end: trades.length })
+            return
+        }
+
+        const container = tradesScrollRef.current
+        const viewportRows = container ? Math.ceil(container.clientHeight / VIRTUAL_ROW_HEIGHT) : 0
+        const fallbackRows = Math.ceil(VIRTUAL_MAX_HEIGHT / VIRTUAL_ROW_HEIGHT)
+        const baseRows = viewportRows > 0 ? viewportRows : fallbackRows
+        const initialEnd = Math.min(trades.length, baseRows + VIRTUAL_BUFFER * 2)
+
+        setTradesRange({ start: 0, end: initialEnd })
+        if (container) {
+            container.scrollTop = 0
+        }
+    }, [trades.length, useVirtualizedTrades])
+
+    const visibleTrades = useMemo(() => {
+        if (!useVirtualizedTrades) {
+            return trades
+        }
+        return trades.slice(tradesRange.start, tradesRange.end)
+    }, [trades, tradesRange.end, tradesRange.start, useVirtualizedTrades])
+
+    const topSpacerHeight = useVirtualizedTrades ? tradesRange.start * VIRTUAL_ROW_HEIGHT : 0
+    const bottomSpacerHeight = useVirtualizedTrades ? Math.max(0, (trades.length - tradesRange.end) * VIRTUAL_ROW_HEIGHT) : 0
 
     if (loading) {
         return (
@@ -127,67 +204,99 @@ const BotTrades = () => {
 
                             {trades.length > 0 ? (
                                 <div className="overflow-x-auto">
-                                    <table className="min-w-full divide-y divide-gray-200">
-                                        <thead className={`${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
-                                            <tr>
-                                                <th className={`px-6 py-3 text-left text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-500'} uppercase tracking-wider`}>
-                                                    Tarih
-                                                </th>
-                                                <th className={`px-6 py-3 text-left text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-500'} uppercase tracking-wider`}>
-                                                    Sembol
-                                                </th>
-                                                <th className={`px-6 py-3 text-left text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-500'} uppercase tracking-wider`}>
-                                                    Taraf
-                                                </th>
-                                                <th className={`px-6 py-3 text-left text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-500'} uppercase tracking-wider`}>
-                                                    Fiyat
-                                                </th>
-                                                <th className={`px-6 py-3 text-left text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-500'} uppercase tracking-wider`}>
-                                                    Miktar
-                                                </th>
-                                                <th className={`px-6 py-3 text-left text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-500'} uppercase tracking-wider`}>
-                                                    PnL
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className={`${isDark ? 'bg-gray-800' : 'bg-white'} divide-y ${isDark ? 'divide-gray-700' : 'divide-gray-200'}`}>
-                                            {trades.map((trade, index) => (
-                                                <tr key={index} className={`${isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}>
-                                                    <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDark ? 'text-gray-300' : 'text-gray-900'}`}>
-                                                        {new Date(trade.timestamp).toLocaleString('tr-TR')}
-                                                    </td>
-                                                    <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                                                        {trade.symbol}
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">
-                                                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${trade.side === 'BUY'
-                                                                ? 'bg-green-100 text-green-800'
-                                                                : 'bg-red-100 text-red-800'
-                                                            }`}>
-                                                            {trade.side}
-                                                        </span>
-                                                    </td>
-                                                    <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDark ? 'text-gray-300' : 'text-gray-900'}`}>
-                                                        {parseFloat(trade.price).toFixed(2)} USDT
-                                                    </td>
-                                                    <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDark ? 'text-gray-300' : 'text-gray-900'}`}>
-                                                        {parseFloat(trade.quantity_filled).toFixed(4)}
-                                                    </td>
-                                                    <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${trade.realized_pnl && trade.realized_pnl > 0
+                                    <div
+                                        ref={tradesScrollRef}
+                                        className="overflow-y-auto"
+                                        style={{ maxHeight: VIRTUAL_MAX_HEIGHT }}
+                                        onScroll={useVirtualizedTrades ? handleTradesScroll : undefined}
+                                    >
+                                        <table className="min-w-full divide-y divide-gray-200">
+                                            <thead className={`${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                                                <tr>
+                                                    <th className={`px-6 py-3 text-left text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-500'} uppercase tracking-wider`}>
+                                                        Tarih
+                                                    </th>
+                                                    <th className={`px-6 py-3 text-left text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-500'} uppercase tracking-wider`}>
+                                                        Sembol
+                                                    </th>
+                                                    <th className={`px-6 py-3 text-left text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-500'} uppercase tracking-wider`}>
+                                                        Taraf
+                                                    </th>
+                                                    <th className={`px-6 py-3 text-left text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-500'} uppercase tracking-wider`}>
+                                                        Fiyat
+                                                    </th>
+                                                    <th className={`px-6 py-3 text-left text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-500'} uppercase tracking-wider`}>
+                                                        Miktar
+                                                    </th>
+                                                    <th className={`px-6 py-3 text-left text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-500'} uppercase tracking-wider`}>
+                                                        PnL
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className={`${isDark ? 'bg-gray-800' : 'bg-white'} divide-y ${isDark ? 'divide-gray-700' : 'divide-gray-200'}`}>
+                                                {useVirtualizedTrades && topSpacerHeight > 0 && (
+                                                    <tr style={{ height: `${topSpacerHeight}px` }}>
+                                                        <td colSpan={6} style={{ padding: 0 }}></td>
+                                                    </tr>
+                                                )}
+                                                {visibleTrades.map((trade, index) => {
+                                                    const actualIndex = useVirtualizedTrades ? tradesRange.start + index : index
+                                                    const timestamp = trade?.timestamp ? new Date(trade.timestamp) : null
+                                                    const formattedDate = timestamp && !Number.isNaN(timestamp.getTime()) ? timestamp.toLocaleString('tr-TR') : '-'
+                                                    const symbol = trade?.symbol ?? '-'
+                                                    const side = trade?.side ?? '-'
+                                                    const priceVal = Number(trade?.price)
+                                                    const formattedPrice = Number.isFinite(priceVal) ? `${priceVal.toFixed(2)} USDT` : '-'
+                                                    const qtyVal = Number(trade?.quantity_filled ?? trade?.quantity ?? trade?.qty)
+                                                    const formattedQty = Number.isFinite(qtyVal) ? qtyVal.toFixed(4) : '-'
+                                                    const pnlVal = Number(trade?.realized_pnl)
+                                                    const pnlClass = Number.isFinite(pnlVal)
+                                                        ? pnlVal > 0
                                                             ? 'text-green-600'
-                                                            : trade.realized_pnl && trade.realized_pnl < 0
+                                                            : pnlVal < 0
                                                                 ? 'text-red-600'
                                                                 : isDark ? 'text-gray-400' : 'text-gray-500'
-                                                        }`}>
-                                                        {trade.realized_pnl ?
-                                                            `${trade.realized_pnl > 0 ? '+' : ''}${parseFloat(trade.realized_pnl).toFixed(2)} USDT`
-                                                            : '-'
-                                                        }
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+                                                        : isDark ? 'text-gray-400' : 'text-gray-500'
+                                                    const formattedPnl = Number.isFinite(pnlVal) ? `${pnlVal > 0 ? '+' : ''}${pnlVal.toFixed(2)} USDT` : '-'
+
+                                                    return (
+                                                        <tr key={`trade-${actualIndex}`} className={`${isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`} style={{ height: `${VIRTUAL_ROW_HEIGHT}px` }}>
+                                                            <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDark ? 'text-gray-300' : 'text-gray-900'}`}>
+                                                                {formattedDate}
+                                                            </td>
+                                                            <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                                                {symbol}
+                                                            </td>
+                                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${side === 'BUY'
+                                                                    ? 'bg-green-100 text-green-800'
+                                                                    : side === 'SELL'
+                                                                        ? 'bg-red-100 text-red-800'
+                                                                        : isDark ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-600'
+                                                                    }`}>
+                                                                    {side}
+                                                                </span>
+                                                            </td>
+                                                            <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDark ? 'text-gray-300' : 'text-gray-900'}`}>
+                                                                {formattedPrice}
+                                                            </td>
+                                                            <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDark ? 'text-gray-300' : 'text-gray-900'}`}>
+                                                                {formattedQty}
+                                                            </td>
+                                                            <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${pnlClass}`}>
+                                                                {formattedPnl}
+                                                            </td>
+                                                        </tr>
+                                                    )
+                                                })}
+                                                {useVirtualizedTrades && bottomSpacerHeight > 0 && (
+                                                    <tr style={{ height: `${bottomSpacerHeight}px` }}>
+                                                        <td colSpan={6} style={{ padding: 0 }}></td>
+                                                    </tr>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             ) : (
                                 <div className={`p-12 text-center`}>

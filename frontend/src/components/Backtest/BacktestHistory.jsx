@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { format } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 import BacktestInsights from './BacktestInsights';
 import apiService from '../../services/api';
 
 const BacktestHistory = ({ onSelectBacktest }) => {
+    const navigate = useNavigate();
     const [backtests, setBacktests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedBacktest, setSelectedBacktest] = useState(null);
@@ -31,6 +33,14 @@ const BacktestHistory = ({ onSelectBacktest }) => {
             setBacktests(prev => prev.filter(bt => bt.id !== backtestId));
         } catch (error) {
             console.error('Error deleting backtest:', error);
+        }
+    };
+
+    const openReport = (backtestId) => {
+        if (onSelectBacktest) {
+            onSelectBacktest(backtestId);
+        } else {
+            navigate(`/backtest/report?id=${backtestId}`);
         }
     };
 
@@ -173,10 +183,16 @@ const BacktestHistory = ({ onSelectBacktest }) => {
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
                                             {formatDate(backtest.created_at)}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
+                                            <button
+                                                onClick={() => openReport(backtest.id)}
+                                                className="text-indigo-600 hover:text-indigo-800 dark:text-indigo-300 dark:hover:text-indigo-200"
+                                            >
+                                                Rapor
+                                            </button>
                                             <button
                                                 onClick={() => viewBacktestDetail(backtest.id)}
-                                                className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3"
+                                                className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
                                             >
                                                 Detay
                                             </button>

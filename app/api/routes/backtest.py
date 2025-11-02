@@ -34,13 +34,25 @@ async def run_backtest(request: BacktestRequest, current_user = Depends(get_curr
         # Create backtest service instance with user context
         backtest_service = BacktestService(user_id=current_user.id, db_session=db)
 
+        validated_parameters = dict(request.parameters or {})
+        max_daily_trades = validated_parameters.get('max_daily_trades', 5)
+        try:
+            max_daily_trades = int(max_daily_trades)
+        except (TypeError, ValueError):
+            raise HTTPException(status_code=422, detail="max_daily_trades 1 ile 50 arasında bir tam sayı olmalıdır")
+
+        if not 1 <= max_daily_trades <= 50:
+            raise HTTPException(status_code=422, detail="max_daily_trades 1 ile 50 arasında olmalıdır")
+
+        validated_parameters['max_daily_trades'] = max_daily_trades
+
         # Run the backtest
         results = await backtest_service.run_backtest(
             symbol=request.symbol,
             interval=request.interval,
             start_date=request.start_date,
             end_date=request.end_date,
-            parameters=request.parameters,
+            parameters=validated_parameters,
             market_type=request.market_type
         )
 

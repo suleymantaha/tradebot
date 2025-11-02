@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backtest Raporu</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .card { border: 1px solid #ddd; border-radius: 8px; padding: 16px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #eee; padding: 8px; text-align: left; }
+    .controls { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
+  </style>
+  <script>
+    async function fetchCSV(url) {
+      const res = await fetch(url);
+      return res.text();
+    }
+
+    function parseCSV(text) {
+      const lines = text.trim().split(/\r?\n/);
+      const headers = lines[0].split(',');
+      return lines.slice(1).map(line => {
+        const cols = line.split(',');
+        const obj = {};
+        headers.forEach((h, i) => obj[h] = cols[i]);
+        return obj;
+      });
+    }
+
+    function toFloat(v) { const n = parseFloat(v); return isNaN(n) ? 0 : n; }
+
+    function renderSummary(summaryRows) {
+      const row = summaryRows[0];
+      const table = document.getElementById('summary-table');
+      table.innerHTML = `
+        <tr><th>Sembol</th><td>${row.symbol || ''}</td></tr>
+        <tr><th>Toplam İşlem</th><td>${row.total_trades}</td></tr>
+        <tr><th>Kazanç/Kayıp</th><td>${row.wins} / ${row.losses} (Win Rate: ${Number(row.win_rate_pct).toFixed(2)}%)</td></tr>
+        <tr><th>Toplam PnL</th><td>${Number(row.sum_pnl_usdt).toFixed(2)} USDT</td></tr>
+        <tr><th>Toplam Ücret</th><td>${Number(row.sum_fees_usdt).toFixed(2)} USDT</td></tr>
+        <tr><th>İşlem Başına Ortalama Ücret</th><td>${Number(row.avg_fee_per_trade_usdt).toFixed(4)} USDT</td></tr>
+        <tr><th>Başlangıç Sermayesi</th><td>${Number(row.initial_capital).toFixed(2)} USDT</td></tr>
+        <tr><th>Son Sermaye</th><td>${Number(row.last_capital).toFixed(2)} USDT</td></tr>
+        <tr><th>Toplam Getiri</th><td>${Number(row.total_return_pct).toFixed(2)}%</td></tr>
+        <tr><th>Ücret / |PnL|</th><td>${Number(row.fees_to_abs_pnl_pct).toFixed(2)}%</td></tr>
+        <tr><th>Günlük Ortalama İşlem</th><td>${Number(row.avg_daily_trades).toFixed(2)}</td></tr>
+        <tr><th>En İyi Gün</th><td>${row.best_day} (${Number(row.best_day_pnl_usdt).toFixed(2)} USDT)</td></tr>
+        <tr><th>En Kötü Gün</th><td>${row.worst_day} (${Number(row.worst_day_pnl_usdt).toFixed(2)} USDT)</td></tr>
+      `;
+    }
+
+    let pnlChart, tradesChart;
+
+    function buildCharts(dailyRows, filters = {}) {
+      const start = filters.startDate || null;
+      const end = filters.endDate || null;
+      const showTP = filters.showTP !== false;
+      const showSL = filters.showSL !== false;
+
+      const filtered = dailyRows.filter(r => {
+        const d = r.date;
+        if (start && d < start) return false;
+        if (end && d > end) return false;
+        return true;
+      });
+
+      const labels = filtered.map(r => r.date);
+      const dailyPnL = filtered.map(r => toFloat(r.daily_pnl_usdt));
+      const tradeCount = filtered.map(r => Number(r.trade_count));
+      const tpCount = filtered.map(r => Number(r.tp_count));
+      const slCount = filtered.map(r => Number(r.sl_count));
+
+      const pnlCtx = document.getElementById('pnlChart').getContext('2d');
+      const tradesCtx = document.getElementById('tradesChart').getContext('2d');
+
+      // Destroy previous charts if exist
+      if (pnlChart) pnlChart.destroy();
+      if (tradesChart) tradesChart.destroy();
+
+      pnlChart = new Chart(pnlCtx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Günlük PnL (USDT)',
+            data: dailyPnL,
+            borderColor: '#2b6cb0',
+            backgroundColor: 'rgba(43,108,176,0.2)',
+            tension: 0.2,
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: 'top' } },
+          scales: { y: { beginAtZero: false } }
+        }
+      });
+
+      const datasets = [{
+        label: 'İşlem Sayısı',
+        data: tradeCount,
+        backgroundColor: 'rgba(99, 102, 241, 0.6)'
+      }];
+      if (showTP) {
+        datasets.push({ label: 'TP Sayısı', data: tpCount, backgroundColor: 'rgba(34,197,94,0.6)' });
+      }
+      if (showSL) {
+        datasets.push({ label: 'SL Sayısı', data: slCount, backgroundColor: 'rgba(239,68,68,0.6)' });
+      }
+
+      tradesChart = new Chart(tradesCtx, {
+        type: 'bar',
+        data: { labels, datasets },
+        options: { responsive: true, plugins: { legend: { position: 'top' } } }
+      });
+    }
+
+    async function init() {
+      // Load summary
+      const summaryText = await fetchCSV('summary.csv');
+      const summaryRows = parseCSV(summaryText);
+      renderSummary(summaryRows);
+
+      // Load daily
+      const dailyText = await fetchCSV('daily_results.csv');
+      const dailyRows = parseCSV(dailyText);
+
+      // Controls
+      const startEl = document.getElementById('startDate');
+      const endEl = document.getElementById('endDate');
+      const tpEl = document.getElementById('showTP');
+      const slEl = document.getElementById('showSL');
+
+      const applyFilters = () => {
+        const filters = {
+          startDate: startEl.value || null,
+          endDate: endEl.value || null,
+          showTP: tpEl.checked,
+          showSL: slEl.checked,
+        };
+        buildCharts(dailyRows, filters);
+      };
+
+      startEl.addEventListener('change', applyFilters);
+      endEl.addEventListener('change', applyFilters);
+      tpEl.addEventListener('change', applyFilters);
+      slEl.addEventListener('change', applyFilters);
+
+      buildCharts(dailyRows, {});
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</head>
+<body>
+  <h1>Backtest Performans Raporu</h1>
+  <div class="grid">
+    <div class="card">
+      <h2>Özet</h2>
+      <table id="summary-table"></table>
+    </div>
+    <div class="card">
+      <h2>Filtreler</h2>
+      <div class="controls">
+        <label>Başlangıç Tarihi <input type="date" id="startDate" /></label>
+        <label>Bitiş Tarihi <input type="date" id="endDate" /></label>
+        <label><input type="checkbox" id="showTP" checked /> TP</label>
+        <label><input type="checkbox" id="showSL" checked /> SL</label>
+      </div>
+      <p>TP/SL kutuları, günlük işlem grafiğinde TP/SL sayılarının görünürlüğünü kontrol eder.</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top: 24px;">
+    <h2>Günlük PnL</h2>
+    <canvas id="pnlChart" height="120"></canvas>
+  </div>
+
+  <div class="card" style="margin-top: 24px;">
+    <h2>Günlük İşlem Sayısı ve TP/SL</h2>
+    <canvas id="tradesChart" height="120"></canvas>
+  </div>
+</body>
+</html>
+

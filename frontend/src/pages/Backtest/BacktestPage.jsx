@@ -37,6 +37,7 @@ const BacktestPage = () => {
         take_profit: 1.5,
         trailing_stop: 0.3,
         risk_per_trade: 2.0,
+        max_daily_trades: 5,
         leverage: 10, // Kaldıraç parametresi
         // Ücret/slippage parametreleri (bps ve oranlar)
         maker_fee: 0.0002,
@@ -77,6 +78,7 @@ const BacktestPage = () => {
             case 'take_profit': return 'Take Profit (%)'
             case 'trailing_stop': return 'Trailing Stop (%)'
             case 'risk_per_trade': return 'Risk Per Trade (%)'
+            case 'max_daily_trades': return 'Günlük Maksimum İşlem'
             case 'leverage': return '⚡ Kaldıraç (Futures)'
             case 'maker_fee': return 'Maker Komisyon (oran)'
             case 'taker_fee': return 'Taker Komisyon (oran)'
@@ -104,7 +106,33 @@ const BacktestPage = () => {
     }, [isAuthenticated, token, navigate])
 
     const handleParameterChange = (key, value) => {
-        setParameters(prev => ({ ...prev, [key]: parseFloat(value) }))
+        setParameters(prev => {
+            if (value === '' || value === null || value === undefined) {
+                return prev
+            }
+
+            if (key === 'max_daily_trades' || key === 'leverage') {
+                const parsed = parseInt(value, 10)
+                if (Number.isNaN(parsed)) {
+                    return prev
+                }
+                const clamped = key === 'max_daily_trades'
+                    ? Math.min(50, Math.max(1, parsed))
+                    : Math.min(125, Math.max(1, parsed))
+                return { ...prev, [key]: clamped }
+            }
+
+            const parsedFloat = parseFloat(value)
+            if (Number.isNaN(parsedFloat)) {
+                return prev
+            }
+
+            if (key === 'maker_fee' || key === 'taker_fee' || key === 'slippage_bps') {
+                return { ...prev, [key]: Math.max(0, parsedFloat) }
+            }
+
+            return { ...prev, [key]: parsedFloat }
+        })
     }
 
     const handleTechnicalParamChange = (key, value) => {
@@ -695,17 +723,43 @@ const BacktestPage = () => {
                                                 <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{getParameterLabel(key)}</label>
                                                 <input
                                                     type="number"
-                                                    step={key === 'leverage' ? "1" : (key === 'maker_fee' || key === 'taker_fee' ? "0.0001" : "0.1")}
-                                                    min={key === 'leverage' ? "1" : (key === 'maker_fee' || key === 'taker_fee' || key === 'slippage_bps' ? "0" : undefined)}
-                                                    max={key === 'leverage' ? "125" : undefined}
+                                                    step={
+                                                        key === 'leverage' || key === 'max_daily_trades'
+                                                            ? "1"
+                                                            : (key === 'maker_fee' || key === 'taker_fee'
+                                                                ? "0.0001"
+                                                                : key === 'slippage_bps'
+                                                                    ? "0.1"
+                                                                    : "0.1")
+                                                    }
+                                                    min={
+                                                        key === 'leverage' || key === 'max_daily_trades'
+                                                            ? "1"
+                                                            : (key === 'maker_fee' || key === 'taker_fee' || key === 'slippage_bps'
+                                                                ? "0"
+                                                                : undefined)
+                                                    }
+                                                    max={
+                                                        key === 'leverage'
+                                                            ? "125"
+                                                            : key === 'max_daily_trades'
+                                                                ? "50"
+                                                                : undefined
+                                                    }
                                                     value={value}
                                                     placeholder={getParameterLabel(key)}
                                                     onChange={(e) => handleParameterChange(key, e.target.value)}
+                                                    title={key === 'max_daily_trades' ? 'Günlük işlem adedi için 1-50 arasında bir değer girin' : undefined}
                                                     className={`w-full px-3 py-2 rounded-lg border transition-colors ${isDark ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:ring-2 focus:ring-indigo-500`}
                                                 />
                                                 {key === 'leverage' && marketType === 'futures' && (
                                                     <p className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                                                         1x - 125x arası kaldıraç (Risk dikkat!)
+                                                    </p>
+                                                )}
+                                                {key === 'max_daily_trades' && (
+                                                    <p className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                                        Günlük maksimum işlem sınırı; limit dolduğunda o gün yeni işlem açılmaz.
                                                     </p>
                                                 )}
                                             </div>

@@ -10,6 +10,7 @@ import secrets
 import string
 from pathlib import Path
 from cryptography.fernet import Fernet
+from urllib.parse import quote
 
 def generate_secure_password(length=32):
     """Güvenli şifre oluştur"""
@@ -45,6 +46,8 @@ def create_secure_env():
     secret_key = generate_secret_key()
     fernet_key = generate_fernet_key()
     pgadmin_password = generate_secure_password(16)
+    redis_password = generate_secure_password(24)
+    pgpass_enc = quote(postgres_password, safe='')
     
     # .env içeriği
     env_content = f"""# ========================================
@@ -68,6 +71,8 @@ PGADMIN_DEFAULT_PASSWORD={pgadmin_password}
 # SECURITY CONFIGURATION
 # ====================================
 SECRET_KEY={secret_key}
+ALGORITHM=HS512
+ACCESS_TOKEN_EXPIRE_MINUTES=10080
 
 # ====================================
 # ENCRYPTION CONFIGURATION
@@ -107,15 +112,16 @@ LOG_FILE=/app/logs/tradebot.log
 # ====================================
 # REDIS / CELERY CONFIGURATION
 # ====================================
-REDIS_URL=redis://redis:6379
-CELERY_BROKER_URL=redis://redis:6379/0
-CELERY_RESULT_BACKEND=redis://redis:6379/0
+REDIS_PASSWORD={redis_password}
+REDIS_URL=redis://:{redis_password}@redis:6379/0
+CELERY_BROKER_URL=redis://:{redis_password}@redis:6379/0
+CELERY_RESULT_BACKEND=redis://:{redis_password}@redis:6379/0
 
 # ====================================
 # DATABASE URL
 # ====================================
-DATABASE_URL=postgresql+asyncpg://tradebot_user:{postgres_password}@postgres:5432/tradebot_db
-SYNC_DATABASE_URL=postgresql://tradebot_user:{postgres_password}@postgres:5432/tradebot_db
+DATABASE_URL=postgresql+asyncpg://tradebot_user:{pgpass_enc}@postgres:5432/tradebot_db
+SYNC_DATABASE_URL=postgresql://tradebot_user:{pgpass_enc}@postgres:5432/tradebot_db
 """
     
     # Dosyayı yaz
