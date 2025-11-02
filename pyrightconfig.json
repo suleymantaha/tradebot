@@ -1,9 +1,23 @@
 {
-    "venvPath": "/Users/baba/tradebot",
+    "venvPath": ".",
     "venv": ".venv",
     "pythonVersion": "3.13",
+    "typeCheckingMode": "basic",
     "reportMissingTypeStubs": "none",
+    "reportUnknownParameterType": "warning",
+    "reportMissingParameterType": "warning",
+    "reportUnannotatedClassAttribute": "warning",
+    "reportUnusedCallResult": "warning",
     "extraPaths": [
-        "app"
+        "app",
+        "installer",
+        "scripts"
+    ],
+    "exclude": [
+        "include/site/python3.13",
+        "frontend/node_modules",
+        "build",
+        "dist",
+        ".venv_old"
     ]
 }

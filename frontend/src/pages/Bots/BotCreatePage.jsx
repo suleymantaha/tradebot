@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { botConfigAPI, apiKeyAPI, symbolsAPI } from '../../services/api'
@@ -17,6 +17,7 @@ const BotCreatePage = () => {
     const [currentStep, setCurrentStep] = useState(1)
     const [searchTerm, setSearchTerm] = useState('')
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+    const searchWrapperRef = useRef(null)
     const [selectedSymbol, setSelectedSymbol] = useState('')
 
     const {
@@ -159,6 +160,24 @@ const BotCreatePage = () => {
     const prevStep = () => {
         setCurrentStep(prev => Math.max(prev - 1, 1))
     }
+
+    useEffect(() => {
+        if (!isDropdownOpen) {
+            return
+        }
+
+        const handleClickOutside = (event) => {
+            if (searchWrapperRef.current && !searchWrapperRef.current.contains(event.target)) {
+                setIsDropdownOpen(false)
+            }
+        }
+
+        document.addEventListener('mousedown', handleClickOutside)
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside)
+        }
+    }, [isDropdownOpen])
 
     if (checkingApiKey) {
         return (
@@ -381,7 +400,7 @@ const BotCreatePage = () => {
                                     </label>
 
                                     {/* 🆕 Searchable Symbol Dropdown */}
-                                    <div className="relative">
+                                    <div className="relative" ref={searchWrapperRef}>
                                         <input
                                             {...register('symbol', { required: 'Trading çifti seçimi gereklidir' })}
                                             type="text"
@@ -458,13 +477,6 @@ const BotCreatePage = () => {
                                         )}
                                     </div>
 
-                                    {/* Click outside to close dropdown */}
-                                    {isDropdownOpen && (
-                                        <div
-                                            className="fixed inset-0 z-40"
-                                            onClick={() => setIsDropdownOpen(false)}
-                                        ></div>
-                                    )}
                                 </div>
 
                                 <div className="grid grid-cols-1 gap-8 md:grid-cols-2">

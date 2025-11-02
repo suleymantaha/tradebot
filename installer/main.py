@@ -10,19 +10,25 @@ from tkinter import ttk, messagebox, filedialog
 import threading
 import subprocess
 import os
-import sys
 import json
 import shutil
 import datetime
-from pathlib import Path
 import platform
 
 # BuildKit ve cache’li build için varsayılan ortam değişkenleri
-os.environ.setdefault('DOCKER_BUILDKIT', '1')
-os.environ.setdefault('COMPOSE_DOCKER_CLI_BUILD', '1')
+_ = os.environ.setdefault('DOCKER_BUILDKIT', '1')
+_ = os.environ.setdefault('COMPOSE_DOCKER_CLI_BUILD', '1')
 
 class TradeBotInstaller:
-    def __init__(self, root):
+    root: tk.Tk
+    install_path: str
+    config: dict[str, str]
+    error_log: list[str]
+    _error_counters: dict[str, int]
+    _suppress_duplicate_errors: bool
+    log_file: str
+
+    def __init__(self, root: tk.Tk):
         self.root = root
         self.root.title("TradeBot Installer v2.0")
         self.root.geometry("800x600")
@@ -982,7 +988,8 @@ SYNC_DATABASE_URL=postgresql://tradebot_user:{encoded_postgres_password}@postgre
             if os.name != 'nt':  # Windows değilse
                 os.chmod(env_path, 0o600)  # Sadece owner okuyabilir
                 if 'compose_env_path' in locals():
-                    os.chmod(compose_env_path, 0o600)
+                    # compose_env_path değişkeni tanımlı değil, doğrudan env_path kullan
+                    os.chmod(env_path, 0o600)
             
             self.log_info(".env dosyası başarıyla oluşturuldu")
             self.log("✅ Güvenli .env dosyası oluşturuldu")

@@ -50,4 +50,57 @@
 **Bağımlılıklar:**
 
 - [Kullanıcı Kimlik Doğrulama Sistemi](01_01_BACKEND_USER_AUTH.md) (Kullanıcıya ait API anahtarı saklanacağı için).
-- [Veritabanı Şeması ve Migration'lar](01_07_BACKEND_DATABASE_SCHEMA.md) (ApiKey tablosunun oluşturulmuş olması).
+- [Veritabanı Şeması ve Migration'lar](01_07_BACKEND_DATABASE_SCHEMA.md) (ApiKey tablosunun oluşturulmuş olması).
+
+## Binance Resmi API Baz URL’leri ve WebSocket Akışları
+
+### Global (Spot/SAPI)
+- `https://api.binance.com` — Global Spot ve SAPI REST ana endpoint.
+- `https://api1.binance.com` · `https://api2.binance.com` · `https://api3.binance.com` · `https://api4.binance.com` — Performans alternatifleri; stabilite değişebilir.
+- `wss://stream.binance.com:9443` · `wss://stream.binance.com:443` — Spot WebSocket; ham `/ws/<streamName>` veya birleşik `/stream?streams=...`.
+- `wss://data-stream.binance.vision` — Yalnızca piyasa verisi WebSocket (user data stream yok).
+- `https://data-api.binance.vision` — Spot piyasa verisi REST aynası (doküman/test amaçlı).
+
+### SAPI (/sapi)
+- `https://api.binance.com/sapi/*` — Margin, Wallet/Asset, Simple Earn, Staking, Loan, Convert vb. imzalı/anahtarlı endpoint ailesi. IP/UID limit header’ları bulunur.
+
+### USDT-M Futures (FAPI)
+- `https://fapi.binance.com` — USDT-M Futures REST.
+- `wss://fstream.binance.com` — USDT-M Futures WebSocket (ham `/ws`, birleşik `/stream`; user stream listenKey).
+
+### COIN-M Futures (DAPI)
+- `https://dapi.binance.com` — COIN-M Futures REST.
+- `wss://dstream.binance.com` — COIN-M Futures WebSocket.
+
+### Options (EAPI)
+- `https://eapi.binance.com` — Options REST (imzalı hesap/işlem uçları).
+
+### Portfolio Margin (PAPI)
+- `https://papi.binance.com` — Portfolio Margin REST.
+- `wss://fstream.binance.com/pm` — Portfolio Margin kullanıcı verisi WebSocket.
+
+### Margin Olay Akışları
+- `wss://margin-stream.binance.com` — Margin liability ve margin call etkinlik akışları.
+
+### Bölgesel (Binance.US)
+- `https://api.binance.us` — Binance.US REST.
+- `wss://stream.binance.us:9443` — Binance.US Spot WebSocket.
+
+### Testnet ve Alternatif Yayınlar
+- `https://testnet.binancefuture.com` — Futures (USDT-M) REST testnet.
+- `wss://testnet.binancefuture.com` — Futures (USDT-M) WebSocket testnet.
+- `wss://dstream.binancefuture.com` — COIN-M Futures WebSocket testnet.
+- `wss://testnet.binance.vision` — Spot yalnızca piyasa verisi WebSocket test yayını.
+
+### Kullanım Notları
+- GET parametreler sorgu dizisiyle; POST/PUT/DELETE parametreler sorgu veya `application/x-www-form-urlencoded` gövde ile gönderilir. İmzalı uçlar için `timestamp`, `recvWindow` ve HMAC-SHA256 imza gereklidir.
+- Spot WebSocket bağlantıları 24 saat geçerlidir; ping/pong zorunludur. Aynı şekilde Futures WebSocket için de 24 saat/ping/pong kuralları geçerlidir.
+- Zaman damgaları varsayılan olarak milisaniye cinsindedir. Mikro saniye için `timeUnit=MICROSECOND` URL parametresi kullanılabilir.
+
+### Resmi Referanslar
+- Spot WebSocket Streams ve limitler: https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams
+- USDT-M Futures WebSocket: https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams
+- SAPI Genel Bilgi ve limitler: https://developers.binance.com/docs/staking/general-info
+- Margin Change Log (listen token ve event WS): https://developers.binance.com/docs/margin_trading/change-log
+- Binance.US WebSocket/REST: https://docs.binance.us/ ve https://github.com/binance-us/binance-us-api-docs/blob/master/web-socket-streams.md
+- İç API Endpointleri (platform backend): [API_ENDPOINTS.md](../API_ENDPOINTS.md)

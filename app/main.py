@@ -11,6 +11,8 @@ from app.models.bot_state import BotState
 from typing import cast
 import asyncio
 import os
+import logging
+from app.core.cache_warmup_tasks import warmup_futures_symbols_cache, warmup_spot_symbols_cache
 
 app = FastAPI(title="TradeBot API")
 
@@ -38,6 +40,34 @@ app.include_router(bot_report_router)
 app.include_router(symbols_router)
 app.include_router(backtest_router)
 app.include_router(health_router)
+
+logger = logging.getLogger(__name__)
+
+# Uygulama başlangıcında futures sembolleri cache warm-up
+@app.on_event("startup")
+async def startup_warmup_futures_cache():
+    enable = os.getenv("ENABLE_FUTURES_WARMUP_ON_STARTUP", "1")
+    if enable == "1":
+        async def _do_warmup():
+            try:
+                await asyncio.to_thread(warmup_futures_symbols_cache)
+                logger.info("Startup warm-up futures symbols cache completed")
+            except Exception as e:
+                logger.warning(f"Startup warm-up futures symbols cache failed: {e}")
+        asyncio.create_task(_do_warmup())
+
+# Uygulama başlangıcında spot sembolleri cache warm-up
+@app.on_event("startup")
+async def startup_warmup_spot_cache():
+    enable = os.getenv("ENABLE_SPOT_WARMUP_ON_STARTUP", "1")
+    if enable == "1":
+        async def _do_warmup_spot():
+            try:
+                await asyncio.to_thread(warmup_spot_symbols_cache)
+                logger.info("Startup warm-up spot symbols cache completed")
+            except Exception as e:
+                logger.warning(f"Startup warm-up spot symbols cache failed: {e}")
+        asyncio.create_task(_do_warmup_spot())
 
 # SSE: Bot durumu akışı (temel)
 @app.get("/api/v1/bots/{bot_config_id}/status-stream")

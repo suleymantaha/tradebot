@@ -3,14 +3,16 @@ import { Link } from 'react-router-dom'
 import useAuthStore from '../../store/authStore'
 import { botConfigAPI, apiKeyAPI } from '../../services/api'
 import { useTheme } from '../../contexts/ThemeContext'
+import { extractErrorMessage } from '../../utils/error'
 
 const DashboardPage = () => {
-    const { user } = useAuthStore()
+    const { user, logout } = useAuthStore()
     const { isDark } = useTheme()
     const [bots, setBots] = useState([])
     const [apiKey, setApiKey] = useState(null)
     const [balance, setBalance] = useState(null)
     const [loadingBalance, setLoadingBalance] = useState(false)
+    const [balanceError, setBalanceError] = useState('')
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
@@ -63,9 +65,28 @@ const DashboardPage = () => {
         try {
             const balanceResponse = await apiKeyAPI.getBalance()
             setBalance(balanceResponse.data)
-            console.log('💰 Balance başarıyla yüklendi:', balanceResponse.data)
+            setBalanceError('')
+            if (import.meta?.env?.MODE !== 'production') {
+                console.log('💰 Balance başarıyla yüklendi:', balanceResponse.data)
+            }
         } catch (error) {
-            console.error('Balance yüklenirken hata:', error)
+            const status = error?.response?.status
+            if (status === 401) {
+                // Token geçersiz; güvenli çıkış ve bilgi
+                try { logout() } catch { /* noop */ }
+                setBalanceError('Oturumunuz sona erdi. Lütfen tekrar giriş yapın.')
+            } else if (status === 404) {
+                setBalanceError('API anahtarı bulunamadı. Lütfen Binance API anahtarınızı ekleyin.')
+            } else if (status === 500 || status === 502) {
+                const detail = extractErrorMessage(error)
+                setBalanceError(detail || 'Binance bakiyesi alınamadı. API anahtarınızı kontrol edin.')
+            } else {
+                const detail = extractErrorMessage(error)
+                setBalanceError(detail || 'Beklenmeyen bir hata oluştu.')
+            }
+            if (import.meta?.env?.MODE !== 'production') {
+                console.error('Balance yüklenirken hata:', error)
+            }
             setBalance(null)
         } finally {
             setLoadingBalance(false)
@@ -294,7 +315,7 @@ const DashboardPage = () => {
                                                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                                             </svg>
                                             <span className={`text-sm ${isDark ? 'text-red-300' : 'text-red-700'}`}>
-                                                Bakiye bilgileri yüklenemedi. API anahtarınızın geçerli olduğundan emin olun ve "Yenile" butonuna tıklayın.
+                                                {balanceError || 'Bakiye bilgileri yüklenemedi. API anahtarınızın geçerli olduğundan emin olun ve "Yenile" butonuna tıklayın.'}
                                             </span>
                                         </div>
                                     </div>

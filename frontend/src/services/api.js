@@ -122,9 +122,13 @@ class ApiService {
         const a = document.createElement('a')
         a.href = blobUrl
         a.download = filename
-        document.body.appendChild(a)
-        a.click()
-        a.remove()
+    document.body.appendChild(a)
+    a.click()
+    if (a.parentNode) {
+        try { a.parentNode.removeChild(a) } catch { /* noop */ }
+    } else if (typeof a.remove === 'function') {
+        try { a.remove() } catch { /* noop */ }
+    }
         window.URL.revokeObjectURL(blobUrl)
     }
 
@@ -184,9 +188,23 @@ class ApiService {
     async downloadBacktestMonthly(backtestId) {
         return this.downloadCSV(`/api/v1/backtest/download/${backtestId}/monthly.csv`, `backtest_${backtestId}_monthly.csv`)
     }
-    async downloadBacktestTrades(backtestId) {
-        return this.downloadCSV(`/api/v1/backtest/download/${backtestId}/trades.csv`, `backtest_${backtestId}_trades.csv`)
+  async downloadBacktestTrades(backtestId) {
+    return this.downloadCSV(`/api/v1/backtest/download/${backtestId}/trades.csv`, `backtest_${backtestId}_trades.csv`)
+  }
+
+  // Backtest trades as text (for in-app parsing)
+  async fetchBacktestTradesText(backtestId) {
+    const url = `${this.baseURL}/api/v1/backtest/download/${backtestId}/trades.csv`
+    const token = this.getToken()
+    const headers = {}
+    if (token) headers['Authorization'] = `Bearer ${token}`
+    const res = await fetch(url, { headers })
+    if (!res.ok) {
+      const errorText = await res.text()
+      throw new Error(`HTTP ${res.status}: ${errorText}`)
     }
+    return await res.text()
+  }
 }
 
 // Main API service instance

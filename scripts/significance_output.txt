@@ -1,0 +1,2912 @@
+­şöğ BacktestService initialized with cache dir: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data
+­şôü Cache directory exists: True
+­şôé Cache directory contents: ['048dd04a8a64bc7fe2bd1077a0cfe316.csv', '048dd04a8a64bc7fe2bd1077a0cfe316_meta.json', '0b3eeac287ef911a25f08bef363d9356.csv', '0b3eeac287ef911a25f08bef363d9356_meta.json', '83935708ee9893be2af170d56f5c18c3.csv', '83935708ee9893be2af170d56f5c18c3_meta.json', '9413d3a9b7ed1583a2ce139a06b073a1.csv', '9413d3a9b7ed1583a2ce139a06b073a1_meta.json', 'b0ad422a16cb1b2976cc147d08b0d7f0.csv', 'b0ad422a16cb1b2976cc147d08b0d7f0_meta.json', 'b508e30ab43678519e6f1f332c375f9c.csv', 'b508e30ab43678519e6f1f332c375f9c_meta.json', 'f3d31df3a34feecfe826dd91bf827ea6.csv', 'f3d31df3a34feecfe826dd91bf827ea6_meta.json', 'f7fa6e899c80c8fa106ee051da562ded.csv', 'f7fa6e899c80c8fa106ee051da562ded_meta.json', 'f95cdfc6011812c84b3c1ea5803512d4.csv', 'f95cdfc6011812c84b3c1ea5803512d4_meta.json']
+­şÜÇ Starting spot backtest for BTCUSDT 15m
+ÔÜá´©Å No user or database session - Running in TEST MODE
+­şğ¬ Running in TEST MODE
+­şÆ░ Spot trading (no leverage)
+­şôà Using date range: 2025-09-20 to 2025-09-22
+­şôà Using date range: 2025-09-20 to 2025-09-22
+­şöı Checking cache for: BTCUSDT 15m 2025-09-20 to 2025-09-22 [spot]
+­şöı Cache check for: BTCUSDT 15m 2025-09-20 to 2025-09-22
+­şöæ Cache key: 9413d3a9b7ed1583a2ce139a06b073a1
+­şôü Cache path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\9413d3a9b7ed1583a2ce139a06b073a1.csv
+­şôä Metadata path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\9413d3a9b7ed1583a2ce139a06b073a1_meta.json
+­şôé Cache file exists: True
+­şôï Metadata file exists: True
+­şôè Cached metadata: {'symbol': 'BTCUSDT', 'interval': '15m', 'start_date': '2025-09-20', 'end_date': '2025-09-22', 'market_type': 'spot', 'cached_at': '2025-10-27T01:36:34.646372', 'rows': 1000, 'cache_key': '9413d3a9b7ed1583a2ce139a06b073a1'}
+­şòÉ Cache time: 2025-10-27 01:36:34.646372
+­şòÉ Current time: 2025-10-27 01:37:49.029014
+ÔÅ░ Cache age: 0.02 hours
+­şôà End date: 2025-09-22
+­şôà Days from now: 35
+­şôÜ Historical data - cache valid: True
+Ô£à Cache hit: BTCUSDT 15m (1000 rows)
+­şôĞ Using cached data: 1000 rows
+­şôè Preparing indicators for 1000 rows
+Ô£à Indicators prepared: 1000 clean rows from 1000 original rows
+­şôê Sample indicators - EMA_fast: 113989.4709, RSI: 32.43
+­şôè Data prepared: 1000 candles
+­şÆ░ Starting capital: $1000.00
+­şôê Spot Entry: 0.008218 BTCUSDT @ $115606.3900, Cost: $950.48
+­şôë Exit: $115685.6300, P&L: $-0.11 (0.07%), Capital: $999.89
+­şôê Spot Entry: 0.008217 BTCUSDT @ $115606.7400, Cost: $950.37
+­şôë Exit: $115685.6300, P&L: $-0.11 (0.07%), Capital: $999.78
+­şôê Spot Entry: 0.008213 BTCUSDT @ $115639.9900, Cost: $950.27
+­şôë Exit: $115685.6300, P&L: $-0.39 (0.04%), Capital: $999.39
+­şôê Spot Entry: 0.008205 BTCUSDT @ $115717.4900, Cost: $949.90
+­şôë Exit: $115685.6300, P&L: $-1.02 (-0.03%), Capital: $998.37
+­şôê Spot Entry: 0.008203 BTCUSDT @ $115625.8600, Cost: $948.93
+­şôë Exit: $115685.6300, P&L: $-0.27 (0.05%), Capital: $998.10
+­şôê Spot Entry: 0.008196 BTCUSDT @ $115690.7600, Cost: $948.67
+­şôë Exit: $115232.2900, P&L: $-4.52 (-0.40%), Capital: $993.59
+­şôê Spot Entry: 0.008157 BTCUSDT @ $115715.9900, Cost: $944.38
+­şôë Exit: $115232.2900, P&L: $-4.70 (-0.42%), Capital: $988.89
+­şôê Spot Entry: 0.008123 BTCUSDT @ $115649.5300, Cost: $939.92
+­şôë Exit: $115232.2900, P&L: $-4.14 (-0.36%), Capital: $984.75
+­şôê Spot Entry: 0.008168 BTCUSDT @ $114530.0100, Cost: $935.98
+­şôë Exit: $114186.4200, P&L: $-3.55 (-0.30%), Capital: $981.20
+­şôê Spot Entry: 0.008264 BTCUSDT @ $112792.1600, Cost: $932.60
+­şôë Exit: $113092.4617, P&L: $1.74 (0.27%), Capital: $982.93
+­şôê Spot Entry: 0.008271 BTCUSDT @ $112905.3200, Cost: $934.25
+­şôë Exit: $113092.4617, P&L: $0.80 (0.17%), Capital: $983.73
+­şôê Spot Entry: 0.008285 BTCUSDT @ $112795.3100, Cost: $935.01
+­şôë Exit: $113092.4617, P&L: $1.71 (0.26%), Capital: $985.45
+­şôê Spot Entry: 0.008306 BTCUSDT @ $112705.5700, Cost: $936.64
+­şôë Exit: $113092.4617, P&L: $2.46 (0.34%), Capital: $987.91
+­şôê Spot Entry: 0.008324 BTCUSDT @ $112747.7200, Cost: $938.98
+­şôë Exit: $112422.6372, P&L: $-3.46 (-0.29%), Capital: $984.45
+­şôê Spot Entry: 0.008330 BTCUSDT @ $112272.9200, Cost: $935.70
+­şôë Exit: $112950.6285, P&L: $4.90 (0.60%), Capital: $989.35
+­şôê Spot Entry: 0.008359 BTCUSDT @ $112442.3000, Cost: $940.35
+­şôë Exit: $112950.6285, P&L: $3.50 (0.45%), Capital: $992.84
+­şôê Spot Entry: 0.008374 BTCUSDT @ $112633.7200, Cost: $943.67
+­şôë Exit: $112950.6285, P&L: $1.90 (0.28%), Capital: $994.74
+­şôê Spot Entry: 0.008388 BTCUSDT @ $112665.4400, Cost: $945.48
+­şôë Exit: $112950.6285, P&L: $1.64 (0.25%), Capital: $996.38
+­şôê Spot Entry: 0.008429 BTCUSDT @ $112293.2300, Cost: $947.03
+­şôë Exit: $112162.5000, P&L: $-1.86 (-0.12%), Capital: $994.52
+­şôê Spot Entry: 0.008419 BTCUSDT @ $112217.2600, Cost: $945.27
+­şôë Exit: $112162.5000, P&L: $-1.22 (-0.05%), Capital: $993.30
+­şôê Spot Entry: 0.008408 BTCUSDT @ $112230.7200, Cost: $944.11
+­şôë Exit: $112162.5000, P&L: $-1.33 (-0.06%), Capital: $991.97
+­şôê Spot Entry: 0.008390 BTCUSDT @ $112319.2400, Cost: $942.85
+­şôë Exit: $112162.5000, P&L: $-2.07 (-0.14%), Capital: $989.91
+­şôê Spot Entry: 0.008363 BTCUSDT @ $112451.2600, Cost: $940.88
+­şôë Exit: $112162.5000, P&L: $-3.17 (-0.26%), Capital: $986.74
+­şôê Spot Entry: 0.008371 BTCUSDT @ $111980.8600, Cost: $937.87
+­şôë Exit: $111909.7206, P&L: $-1.35 (-0.06%), Capital: $985.39
+­şôê Spot Entry: 0.008356 BTCUSDT @ $112031.1700, Cost: $936.59
+­şôë Exit: $111909.7206, P&L: $-1.76 (-0.11%), Capital: $983.63
+­şôê Spot Entry: 0.008351 BTCUSDT @ $111891.2600, Cost: $934.92
+­şôë Exit: $111909.7206, P&L: $-0.59 (0.02%), Capital: $983.04
+­şôê Spot Entry: 0.008332 BTCUSDT @ $112079.7700, Cost: $934.35
+­şôë Exit: $111799.2829, P&L: $-3.08 (-0.25%), Capital: $979.95
+­şôê Spot Entry: 0.008341 BTCUSDT @ $111617.0100, Cost: $931.42
+­şôë Exit: $111383.8929, P&L: $-2.69 (-0.21%), Capital: $977.26
+­şôê Spot Entry: 0.008481 BTCUSDT @ $109472.1300, Cost: $928.87
+­şôë Exit: $109469.4435, P&L: $-0.77 (-0.00%), Capital: $976.50
+­şôê Spot Entry: 0.008461 BTCUSDT @ $109639.1300, Cost: $928.14
+­şôë Exit: $109469.4435, P&L: $-2.18 (-0.15%), Capital: $974.32
+­şôê Spot Entry: 0.008448 BTCUSDT @ $109560.0100, Cost: $926.07
+­şôë Exit: $109469.4435, P&L: $-1.51 (-0.08%), Capital: $972.82
+­şôê Spot Entry: 0.008428 BTCUSDT @ $109649.9900, Cost: $924.64
+­şôë Exit: $109469.4435, P&L: $-2.26 (-0.16%), Capital: $970.56
+­şôê Spot Entry: 0.008406 BTCUSDT @ $109680.4000, Cost: $922.49
+­şôë Exit: $109469.4435, P&L: $-2.51 (-0.19%), Capital: $968.05
+­şôê Spot Entry: 0.008392 BTCUSDT @ $109590.4200, Cost: $920.10
+­şôë Exit: $109635.8500, P&L: $-0.35 (0.04%), Capital: $967.69
+­şôê Spot Entry: 0.008384 BTCUSDT @ $109649.2900, Cost: $919.77
+­şôë Exit: $109414.6783, P&L: $-2.70 (-0.21%), Capital: $964.99
+­şôê Spot Entry: 0.008362 BTCUSDT @ $109635.9800, Cost: $917.20
+­şôë Exit: $109413.0432, P&L: $-2.60 (-0.20%), Capital: $962.39
+­şôê Spot Entry: 0.008345 BTCUSDT @ $109553.7700, Cost: $914.73
+­şôë Exit: $109635.8500, P&L: $-0.05 (0.07%), Capital: $962.35
+­şôê Spot Entry: 0.008345 BTCUSDT @ $109550.0000, Cost: $914.69
+­şôë Exit: $109635.8500, P&L: $-0.02 (0.08%), Capital: $962.33
+­şôê Spot Entry: 0.008327 BTCUSDT @ $109787.7400, Cost: $914.67
+­şôë Exit: $109458.3768, P&L: $-3.47 (-0.30%), Capital: $958.86
+­şôê Spot Entry: 0.008324 BTCUSDT @ $109437.4200, Cost: $911.37
+­şôë Exit: $111078.9813, P&L: $12.93 (1.50%), Capital: $971.79
+­şôê Spot Entry: 0.008438 BTCUSDT @ $109410.0000, Cost: $923.66
+­şôë Exit: $111051.1500, P&L: $13.11 (1.50%), Capital: $984.89
+­şôê Spot Entry: 0.008548 BTCUSDT @ $109458.2800, Cost: $936.12
+­şôë Exit: $111100.1542, P&L: $13.28 (1.50%), Capital: $998.18
+­şôê Spot Entry: 0.008452 BTCUSDT @ $112198.8700, Cost: $948.74
+­şôë Exit: $111973.0700, P&L: $-2.67 (-0.20%), Capital: $995.51
+­şôê Spot Entry: 0.008440 BTCUSDT @ $112056.4800, Cost: $946.21
+­şôë Exit: $113737.3272, P&L: $13.43 (1.50%), Capital: $1008.93
+­şôê Spot Entry: 0.008538 BTCUSDT @ $112260.5700, Cost: $958.97
+­şôë Exit: $111973.0700, P&L: $-3.22 (-0.26%), Capital: $1005.71
+­şôê Spot Entry: 0.008512 BTCUSDT @ $112241.5300, Cost: $955.91
+­şôë Exit: $111973.0700, P&L: $-3.05 (-0.24%), Capital: $1002.66
+­şôê Spot Entry: 0.008516 BTCUSDT @ $111855.3000, Cost: $953.01
+­şôë Exit: $113533.1295, P&L: $13.52 (1.50%), Capital: $1016.19
+­şôê Spot Entry: 0.008440 BTCUSDT @ $114386.0000, Cost: $965.86
+­şôë Exit: $113891.6400, P&L: $-4.94 (-0.43%), Capital: $1011.24
+­şôê Spot Entry: 0.008372 BTCUSDT @ $114751.7500, Cost: $961.16
+­şôë Exit: $114447.6240, P&L: $-3.31 (-0.27%), Capital: $1007.93
+­şôê Spot Entry: 0.008353 BTCUSDT @ $114631.2000, Cost: $958.01
+­şôë Exit: $114287.3164, P&L: $-3.64 (-0.30%), Capital: $1004.29
+­şôê Spot Entry: 0.008333 BTCUSDT @ $114500.3100, Cost: $954.55
+­şôë Exit: $114239.4404, P&L: $-2.94 (-0.23%), Capital: $1001.35
+­şöı Final Calculations:
+   Initial Capital: $1000.00
+   Final Capital: $1001.35
+   Net P&L: $1.35
+   Total Trades: 51
+   Winning: 13, Losing: 38
+   Total Fees: $38.28
+   Win Rate: 25.49%
+   Total Return: 0.14%
+­şöğ BacktestService initialized with cache dir: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data
+­şôü Cache directory exists: True
+­şôé Cache directory contents: ['048dd04a8a64bc7fe2bd1077a0cfe316.csv', '048dd04a8a64bc7fe2bd1077a0cfe316_meta.json', '0b3eeac287ef911a25f08bef363d9356.csv', '0b3eeac287ef911a25f08bef363d9356_meta.json', '83935708ee9893be2af170d56f5c18c3.csv', '83935708ee9893be2af170d56f5c18c3_meta.json', '9413d3a9b7ed1583a2ce139a06b073a1.csv', '9413d3a9b7ed1583a2ce139a06b073a1_meta.json', 'b0ad422a16cb1b2976cc147d08b0d7f0.csv', 'b0ad422a16cb1b2976cc147d08b0d7f0_meta.json', 'b508e30ab43678519e6f1f332c375f9c.csv', 'b508e30ab43678519e6f1f332c375f9c_meta.json', 'f3d31df3a34feecfe826dd91bf827ea6.csv', 'f3d31df3a34feecfe826dd91bf827ea6_meta.json', 'f7fa6e899c80c8fa106ee051da562ded.csv', 'f7fa6e899c80c8fa106ee051da562ded_meta.json', 'f95cdfc6011812c84b3c1ea5803512d4.csv', 'f95cdfc6011812c84b3c1ea5803512d4_meta.json']
+­şÜÇ Starting futures backtest for BTCUSDT 15m
+ÔÜá´©Å No user or database session - Running in TEST MODE
+­şğ¬ Running in TEST MODE
+ÔÜí Futures trading with 10x leverage
+­şôà Using date range: 2025-09-20 to 2025-09-22
+­şôà Using date range: 2025-09-20 to 2025-09-22
+­şöı Checking cache for: BTCUSDT 15m 2025-09-20 to 2025-09-22 [futures]
+­şöı Cache check for: BTCUSDT 15m 2025-09-20 to 2025-09-22
+­şöæ Cache key: b508e30ab43678519e6f1f332c375f9c
+­şôü Cache path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b508e30ab43678519e6f1f332c375f9c.csv
+­şôä Metadata path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b508e30ab43678519e6f1f332c375f9c_meta.json
+­şôé Cache file exists: True
+­şôï Metadata file exists: True
+­şôè Cached metadata: {'symbol': 'BTCUSDT', 'interval': '15m', 'start_date': '2025-09-20', 'end_date': '2025-09-22', 'market_type': 'futures', 'cached_at': '2025-10-27T01:36:36.340653', 'rows': 1000, 'cache_key': 'b508e30ab43678519e6f1f332c375f9c'}
+­şòÉ Cache time: 2025-10-27 01:36:36.340653
+­şòÉ Current time: 2025-10-27 01:37:49.298133
+ÔÅ░ Cache age: 0.02 hours
+­şôà End date: 2025-09-22
+­şôà Days from now: 35
+­şôÜ Historical data - cache valid: True
+Ô£à Cache hit: BTCUSDT 15m (1000 rows)
+­şôĞ Using cached data: 1000 rows
+­şôè Preparing indicators for 1000 rows
+Ô£à Indicators prepared: 1000 clean rows from 1000 original rows
+­şôê Sample indicators - EMA_fast: 113940.9939, RSI: 32.54
+­şôè Data prepared: 1000 candles
+­şÆ░ Starting capital: $1000.00
+­şôê Futures Entry: 0.034619 BTCUSDT @ $115544.4000 (10x), Margin: $400.00
+­şôë Exit: $115624.9000, P&L: $-0.01 (0.70%), Capital: $999.99
+­şôê Futures Entry: 0.034615 BTCUSDT @ $115556.1000 (10x), Margin: $399.99
+­şôë Exit: $115624.9000, P&L: $-0.42 (0.60%), Capital: $999.57
+­şôê Futures Entry: 0.034592 BTCUSDT @ $115583.8000 (10x), Margin: $399.83
+­şôë Exit: $115624.9000, P&L: $-1.38 (0.36%), Capital: $998.19
+­şôê Futures Entry: 0.034523 BTCUSDT @ $115655.3000 (10x), Margin: $399.28
+­şôë Exit: $115624.9000, P&L: $-3.84 (-0.26%), Capital: $994.35
+­şôê Futures Entry: 0.034415 BTCUSDT @ $115571.2000 (10x), Margin: $397.74
+­şôë Exit: $115624.9000, P&L: $-0.94 (0.46%), Capital: $993.41
+­şôê Futures Entry: 0.034363 BTCUSDT @ $115635.6000 (10x), Margin: $397.36
+­şôë Exit: $115183.9000, P&L: $-18.30 (-3.91%), Capital: $975.11
+­şôê Futures Entry: 0.034071 BTCUSDT @ $114478.5000 (10x), Margin: $390.04
+­şôë Exit: $114135.1642, P&L: $-14.43 (-3.00%), Capital: $960.68
+­şôê Futures Entry: 0.034097 BTCUSDT @ $112698.8000 (10x), Margin: $384.27
+­şôë Exit: $112381.6406, P&L: $-13.50 (-2.81%), Capital: $947.18
+­şôê Futures Entry: 0.033753 BTCUSDT @ $112248.2000 (10x), Margin: $378.87
+­şôë Exit: $112129.2002, P&L: $-6.67 (-1.06%), Capital: $940.51
+­şôê Futures Entry: 0.033610 BTCUSDT @ $111933.3000 (10x), Margin: $376.21
+­şôë Exit: $111883.6391, P&L: $-4.30 (-0.44%), Capital: $936.21
+­şôê Futures Entry: 0.033442 BTCUSDT @ $111980.3000 (10x), Margin: $374.48
+­şôë Exit: $111883.6391, P&L: $-5.85 (-0.86%), Capital: $930.36
+­şôê Futures Entry: 0.034011 BTCUSDT @ $109419.1000 (10x), Margin: $372.14
+­şôë Exit: $109436.7020, P&L: $-2.01 (0.16%), Capital: $928.35
+­şôê Futures Entry: 0.033886 BTCUSDT @ $109584.7000 (10x), Margin: $371.34
+­şôë Exit: $109436.7020, P&L: $-7.61 (-1.35%), Capital: $920.74
+­şôê Futures Entry: 0.033623 BTCUSDT @ $109535.5000 (10x), Margin: $368.30
+­şôë Exit: $109577.3000, P&L: $-1.17 (0.38%), Capital: $919.56
+­şôê Futures Entry: 0.033562 BTCUSDT @ $109596.0000 (10x), Margin: $367.83
+­şôë Exit: $109370.9000, P&L: $-10.13 (-2.05%), Capital: $909.44
+­şôê Futures Entry: 0.033152 BTCUSDT @ $109728.1000 (10x), Margin: $363.77
+­şôë Exit: $109407.9884, P&L: $-13.16 (-2.92%), Capital: $896.28
+­şôê Futures Entry: 0.031968 BTCUSDT @ $112146.2000 (10x), Margin: $358.51
+­şôë Exit: $111929.4014, P&L: $-9.44 (-1.93%), Capital: $886.84
+­şôê Futures Entry: 0.031027 BTCUSDT @ $114331.0000 (10x), Margin: $354.74
+­şôë Exit: $113840.2000, P&L: $-17.71 (-4.29%), Capital: $869.13
+­şöı Final Calculations:
+   Initial Capital: $1000.00
+   Final Capital: $869.13
+   Net P&L: $-130.87
+   Total Trades: 18
+   Winning: 0, Losing: 18
+   Total Fees: $47.97
+   Win Rate: 0.00%
+   Total Return: -13.09%
+­şöğ BacktestService initialized with cache dir: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data
+­şôü Cache directory exists: True
+­şôé Cache directory contents: ['048dd04a8a64bc7fe2bd1077a0cfe316.csv', '048dd04a8a64bc7fe2bd1077a0cfe316_meta.json', '0b3eeac287ef911a25f08bef363d9356.csv', '0b3eeac287ef911a25f08bef363d9356_meta.json', '83935708ee9893be2af170d56f5c18c3.csv', '83935708ee9893be2af170d56f5c18c3_meta.json', '9413d3a9b7ed1583a2ce139a06b073a1.csv', '9413d3a9b7ed1583a2ce139a06b073a1_meta.json', 'b0ad422a16cb1b2976cc147d08b0d7f0.csv', 'b0ad422a16cb1b2976cc147d08b0d7f0_meta.json', 'b508e30ab43678519e6f1f332c375f9c.csv', 'b508e30ab43678519e6f1f332c375f9c_meta.json', 'f3d31df3a34feecfe826dd91bf827ea6.csv', 'f3d31df3a34feecfe826dd91bf827ea6_meta.json', 'f7fa6e899c80c8fa106ee051da562ded.csv', 'f7fa6e899c80c8fa106ee051da562ded_meta.json', 'f95cdfc6011812c84b3c1ea5803512d4.csv', 'f95cdfc6011812c84b3c1ea5803512d4_meta.json']
+­şÜÇ Starting spot backtest for BTCUSDT 15m
+ÔÜá´©Å No user or database session - Running in TEST MODE
+­şğ¬ Running in TEST MODE
+­şÆ░ Spot trading (no leverage)
+­şôà Using date range: 2025-09-20 to 2025-09-21
+­şôà Using date range: 2025-09-20 to 2025-09-21
+­şöı Checking cache for: BTCUSDT 15m 2025-09-20 to 2025-09-21 [spot]
+­şöı Cache check for: BTCUSDT 15m 2025-09-20 to 2025-09-21
+­şöæ Cache key: b0ad422a16cb1b2976cc147d08b0d7f0
+­şôü Cache path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b0ad422a16cb1b2976cc147d08b0d7f0.csv
+­şôä Metadata path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b0ad422a16cb1b2976cc147d08b0d7f0_meta.json
+­şôé Cache file exists: True
+­şôï Metadata file exists: True
+­şôè Cached metadata: {'symbol': 'BTCUSDT', 'interval': '15m', 'start_date': '2025-09-20', 'end_date': '2025-09-21', 'market_type': 'spot', 'cached_at': '2025-10-27T01:37:13.360855', 'rows': 1000, 'cache_key': 'b0ad422a16cb1b2976cc147d08b0d7f0'}
+­şòÉ Cache time: 2025-10-27 01:37:13.360855
+­şòÉ Current time: 2025-10-27 01:37:49.456212
+ÔÅ░ Cache age: 0.01 hours
+­şôà End date: 2025-09-21
+­şôà Days from now: 36
+­şôÜ Historical data - cache valid: True
+Ô£à Cache hit: BTCUSDT 15m (1000 rows)
+­şôĞ Using cached data: 1000 rows
+­şôè Preparing indicators for 1000 rows
+Ô£à Indicators prepared: 1000 clean rows from 1000 original rows
+­şôê Sample indicators - EMA_fast: 113989.4709, RSI: 32.43
+­şôè Data prepared: 1000 candles
+­şÆ░ Starting capital: $1000.00
+­şôê Spot Entry: 0.008218 BTCUSDT @ $115606.3900, Cost: $950.48
+­şôë Exit: $115685.6300, P&L: $-0.11 (0.07%), Capital: $999.89
+­şôê Spot Entry: 0.008217 BTCUSDT @ $115606.7400, Cost: $950.37
+­şôë Exit: $115685.6300, P&L: $-0.11 (0.07%), Capital: $999.78
+­şôê Spot Entry: 0.008213 BTCUSDT @ $115639.9900, Cost: $950.27
+­şôë Exit: $115685.6300, P&L: $-0.39 (0.04%), Capital: $999.39
+­şôê Spot Entry: 0.008205 BTCUSDT @ $115717.4900, Cost: $949.90
+­şôë Exit: $115685.6300, P&L: $-1.02 (-0.03%), Capital: $998.37
+­şôê Spot Entry: 0.008203 BTCUSDT @ $115625.8600, Cost: $948.93
+­şôë Exit: $115685.6300, P&L: $-0.27 (0.05%), Capital: $998.10
+­şôê Spot Entry: 0.008196 BTCUSDT @ $115690.7600, Cost: $948.67
+­şôë Exit: $115232.2900, P&L: $-4.52 (-0.40%), Capital: $993.59
+­şôê Spot Entry: 0.008157 BTCUSDT @ $115715.9900, Cost: $944.38
+­şôë Exit: $115232.2900, P&L: $-4.70 (-0.42%), Capital: $988.89
+­şôê Spot Entry: 0.008123 BTCUSDT @ $115649.5300, Cost: $939.92
+­şôë Exit: $115232.2900, P&L: $-4.14 (-0.36%), Capital: $984.75
+­şôê Spot Entry: 0.008168 BTCUSDT @ $114530.0100, Cost: $935.98
+­şôë Exit: $114186.4200, P&L: $-3.55 (-0.30%), Capital: $981.20
+­şôê Spot Entry: 0.008264 BTCUSDT @ $112792.1600, Cost: $932.60
+­şôë Exit: $113092.4617, P&L: $1.74 (0.27%), Capital: $982.93
+­şôê Spot Entry: 0.008271 BTCUSDT @ $112905.3200, Cost: $934.25
+­şôë Exit: $113092.4617, P&L: $0.80 (0.17%), Capital: $983.73
+­şôê Spot Entry: 0.008285 BTCUSDT @ $112795.3100, Cost: $935.01
+­şôë Exit: $113092.4617, P&L: $1.71 (0.26%), Capital: $985.45
+­şôê Spot Entry: 0.008306 BTCUSDT @ $112705.5700, Cost: $936.64
+­şôë Exit: $113092.4617, P&L: $2.46 (0.34%), Capital: $987.91
+­şôê Spot Entry: 0.008324 BTCUSDT @ $112747.7200, Cost: $938.98
+­şôë Exit: $112422.6372, P&L: $-3.46 (-0.29%), Capital: $984.45
+­şôê Spot Entry: 0.008330 BTCUSDT @ $112272.9200, Cost: $935.70
+­şôë Exit: $112950.6285, P&L: $4.90 (0.60%), Capital: $989.35
+­şôê Spot Entry: 0.008359 BTCUSDT @ $112442.3000, Cost: $940.35
+­şôë Exit: $112950.6285, P&L: $3.50 (0.45%), Capital: $992.84
+­şôê Spot Entry: 0.008374 BTCUSDT @ $112633.7200, Cost: $943.67
+­şôë Exit: $112950.6285, P&L: $1.90 (0.28%), Capital: $994.74
+­şôê Spot Entry: 0.008388 BTCUSDT @ $112665.4400, Cost: $945.48
+­şôë Exit: $112950.6285, P&L: $1.64 (0.25%), Capital: $996.38
+­şôê Spot Entry: 0.008429 BTCUSDT @ $112293.2300, Cost: $947.03
+­şôë Exit: $112162.5000, P&L: $-1.86 (-0.12%), Capital: $994.52
+­şôê Spot Entry: 0.008419 BTCUSDT @ $112217.2600, Cost: $945.27
+­şôë Exit: $112162.5000, P&L: $-1.22 (-0.05%), Capital: $993.30
+­şôê Spot Entry: 0.008408 BTCUSDT @ $112230.7200, Cost: $944.11
+­şôë Exit: $112162.5000, P&L: $-1.33 (-0.06%), Capital: $991.97
+­şôê Spot Entry: 0.008390 BTCUSDT @ $112319.2400, Cost: $942.85
+­şôë Exit: $112162.5000, P&L: $-2.07 (-0.14%), Capital: $989.91
+­şôê Spot Entry: 0.008363 BTCUSDT @ $112451.2600, Cost: $940.88
+­şôë Exit: $112162.5000, P&L: $-3.17 (-0.26%), Capital: $986.74
+­şôê Spot Entry: 0.008371 BTCUSDT @ $111980.8600, Cost: $937.87
+­şôë Exit: $111909.7206, P&L: $-1.35 (-0.06%), Capital: $985.39
+­şôê Spot Entry: 0.008356 BTCUSDT @ $112031.1700, Cost: $936.59
+­şôë Exit: $111909.7206, P&L: $-1.76 (-0.11%), Capital: $983.63
+­şôê Spot Entry: 0.008351 BTCUSDT @ $111891.2600, Cost: $934.92
+­şôë Exit: $111909.7206, P&L: $-0.59 (0.02%), Capital: $983.04
+­şôê Spot Entry: 0.008332 BTCUSDT @ $112079.7700, Cost: $934.35
+­şôë Exit: $111799.2829, P&L: $-3.08 (-0.25%), Capital: $979.95
+­şôê Spot Entry: 0.008341 BTCUSDT @ $111617.0100, Cost: $931.42
+­şôë Exit: $111383.8929, P&L: $-2.69 (-0.21%), Capital: $977.26
+­şôê Spot Entry: 0.008481 BTCUSDT @ $109472.1300, Cost: $928.87
+­şôë Exit: $109469.4435, P&L: $-0.77 (-0.00%), Capital: $976.50
+­şôê Spot Entry: 0.008461 BTCUSDT @ $109639.1300, Cost: $928.14
+­şôë Exit: $109469.4435, P&L: $-2.18 (-0.15%), Capital: $974.32
+­şôê Spot Entry: 0.008448 BTCUSDT @ $109560.0100, Cost: $926.07
+­şôë Exit: $109469.4435, P&L: $-1.51 (-0.08%), Capital: $972.82
+­şôê Spot Entry: 0.008428 BTCUSDT @ $109649.9900, Cost: $924.64
+­şôë Exit: $109469.4435, P&L: $-2.26 (-0.16%), Capital: $970.56
+­şôê Spot Entry: 0.008406 BTCUSDT @ $109680.4000, Cost: $922.49
+­şôë Exit: $109469.4435, P&L: $-2.51 (-0.19%), Capital: $968.05
+­şôê Spot Entry: 0.008392 BTCUSDT @ $109590.4200, Cost: $920.10
+­şôë Exit: $109635.8500, P&L: $-0.35 (0.04%), Capital: $967.69
+­şôê Spot Entry: 0.008384 BTCUSDT @ $109649.2900, Cost: $919.77
+­şôë Exit: $109414.6783, P&L: $-2.70 (-0.21%), Capital: $964.99
+­şôê Spot Entry: 0.008362 BTCUSDT @ $109635.9800, Cost: $917.20
+­şôë Exit: $109413.0432, P&L: $-2.60 (-0.20%), Capital: $962.39
+­şôê Spot Entry: 0.008345 BTCUSDT @ $109553.7700, Cost: $914.73
+­şôë Exit: $109635.8500, P&L: $-0.05 (0.07%), Capital: $962.35
+­şôê Spot Entry: 0.008345 BTCUSDT @ $109550.0000, Cost: $914.69
+­şôë Exit: $109635.8500, P&L: $-0.02 (0.08%), Capital: $962.33
+­şôê Spot Entry: 0.008327 BTCUSDT @ $109787.7400, Cost: $914.67
+­şôë Exit: $109458.3768, P&L: $-3.47 (-0.30%), Capital: $958.86
+­şôê Spot Entry: 0.008324 BTCUSDT @ $109437.4200, Cost: $911.37
+­şôë Exit: $111078.9813, P&L: $12.93 (1.50%), Capital: $971.79
+­şôê Spot Entry: 0.008438 BTCUSDT @ $109410.0000, Cost: $923.66
+­şôë Exit: $111051.1500, P&L: $13.11 (1.50%), Capital: $984.89
+­şôê Spot Entry: 0.008548 BTCUSDT @ $109458.2800, Cost: $936.12
+­şôë Exit: $111100.1542, P&L: $13.28 (1.50%), Capital: $998.18
+­şôê Spot Entry: 0.008452 BTCUSDT @ $112198.8700, Cost: $948.74
+­şôë Exit: $111973.0700, P&L: $-2.67 (-0.20%), Capital: $995.51
+­şôê Spot Entry: 0.008440 BTCUSDT @ $112056.4800, Cost: $946.21
+­şôë Exit: $113737.3272, P&L: $13.43 (1.50%), Capital: $1008.93
+­şôê Spot Entry: 0.008538 BTCUSDT @ $112260.5700, Cost: $958.97
+­şôë Exit: $111973.0700, P&L: $-3.22 (-0.26%), Capital: $1005.71
+­şôê Spot Entry: 0.008512 BTCUSDT @ $112241.5300, Cost: $955.91
+­şôë Exit: $111973.0700, P&L: $-3.05 (-0.24%), Capital: $1002.66
+­şôê Spot Entry: 0.008516 BTCUSDT @ $111855.3000, Cost: $953.01
+­şôë Exit: $113533.1295, P&L: $13.52 (1.50%), Capital: $1016.19
+­şôê Spot Entry: 0.008440 BTCUSDT @ $114386.0000, Cost: $965.86
+­şôë Exit: $113891.6400, P&L: $-4.94 (-0.43%), Capital: $1011.24
+­şôê Spot Entry: 0.008372 BTCUSDT @ $114751.7500, Cost: $961.16
+­şôë Exit: $114447.6240, P&L: $-3.31 (-0.27%), Capital: $1007.93
+­şôê Spot Entry: 0.008353 BTCUSDT @ $114631.2000, Cost: $958.01
+­şôë Exit: $114287.3164, P&L: $-3.64 (-0.30%), Capital: $1004.29
+­şôê Spot Entry: 0.008333 BTCUSDT @ $114500.3100, Cost: $954.55
+­şôë Exit: $114239.4404, P&L: $-2.94 (-0.23%), Capital: $1001.35
+­şöı Final Calculations:
+   Initial Capital: $1000.00
+   Final Capital: $1001.35
+   Net P&L: $1.35
+   Total Trades: 51
+   Winning: 13, Losing: 38
+   Total Fees: $38.28
+   Win Rate: 25.49%
+   Total Return: 0.14%
+­şöğ BacktestService initialized with cache dir: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data
+­şôü Cache directory exists: True
+­şôé Cache directory contents: ['048dd04a8a64bc7fe2bd1077a0cfe316.csv', '048dd04a8a64bc7fe2bd1077a0cfe316_meta.json', '0b3eeac287ef911a25f08bef363d9356.csv', '0b3eeac287ef911a25f08bef363d9356_meta.json', '83935708ee9893be2af170d56f5c18c3.csv', '83935708ee9893be2af170d56f5c18c3_meta.json', '9413d3a9b7ed1583a2ce139a06b073a1.csv', '9413d3a9b7ed1583a2ce139a06b073a1_meta.json', 'b0ad422a16cb1b2976cc147d08b0d7f0.csv', 'b0ad422a16cb1b2976cc147d08b0d7f0_meta.json', 'b508e30ab43678519e6f1f332c375f9c.csv', 'b508e30ab43678519e6f1f332c375f9c_meta.json', 'f3d31df3a34feecfe826dd91bf827ea6.csv', 'f3d31df3a34feecfe826dd91bf827ea6_meta.json', 'f7fa6e899c80c8fa106ee051da562ded.csv', 'f7fa6e899c80c8fa106ee051da562ded_meta.json', 'f95cdfc6011812c84b3c1ea5803512d4.csv', 'f95cdfc6011812c84b3c1ea5803512d4_meta.json']
+­şÜÇ Starting spot backtest for BTCUSDT 15m
+ÔÜá´©Å No user or database session - Running in TEST MODE
+­şğ¬ Running in TEST MODE
+­şÆ░ Spot trading (no leverage)
+­şôà Using date range: 2025-09-20 to 2025-09-21
+­şôà Using date range: 2025-09-20 to 2025-09-21
+­şöı Checking cache for: BTCUSDT 15m 2025-09-20 to 2025-09-21 [spot]
+­şöı Cache check for: BTCUSDT 15m 2025-09-20 to 2025-09-21
+­şöæ Cache key: b0ad422a16cb1b2976cc147d08b0d7f0
+­şôü Cache path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b0ad422a16cb1b2976cc147d08b0d7f0.csv
+­şôä Metadata path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b0ad422a16cb1b2976cc147d08b0d7f0_meta.json
+­şôé Cache file exists: True
+­şôï Metadata file exists: True
+­şôè Cached metadata: {'symbol': 'BTCUSDT', 'interval': '15m', 'start_date': '2025-09-20', 'end_date': '2025-09-21', 'market_type': 'spot', 'cached_at': '2025-10-27T01:37:13.360855', 'rows': 1000, 'cache_key': 'b0ad422a16cb1b2976cc147d08b0d7f0'}
+­şòÉ Cache time: 2025-10-27 01:37:13.360855
+­şòÉ Current time: 2025-10-27 01:37:49.659733
+ÔÅ░ Cache age: 0.01 hours
+­şôà End date: 2025-09-21
+­şôà Days from now: 36
+­şôÜ Historical data - cache valid: True
+Ô£à Cache hit: BTCUSDT 15m (1000 rows)
+­şôĞ Using cached data: 1000 rows
+­şôè Preparing indicators for 1000 rows
+Ô£à Indicators prepared: 1000 clean rows from 1000 original rows
+­şôê Sample indicators - EMA_fast: 113989.4709, RSI: 38.09
+­şôè Data prepared: 1000 candles
+­şÆ░ Starting capital: $1000.00
+­şôê Spot Entry: 0.008218 BTCUSDT @ $115606.3900, Cost: $950.48
+­şôë Exit: $115685.6300, P&L: $-0.11 (0.07%), Capital: $999.89
+­şôê Spot Entry: 0.008217 BTCUSDT @ $115606.7400, Cost: $950.37
+­şôë Exit: $115685.6300, P&L: $-0.11 (0.07%), Capital: $999.78
+­şôê Spot Entry: 0.008213 BTCUSDT @ $115639.9900, Cost: $950.27
+­şôë Exit: $115685.6300, P&L: $-0.39 (0.04%), Capital: $999.39
+­şôê Spot Entry: 0.008205 BTCUSDT @ $115717.4900, Cost: $949.90
+­şôë Exit: $115685.6300, P&L: $-1.02 (-0.03%), Capital: $998.37
+­şôê Spot Entry: 0.008203 BTCUSDT @ $115625.8600, Cost: $948.93
+­şôë Exit: $115685.6300, P&L: $-0.27 (0.05%), Capital: $998.10
+­şôê Spot Entry: 0.008196 BTCUSDT @ $115690.7600, Cost: $948.67
+­şôë Exit: $115232.2900, P&L: $-4.52 (-0.40%), Capital: $993.59
+­şôê Spot Entry: 0.008157 BTCUSDT @ $115715.9900, Cost: $944.38
+­şôë Exit: $115232.2900, P&L: $-4.70 (-0.42%), Capital: $988.89
+­şôê Spot Entry: 0.008123 BTCUSDT @ $115649.5300, Cost: $939.92
+­şôë Exit: $115232.2900, P&L: $-4.14 (-0.36%), Capital: $984.75
+­şôê Spot Entry: 0.008168 BTCUSDT @ $114530.0100, Cost: $935.98
+­şôë Exit: $114186.4200, P&L: $-3.55 (-0.30%), Capital: $981.20
+­şôê Spot Entry: 0.008264 BTCUSDT @ $112792.1600, Cost: $932.60
+­şôë Exit: $113092.4617, P&L: $1.74 (0.27%), Capital: $982.93
+­şôê Spot Entry: 0.008271 BTCUSDT @ $112905.3200, Cost: $934.25
+­şôë Exit: $113092.4617, P&L: $0.80 (0.17%), Capital: $983.73
+­şôê Spot Entry: 0.008285 BTCUSDT @ $112795.3100, Cost: $935.01
+­şôë Exit: $113092.4617, P&L: $1.71 (0.26%), Capital: $985.45
+­şôê Spot Entry: 0.008306 BTCUSDT @ $112705.5700, Cost: $936.64
+­şôë Exit: $113092.4617, P&L: $2.46 (0.34%), Capital: $987.91
+­şôê Spot Entry: 0.008324 BTCUSDT @ $112747.7200, Cost: $938.98
+­şôë Exit: $112422.6372, P&L: $-3.46 (-0.29%), Capital: $984.45
+­şôê Spot Entry: 0.008330 BTCUSDT @ $112272.9200, Cost: $935.70
+­şôë Exit: $112950.6285, P&L: $4.90 (0.60%), Capital: $989.35
+­şôê Spot Entry: 0.008359 BTCUSDT @ $112442.3000, Cost: $940.35
+­şôë Exit: $112950.6285, P&L: $3.50 (0.45%), Capital: $992.84
+­şôê Spot Entry: 0.008374 BTCUSDT @ $112633.7200, Cost: $943.67
+­şôë Exit: $112950.6285, P&L: $1.90 (0.28%), Capital: $994.74
+­şôê Spot Entry: 0.008379 BTCUSDT @ $112777.7500, Cost: $945.48
+­şôë Exit: $112950.6285, P&L: $0.69 (0.15%), Capital: $995.43
+­şôê Spot Entry: 0.008421 BTCUSDT @ $112293.2300, Cost: $946.14
+­şôë Exit: $112162.5000, P&L: $-1.86 (-0.12%), Capital: $993.58
+­şôê Spot Entry: 0.008411 BTCUSDT @ $112217.2600, Cost: $944.37
+­şôë Exit: $112162.5000, P&L: $-1.22 (-0.05%), Capital: $992.36
+­şôê Spot Entry: 0.008400 BTCUSDT @ $112230.7200, Cost: $943.22
+­şôë Exit: $112162.5000, P&L: $-1.33 (-0.06%), Capital: $991.03
+­şôê Spot Entry: 0.008382 BTCUSDT @ $112319.2400, Cost: $941.95
+­şôë Exit: $112162.5000, P&L: $-2.07 (-0.14%), Capital: $988.97
+­şôê Spot Entry: 0.008359 BTCUSDT @ $112399.4500, Cost: $939.99
+­şôë Exit: $112162.5000, P&L: $-2.73 (-0.21%), Capital: $986.24
+­şôê Spot Entry: 0.008367 BTCUSDT @ $111980.8600, Cost: $937.39
+­şôë Exit: $111909.7206, P&L: $-1.34 (-0.06%), Capital: $984.89
+­şôê Spot Entry: 0.008352 BTCUSDT @ $112031.1700, Cost: $936.12
+­şôë Exit: $111909.7206, P&L: $-1.76 (-0.11%), Capital: $983.13
+­şôê Spot Entry: 0.008347 BTCUSDT @ $111891.2600, Cost: $934.44
+­şôë Exit: $111909.7206, P&L: $-0.59 (0.02%), Capital: $982.54
+­şôê Spot Entry: 0.008328 BTCUSDT @ $112079.7700, Cost: $933.88
+­şôë Exit: $111799.2829, P&L: $-3.08 (-0.25%), Capital: $979.45
+­şôê Spot Entry: 0.008336 BTCUSDT @ $111617.0100, Cost: $930.95
+­şôë Exit: $111383.8929, P&L: $-2.69 (-0.21%), Capital: $976.77
+­şôê Spot Entry: 0.008476 BTCUSDT @ $109472.1300, Cost: $928.39
+­şôë Exit: $109469.4435, P&L: $-0.77 (-0.00%), Capital: $976.00
+­şôê Spot Entry: 0.008457 BTCUSDT @ $109639.1300, Cost: $927.67
+­şôë Exit: $109469.4435, P&L: $-2.18 (-0.15%), Capital: $973.83
+­şôê Spot Entry: 0.008444 BTCUSDT @ $109560.0100, Cost: $925.60
+­şôë Exit: $109469.4435, P&L: $-1.50 (-0.08%), Capital: $972.32
+­şôê Spot Entry: 0.008424 BTCUSDT @ $109649.9900, Cost: $924.17
+­şôë Exit: $109469.4435, P&L: $-2.26 (-0.16%), Capital: $970.06
+­şôê Spot Entry: 0.008402 BTCUSDT @ $109680.4000, Cost: $922.02
+­şôë Exit: $109469.4435, P&L: $-2.51 (-0.19%), Capital: $967.55
+­şôê Spot Entry: 0.008387 BTCUSDT @ $109590.4200, Cost: $919.63
+­şôë Exit: $109635.8500, P&L: $-0.35 (0.04%), Capital: $967.20
+­şôê Spot Entry: 0.008380 BTCUSDT @ $109649.2900, Cost: $919.30
+­şôë Exit: $109414.6783, P&L: $-2.70 (-0.21%), Capital: $964.50
+­şôê Spot Entry: 0.008357 BTCUSDT @ $109635.9800, Cost: $916.73
+­şôë Exit: $109413.0432, P&L: $-2.60 (-0.20%), Capital: $961.90
+­şôê Spot Entry: 0.008341 BTCUSDT @ $109553.7700, Cost: $914.26
+­şôë Exit: $109635.8500, P&L: $-0.05 (0.07%), Capital: $961.86
+­şôê Spot Entry: 0.008341 BTCUSDT @ $109550.0000, Cost: $914.22
+­şôë Exit: $109635.8500, P&L: $-0.02 (0.08%), Capital: $961.84
+­şôê Spot Entry: 0.008323 BTCUSDT @ $109787.7400, Cost: $914.21
+­şôë Exit: $109458.3768, P&L: $-3.47 (-0.30%), Capital: $958.37
+­şôê Spot Entry: 0.008319 BTCUSDT @ $109437.4200, Cost: $910.91
+­şôë Exit: $111078.9813, P&L: $12.92 (1.50%), Capital: $971.29
+­şôê Spot Entry: 0.008434 BTCUSDT @ $109410.0000, Cost: $923.19
+­şôë Exit: $111051.1500, P&L: $13.10 (1.50%), Capital: $984.39
+­şôê Spot Entry: 0.008544 BTCUSDT @ $109458.2800, Cost: $935.64
+­şôë Exit: $111100.1542, P&L: $13.28 (1.50%), Capital: $997.67
+­şôê Spot Entry: 0.008447 BTCUSDT @ $112198.8700, Cost: $948.26
+­şôë Exit: $111973.0700, P&L: $-2.67 (-0.20%), Capital: $995.00
+­şôê Spot Entry: 0.008435 BTCUSDT @ $112056.4800, Cost: $945.72
+­şôë Exit: $113737.3272, P&L: $13.42 (1.50%), Capital: $1008.42
+­şôê Spot Entry: 0.008534 BTCUSDT @ $112260.5700, Cost: $958.48
+­şôë Exit: $111973.0700, P&L: $-3.22 (-0.26%), Capital: $1005.20
+­şôê Spot Entry: 0.008508 BTCUSDT @ $112241.5300, Cost: $955.42
+­şôë Exit: $111973.0700, P&L: $-3.05 (-0.24%), Capital: $1002.15
+­şôê Spot Entry: 0.008511 BTCUSDT @ $111855.3000, Cost: $952.52
+­şôë Exit: $113533.1295, P&L: $13.51 (1.50%), Capital: $1015.67
+­şôê Spot Entry: 0.008435 BTCUSDT @ $114386.0000, Cost: $965.37
+­şôë Exit: $113891.6400, P&L: $-4.94 (-0.43%), Capital: $1010.73
+­şôê Spot Entry: 0.008368 BTCUSDT @ $114751.7500, Cost: $960.67
+­şôë Exit: $114447.6240, P&L: $-3.31 (-0.27%), Capital: $1007.42
+­şôê Spot Entry: 0.008349 BTCUSDT @ $114631.2000, Cost: $957.52
+­şôë Exit: $114287.3164, P&L: $-3.64 (-0.30%), Capital: $1003.78
+­şôê Spot Entry: 0.008328 BTCUSDT @ $114500.3100, Cost: $954.07
+­şôë Exit: $114239.4404, P&L: $-2.93 (-0.23%), Capital: $1000.85
+­şöı Final Calculations:
+   Initial Capital: $1000.00
+   Final Capital: $1000.85
+   Net P&L: $0.85
+   Total Trades: 51
+   Winning: 13, Losing: 38
+   Total Fees: $38.27
+   Win Rate: 25.49%
+   Total Return: 0.08%
+­şöğ BacktestService initialized with cache dir: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data
+­şôü Cache directory exists: True
+­şôé Cache directory contents: ['048dd04a8a64bc7fe2bd1077a0cfe316.csv', '048dd04a8a64bc7fe2bd1077a0cfe316_meta.json', '0b3eeac287ef911a25f08bef363d9356.csv', '0b3eeac287ef911a25f08bef363d9356_meta.json', '83935708ee9893be2af170d56f5c18c3.csv', '83935708ee9893be2af170d56f5c18c3_meta.json', '9413d3a9b7ed1583a2ce139a06b073a1.csv', '9413d3a9b7ed1583a2ce139a06b073a1_meta.json', 'b0ad422a16cb1b2976cc147d08b0d7f0.csv', 'b0ad422a16cb1b2976cc147d08b0d7f0_meta.json', 'b508e30ab43678519e6f1f332c375f9c.csv', 'b508e30ab43678519e6f1f332c375f9c_meta.json', 'f3d31df3a34feecfe826dd91bf827ea6.csv', 'f3d31df3a34feecfe826dd91bf827ea6_meta.json', 'f7fa6e899c80c8fa106ee051da562ded.csv', 'f7fa6e899c80c8fa106ee051da562ded_meta.json', 'f95cdfc6011812c84b3c1ea5803512d4.csv', 'f95cdfc6011812c84b3c1ea5803512d4_meta.json']
+­şÜÇ Starting spot backtest for BTCUSDT 15m
+ÔÜá´©Å No user or database session - Running in TEST MODE
+­şğ¬ Running in TEST MODE
+­şÆ░ Spot trading (no leverage)
+­şôà Using date range: 2025-09-20 to 2025-09-21
+­şôà Using date range: 2025-09-20 to 2025-09-21
+­şöı Checking cache for: BTCUSDT 15m 2025-09-20 to 2025-09-21 [spot]
+­şöı Cache check for: BTCUSDT 15m 2025-09-20 to 2025-09-21
+­şöæ Cache key: b0ad422a16cb1b2976cc147d08b0d7f0
+­şôü Cache path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b0ad422a16cb1b2976cc147d08b0d7f0.csv
+­şôä Metadata path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b0ad422a16cb1b2976cc147d08b0d7f0_meta.json
+­şôé Cache file exists: True
+­şôï Metadata file exists: True
+­şôè Cached metadata: {'symbol': 'BTCUSDT', 'interval': '15m', 'start_date': '2025-09-20', 'end_date': '2025-09-21', 'market_type': 'spot', 'cached_at': '2025-10-27T01:37:13.360855', 'rows': 1000, 'cache_key': 'b0ad422a16cb1b2976cc147d08b0d7f0'}
+­şòÉ Cache time: 2025-10-27 01:37:13.360855
+­şòÉ Current time: 2025-10-27 01:37:49.869875
+ÔÅ░ Cache age: 0.01 hours
+­şôà End date: 2025-09-21
+­şôà Days from now: 36
+­şôÜ Historical data - cache valid: True
+Ô£à Cache hit: BTCUSDT 15m (1000 rows)
+­şôĞ Using cached data: 1000 rows
+­şôè Preparing indicators for 1000 rows
+Ô£à Indicators prepared: 1000 clean rows from 1000 original rows
+­şôê Sample indicators - EMA_fast: 113989.4709, RSI: 32.43
+­şôè Data prepared: 1000 candles
+­şÆ░ Starting capital: $1000.00
+­şôê Spot Entry: 0.008220 BTCUSDT @ $115578.0900, Cost: $950.48
+­şôë Exit: $115685.6300, P&L: $0.12 (0.09%), Capital: $1000.12
+­şôê Spot Entry: 0.008219 BTCUSDT @ $115606.7400, Cost: $950.59
+­şôë Exit: $115685.6300, P&L: $-0.11 (0.07%), Capital: $1000.01
+­şôê Spot Entry: 0.008215 BTCUSDT @ $115639.9900, Cost: $950.49
+­şôë Exit: $115685.6300, P&L: $-0.39 (0.04%), Capital: $999.63
+­şôê Spot Entry: 0.008207 BTCUSDT @ $115717.4900, Cost: $950.12
+­şôë Exit: $115685.6300, P&L: $-1.02 (-0.03%), Capital: $998.61
+­şôê Spot Entry: 0.008205 BTCUSDT @ $115625.8600, Cost: $949.15
+­şôë Exit: $115685.6300, P&L: $-0.27 (0.05%), Capital: $998.34
+­şôê Spot Entry: 0.008198 BTCUSDT @ $115690.7600, Cost: $948.89
+­şôë Exit: $115232.2900, P&L: $-4.52 (-0.40%), Capital: $993.82
+­şôê Spot Entry: 0.008159 BTCUSDT @ $115715.9900, Cost: $944.60
+­şôë Exit: $115232.2900, P&L: $-4.70 (-0.42%), Capital: $989.12
+­şôê Spot Entry: 0.008125 BTCUSDT @ $115649.5300, Cost: $940.13
+­şôë Exit: $115232.2900, P&L: $-4.14 (-0.36%), Capital: $984.98
+­şôê Spot Entry: 0.008170 BTCUSDT @ $114530.0100, Cost: $936.20
+­şôë Exit: $114186.4200, P&L: $-3.55 (-0.30%), Capital: $981.42
+­şôê Spot Entry: 0.008266 BTCUSDT @ $112792.1600, Cost: $932.82
+­şôë Exit: $113092.4617, P&L: $1.74 (0.27%), Capital: $983.16
+­şôê Spot Entry: 0.008272 BTCUSDT @ $112905.3200, Cost: $934.47
+­şôë Exit: $113092.4617, P&L: $0.80 (0.17%), Capital: $983.96
+­şôê Spot Entry: 0.008287 BTCUSDT @ $112795.3100, Cost: $935.23
+­şôë Exit: $113092.4617, P&L: $1.71 (0.26%), Capital: $985.67
+­şôê Spot Entry: 0.008308 BTCUSDT @ $112705.5700, Cost: $936.86
+­şôë Exit: $113092.4617, P&L: $2.46 (0.34%), Capital: $988.14
+­şôê Spot Entry: 0.008326 BTCUSDT @ $112747.7200, Cost: $939.20
+­şôë Exit: $112422.6372, P&L: $-3.46 (-0.29%), Capital: $984.68
+­şôê Spot Entry: 0.008332 BTCUSDT @ $112272.9200, Cost: $935.92
+­şôë Exit: $112950.6285, P&L: $4.90 (0.60%), Capital: $989.58
+­şôê Spot Entry: 0.008361 BTCUSDT @ $112442.3000, Cost: $940.57
+­şôë Exit: $112950.6285, P&L: $3.50 (0.45%), Capital: $993.08
+­şôê Spot Entry: 0.008376 BTCUSDT @ $112633.7200, Cost: $943.89
+­şôë Exit: $112950.6285, P&L: $1.90 (0.28%), Capital: $994.97
+­şôê Spot Entry: 0.008390 BTCUSDT @ $112665.4400, Cost: $945.70
+­şôë Exit: $112950.6285, P&L: $1.64 (0.25%), Capital: $996.61
+­şôê Spot Entry: 0.008431 BTCUSDT @ $112293.2300, Cost: $947.25
+­şôë Exit: $112162.5000, P&L: $-1.86 (-0.12%), Capital: $994.75
+­şôê Spot Entry: 0.008421 BTCUSDT @ $112217.2600, Cost: $945.49
+­şôë Exit: $112162.5000, P&L: $-1.22 (-0.05%), Capital: $993.53
+­şôê Spot Entry: 0.008410 BTCUSDT @ $112230.7200, Cost: $944.33
+­şôë Exit: $112162.5000, P&L: $-1.33 (-0.06%), Capital: $992.20
+­şôê Spot Entry: 0.008392 BTCUSDT @ $112319.2400, Cost: $943.07
+­şôë Exit: $112162.5000, P&L: $-2.07 (-0.14%), Capital: $990.14
+­şôê Spot Entry: 0.008365 BTCUSDT @ $112451.2600, Cost: $941.10
+­şôë Exit: $112162.5000, P&L: $-3.17 (-0.26%), Capital: $986.97
+­şôê Spot Entry: 0.008373 BTCUSDT @ $111980.8600, Cost: $938.09
+­şôë Exit: $111909.7206, P&L: $-1.35 (-0.06%), Capital: $985.62
+­şôê Spot Entry: 0.008358 BTCUSDT @ $112031.1700, Cost: $936.81
+­şôë Exit: $111909.7206, P&L: $-1.76 (-0.11%), Capital: $983.86
+­şôê Spot Entry: 0.008353 BTCUSDT @ $111891.2600, Cost: $935.13
+­şôë Exit: $111909.7206, P&L: $-0.59 (0.02%), Capital: $983.27
+­şôê Spot Entry: 0.008334 BTCUSDT @ $112079.7700, Cost: $934.57
+­şôë Exit: $111799.2829, P&L: $-3.08 (-0.25%), Capital: $980.18
+­şôê Spot Entry: 0.008343 BTCUSDT @ $111617.0100, Cost: $931.64
+­şôë Exit: $111383.8929, P&L: $-2.69 (-0.21%), Capital: $977.49
+­şôê Spot Entry: 0.008483 BTCUSDT @ $109472.1300, Cost: $929.08
+­şôë Exit: $109469.4435, P&L: $-0.77 (-0.00%), Capital: $976.73
+­şôê Spot Entry: 0.008463 BTCUSDT @ $109639.1300, Cost: $928.35
+­şôë Exit: $109469.4435, P&L: $-2.18 (-0.15%), Capital: $974.55
+­şôê Spot Entry: 0.008450 BTCUSDT @ $109560.0100, Cost: $926.28
+­şôë Exit: $109469.4435, P&L: $-1.51 (-0.08%), Capital: $973.04
+­şôê Spot Entry: 0.008430 BTCUSDT @ $109649.9900, Cost: $924.85
+­şôë Exit: $109469.4435, P&L: $-2.26 (-0.16%), Capital: $970.78
+­şôê Spot Entry: 0.008408 BTCUSDT @ $109680.4000, Cost: $922.70
+­şôë Exit: $109469.4435, P&L: $-2.51 (-0.19%), Capital: $968.27
+­şôê Spot Entry: 0.008394 BTCUSDT @ $109590.4200, Cost: $920.32
+­şôë Exit: $109635.8500, P&L: $-0.35 (0.04%), Capital: $967.92
+­şôê Spot Entry: 0.008386 BTCUSDT @ $109649.2900, Cost: $919.98
+­şôë Exit: $109414.6783, P&L: $-2.70 (-0.21%), Capital: $965.21
+­şôê Spot Entry: 0.008364 BTCUSDT @ $109635.9800, Cost: $917.41
+­şôë Exit: $109413.0432, P&L: $-2.60 (-0.20%), Capital: $962.62
+­şôê Spot Entry: 0.008347 BTCUSDT @ $109553.7700, Cost: $914.94
+­şôë Exit: $109635.8500, P&L: $-0.05 (0.07%), Capital: $962.57
+­şôê Spot Entry: 0.008347 BTCUSDT @ $109550.0000, Cost: $914.90
+­şôë Exit: $109635.8500, P&L: $-0.02 (0.08%), Capital: $962.55
+­şôê Spot Entry: 0.008329 BTCUSDT @ $109787.7400, Cost: $914.88
+­şôë Exit: $109458.3768, P&L: $-3.47 (-0.30%), Capital: $959.08
+­şôê Spot Entry: 0.008326 BTCUSDT @ $109437.4200, Cost: $911.58
+­şôë Exit: $111078.9813, P&L: $12.93 (1.50%), Capital: $972.01
+­şôê Spot Entry: 0.008440 BTCUSDT @ $109410.0000, Cost: $923.88
+­şôë Exit: $111051.1500, P&L: $13.11 (1.50%), Capital: $985.12
+­şôê Spot Entry: 0.008550 BTCUSDT @ $109458.2800, Cost: $936.33
+­şôë Exit: $111100.1542, P&L: $13.29 (1.50%), Capital: $998.41
+­şôê Spot Entry: 0.008454 BTCUSDT @ $112198.8700, Cost: $948.96
+­şôë Exit: $111973.0700, P&L: $-2.67 (-0.20%), Capital: $995.74
+­şôê Spot Entry: 0.008442 BTCUSDT @ $112056.4800, Cost: $946.43
+­şôë Exit: $113737.3272, P&L: $13.43 (1.50%), Capital: $1009.17
+­şôê Spot Entry: 0.008540 BTCUSDT @ $112260.5700, Cost: $959.19
+­şôë Exit: $111973.0700, P&L: $-3.22 (-0.26%), Capital: $1005.95
+­şôê Spot Entry: 0.008514 BTCUSDT @ $112241.5300, Cost: $956.13
+­şôë Exit: $111973.0700, P&L: $-3.05 (-0.24%), Capital: $1002.90
+­şôê Spot Entry: 0.008518 BTCUSDT @ $111855.3000, Cost: $953.23
+­şôë Exit: $113533.1295, P&L: $13.52 (1.50%), Capital: $1016.42
+­şôê Spot Entry: 0.008442 BTCUSDT @ $114386.0000, Cost: $966.08
+­şôë Exit: $113891.6400, P&L: $-4.94 (-0.43%), Capital: $1011.48
+­şôê Spot Entry: 0.008374 BTCUSDT @ $114751.7500, Cost: $961.38
+­şôë Exit: $114447.6240, P&L: $-3.31 (-0.27%), Capital: $1008.16
+­şôê Spot Entry: 0.008355 BTCUSDT @ $114631.2000, Cost: $958.23
+­şôë Exit: $114287.3164, P&L: $-3.64 (-0.30%), Capital: $1004.52
+­şôê Spot Entry: 0.008334 BTCUSDT @ $114500.3100, Cost: $954.78
+­şôë Exit: $114239.4404, P&L: $-2.94 (-0.23%), Capital: $1001.59
+­şöı Final Calculations:
+   Initial Capital: $1000.00
+   Final Capital: $1001.59
+   Net P&L: $1.59
+   Total Trades: 51
+   Winning: 14, Losing: 37
+   Total Fees: $38.29
+   Win Rate: 27.45%
+   Total Return: 0.16%
+­şöğ BacktestService initialized with cache dir: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data
+­şôü Cache directory exists: True
+­şôé Cache directory contents: ['048dd04a8a64bc7fe2bd1077a0cfe316.csv', '048dd04a8a64bc7fe2bd1077a0cfe316_meta.json', '0b3eeac287ef911a25f08bef363d9356.csv', '0b3eeac287ef911a25f08bef363d9356_meta.json', '83935708ee9893be2af170d56f5c18c3.csv', '83935708ee9893be2af170d56f5c18c3_meta.json', '9413d3a9b7ed1583a2ce139a06b073a1.csv', '9413d3a9b7ed1583a2ce139a06b073a1_meta.json', 'b0ad422a16cb1b2976cc147d08b0d7f0.csv', 'b0ad422a16cb1b2976cc147d08b0d7f0_meta.json', 'b508e30ab43678519e6f1f332c375f9c.csv', 'b508e30ab43678519e6f1f332c375f9c_meta.json', 'f3d31df3a34feecfe826dd91bf827ea6.csv', 'f3d31df3a34feecfe826dd91bf827ea6_meta.json', 'f7fa6e899c80c8fa106ee051da562ded.csv', 'f7fa6e899c80c8fa106ee051da562ded_meta.json', 'f95cdfc6011812c84b3c1ea5803512d4.csv', 'f95cdfc6011812c84b3c1ea5803512d4_meta.json']
+­şÜÇ Starting spot backtest for BTCUSDT 15m
+ÔÜá´©Å No user or database session - Running in TEST MODE
+­şğ¬ Running in TEST MODE
+­şÆ░ Spot trading (no leverage)
+­şôà Using date range: 2025-09-20 to 2025-09-21
+­şôà Using date range: 2025-09-20 to 2025-09-21
+­şöı Checking cache for: BTCUSDT 15m 2025-09-20 to 2025-09-21 [spot]
+­şöı Cache check for: BTCUSDT 15m 2025-09-20 to 2025-09-21
+­şöæ Cache key: b0ad422a16cb1b2976cc147d08b0d7f0
+­şôü Cache path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b0ad422a16cb1b2976cc147d08b0d7f0.csv
+­şôä Metadata path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b0ad422a16cb1b2976cc147d08b0d7f0_meta.json
+­şôé Cache file exists: True
+­şôï Metadata file exists: True
+­şôè Cached metadata: {'symbol': 'BTCUSDT', 'interval': '15m', 'start_date': '2025-09-20', 'end_date': '2025-09-21', 'market_type': 'spot', 'cached_at': '2025-10-27T01:37:13.360855', 'rows': 1000, 'cache_key': 'b0ad422a16cb1b2976cc147d08b0d7f0'}
+­şòÉ Cache time: 2025-10-27 01:37:13.360855
+­şòÉ Current time: 2025-10-27 01:37:50.075608
+ÔÅ░ Cache age: 0.01 hours
+­şôà End date: 2025-09-21
+­şôà Days from now: 36
+­şôÜ Historical data - cache valid: True
+Ô£à Cache hit: BTCUSDT 15m (1000 rows)
+­şôĞ Using cached data: 1000 rows
+­şôè Preparing indicators for 1000 rows
+Ô£à Indicators prepared: 1000 clean rows from 1000 original rows
+­şôê Sample indicators - EMA_fast: 113989.4709, RSI: 38.09
+­şôè Data prepared: 1000 candles
+­şÆ░ Starting capital: $1000.00
+­şôê Spot Entry: 0.008220 BTCUSDT @ $115578.0900, Cost: $950.48
+­şôë Exit: $115685.6300, P&L: $0.12 (0.09%), Capital: $1000.12
+­şôê Spot Entry: 0.008219 BTCUSDT @ $115606.7400, Cost: $950.59
+­şôë Exit: $115685.6300, P&L: $-0.11 (0.07%), Capital: $1000.01
+­şôê Spot Entry: 0.008215 BTCUSDT @ $115639.9900, Cost: $950.49
+­şôë Exit: $115685.6300, P&L: $-0.39 (0.04%), Capital: $999.63
+­şôê Spot Entry: 0.008207 BTCUSDT @ $115717.4900, Cost: $950.12
+­şôë Exit: $115685.6300, P&L: $-1.02 (-0.03%), Capital: $998.61
+­şôê Spot Entry: 0.008205 BTCUSDT @ $115625.8600, Cost: $949.15
+­şôë Exit: $115685.6300, P&L: $-0.27 (0.05%), Capital: $998.34
+­şôê Spot Entry: 0.008198 BTCUSDT @ $115690.7600, Cost: $948.89
+­şôë Exit: $115232.2900, P&L: $-4.52 (-0.40%), Capital: $993.82
+­şôê Spot Entry: 0.008159 BTCUSDT @ $115715.9900, Cost: $944.60
+­şôë Exit: $115232.2900, P&L: $-4.70 (-0.42%), Capital: $989.12
+­şôê Spot Entry: 0.008125 BTCUSDT @ $115649.5300, Cost: $940.13
+­şôë Exit: $115232.2900, P&L: $-4.14 (-0.36%), Capital: $984.98
+­şôê Spot Entry: 0.008170 BTCUSDT @ $114530.0100, Cost: $936.20
+­şôë Exit: $114186.4200, P&L: $-3.55 (-0.30%), Capital: $981.42
+­şôê Spot Entry: 0.008266 BTCUSDT @ $112792.1600, Cost: $932.82
+­şôë Exit: $113092.4617, P&L: $1.74 (0.27%), Capital: $983.16
+­şôê Spot Entry: 0.008272 BTCUSDT @ $112905.3200, Cost: $934.47
+­şôë Exit: $113092.4617, P&L: $0.80 (0.17%), Capital: $983.96
+­şôê Spot Entry: 0.008287 BTCUSDT @ $112795.3100, Cost: $935.23
+­şôë Exit: $113092.4617, P&L: $1.71 (0.26%), Capital: $985.67
+­şôê Spot Entry: 0.008308 BTCUSDT @ $112705.5700, Cost: $936.86
+­şôë Exit: $113092.4617, P&L: $2.46 (0.34%), Capital: $988.14
+­şôê Spot Entry: 0.008326 BTCUSDT @ $112747.7200, Cost: $939.20
+­şôë Exit: $112422.6372, P&L: $-3.46 (-0.29%), Capital: $984.68
+­şôê Spot Entry: 0.008332 BTCUSDT @ $112272.9200, Cost: $935.92
+­şôë Exit: $112950.6285, P&L: $4.90 (0.60%), Capital: $989.58
+­şôê Spot Entry: 0.008361 BTCUSDT @ $112442.3000, Cost: $940.57
+­şôë Exit: $112950.6285, P&L: $3.50 (0.45%), Capital: $993.08
+­şôê Spot Entry: 0.008376 BTCUSDT @ $112633.7200, Cost: $943.89
+­şôë Exit: $112950.6285, P&L: $1.90 (0.28%), Capital: $994.97
+­şôê Spot Entry: 0.008381 BTCUSDT @ $112777.7500, Cost: $945.70
+­şôë Exit: $112950.6285, P&L: $0.69 (0.15%), Capital: $995.67
+­şôê Spot Entry: 0.008423 BTCUSDT @ $112293.2300, Cost: $946.36
+­şôë Exit: $112162.5000, P&L: $-1.86 (-0.12%), Capital: $993.81
+­şôê Spot Entry: 0.008413 BTCUSDT @ $112217.2600, Cost: $944.59
+­şôë Exit: $112162.5000, P&L: $-1.22 (-0.05%), Capital: $992.59
+­şôê Spot Entry: 0.008402 BTCUSDT @ $112230.7200, Cost: $943.43
+­şôë Exit: $112162.5000, P&L: $-1.33 (-0.06%), Capital: $991.27
+­şôê Spot Entry: 0.008384 BTCUSDT @ $112319.2400, Cost: $942.17
+­şôë Exit: $112162.5000, P&L: $-2.07 (-0.14%), Capital: $989.20
+­şôê Spot Entry: 0.008361 BTCUSDT @ $112399.4500, Cost: $940.21
+­şôë Exit: $112162.5000, P&L: $-2.73 (-0.21%), Capital: $986.47
+­şôê Spot Entry: 0.008369 BTCUSDT @ $111980.8600, Cost: $937.61
+­şôë Exit: $111909.7206, P&L: $-1.34 (-0.06%), Capital: $985.12
+­şôê Spot Entry: 0.008354 BTCUSDT @ $112031.1700, Cost: $936.33
+­şôë Exit: $111909.7206, P&L: $-1.76 (-0.11%), Capital: $983.36
+­şôê Spot Entry: 0.008349 BTCUSDT @ $111891.2600, Cost: $934.66
+­şôë Exit: $111909.7206, P&L: $-0.59 (0.02%), Capital: $982.77
+­şôê Spot Entry: 0.008330 BTCUSDT @ $112079.7700, Cost: $934.09
+­şôë Exit: $111799.2829, P&L: $-3.08 (-0.25%), Capital: $979.68
+­şôê Spot Entry: 0.008338 BTCUSDT @ $111617.0100, Cost: $931.16
+­şôë Exit: $111383.8929, P&L: $-2.69 (-0.21%), Capital: $976.99
+­şôê Spot Entry: 0.008530 BTCUSDT @ $108809.2500, Cost: $928.61
+­şôë Exit: $109643.4600, P&L: $6.37 (0.77%), Capital: $983.37
+­şôê Spot Entry: 0.008534 BTCUSDT @ $109472.1300, Cost: $934.66
+­şôë Exit: $109469.4435, P&L: $-0.77 (-0.00%), Capital: $982.60
+­şôê Spot Entry: 0.008514 BTCUSDT @ $109639.1300, Cost: $933.93
+­şôë Exit: $109469.4435, P&L: $-2.19 (-0.15%), Capital: $980.40
+­şôê Spot Entry: 0.008501 BTCUSDT @ $109560.0100, Cost: $931.85
+­şôë Exit: $109469.4435, P&L: $-1.51 (-0.08%), Capital: $978.89
+­şôê Spot Entry: 0.008481 BTCUSDT @ $109649.9900, Cost: $930.41
+­şôë Exit: $109469.4435, P&L: $-2.27 (-0.16%), Capital: $976.62
+­şôê Spot Entry: 0.008466 BTCUSDT @ $109590.4200, Cost: $928.25
+­şôë Exit: $109635.8500, P&L: $-0.36 (0.04%), Capital: $976.26
+­şôê Spot Entry: 0.008458 BTCUSDT @ $109649.2900, Cost: $927.91
+­şôë Exit: $109414.6783, P&L: $-2.73 (-0.21%), Capital: $973.53
+­şôê Spot Entry: 0.008436 BTCUSDT @ $109635.9800, Cost: $925.32
+­şôë Exit: $109413.0432, P&L: $-2.62 (-0.20%), Capital: $970.91
+­şôê Spot Entry: 0.008419 BTCUSDT @ $109553.7700, Cost: $922.83
+­şôë Exit: $109635.8500, P&L: $-0.05 (0.07%), Capital: $970.86
+­şôê Spot Entry: 0.008419 BTCUSDT @ $109550.0000, Cost: $922.78
+­şôë Exit: $109635.8500, P&L: $-0.02 (0.08%), Capital: $970.85
+­şôê Spot Entry: 0.008401 BTCUSDT @ $109787.7400, Cost: $922.77
+­şôë Exit: $109458.3768, P&L: $-3.50 (-0.30%), Capital: $967.35
+­şôê Spot Entry: 0.008397 BTCUSDT @ $109437.4200, Cost: $919.44
+­şôë Exit: $111078.9813, P&L: $13.05 (1.50%), Capital: $980.39
+­şôê Spot Entry: 0.008513 BTCUSDT @ $109410.0000, Cost: $931.84
+­şôë Exit: $111051.1500, P&L: $13.22 (1.50%), Capital: $993.61
+­şôê Spot Entry: 0.008624 BTCUSDT @ $109458.2800, Cost: $944.40
+­şôë Exit: $111100.1542, P&L: $13.40 (1.50%), Capital: $1007.01
+­şôê Spot Entry: 0.008526 BTCUSDT @ $112198.8700, Cost: $957.14
+­şôë Exit: $111973.0700, P&L: $-2.69 (-0.20%), Capital: $1004.32
+­şôê Spot Entry: 0.008515 BTCUSDT @ $112056.4800, Cost: $954.58
+­şôë Exit: $113737.3272, P&L: $13.54 (1.50%), Capital: $1017.87
+­şôê Spot Entry: 0.008614 BTCUSDT @ $112260.5700, Cost: $967.46
+­şôë Exit: $111973.0700, P&L: $-3.25 (-0.26%), Capital: $1014.62
+­şôê Spot Entry: 0.008588 BTCUSDT @ $112241.5300, Cost: $964.37
+­şôë Exit: $111973.0700, P&L: $-3.08 (-0.24%), Capital: $1011.54
+­şôê Spot Entry: 0.008591 BTCUSDT @ $111855.3000, Cost: $961.44
+­şôë Exit: $113533.1295, P&L: $13.64 (1.50%), Capital: $1025.18
+­şôê Spot Entry: 0.008514 BTCUSDT @ $114386.0000, Cost: $974.41
+­şôë Exit: $113891.6400, P&L: $-4.99 (-0.43%), Capital: $1020.19
+­şôê Spot Entry: 0.008446 BTCUSDT @ $114751.7500, Cost: $969.67
+­şôë Exit: $114447.6240, P&L: $-3.34 (-0.27%), Capital: $1016.85
+­şôê Spot Entry: 0.008427 BTCUSDT @ $114631.2000, Cost: $966.49
+­şôë Exit: $114287.3164, P&L: $-3.67 (-0.30%), Capital: $1013.18
+­şôê Spot Entry: 0.008406 BTCUSDT @ $114500.3100, Cost: $963.00
+­şôë Exit: $114239.4404, P&L: $-2.96 (-0.23%), Capital: $1010.22
+­şöı Final Calculations:
+   Initial Capital: $1000.00
+   Final Capital: $1010.22
+   Net P&L: $10.22
+   Total Trades: 51
+   Winning: 15, Losing: 36
+   Total Fees: $38.43
+   Win Rate: 29.41%
+   Total Return: 1.02%
+­şöğ BacktestService initialized with cache dir: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data
+­şôü Cache directory exists: True
+­şôé Cache directory contents: ['048dd04a8a64bc7fe2bd1077a0cfe316.csv', '048dd04a8a64bc7fe2bd1077a0cfe316_meta.json', '0b3eeac287ef911a25f08bef363d9356.csv', '0b3eeac287ef911a25f08bef363d9356_meta.json', '83935708ee9893be2af170d56f5c18c3.csv', '83935708ee9893be2af170d56f5c18c3_meta.json', '9413d3a9b7ed1583a2ce139a06b073a1.csv', '9413d3a9b7ed1583a2ce139a06b073a1_meta.json', 'b0ad422a16cb1b2976cc147d08b0d7f0.csv', 'b0ad422a16cb1b2976cc147d08b0d7f0_meta.json', 'b508e30ab43678519e6f1f332c375f9c.csv', 'b508e30ab43678519e6f1f332c375f9c_meta.json', 'f3d31df3a34feecfe826dd91bf827ea6.csv', 'f3d31df3a34feecfe826dd91bf827ea6_meta.json', 'f7fa6e899c80c8fa106ee051da562ded.csv', 'f7fa6e899c80c8fa106ee051da562ded_meta.json', 'f95cdfc6011812c84b3c1ea5803512d4.csv', 'f95cdfc6011812c84b3c1ea5803512d4_meta.json']
+­şÜÇ Starting spot backtest for BTCUSDT 15m
+ÔÜá´©Å No user or database session - Running in TEST MODE
+­şğ¬ Running in TEST MODE
+­şÆ░ Spot trading (no leverage)
+­şôà Using date range: 2025-09-20 to 2025-09-21
+­şôà Using date range: 2025-09-20 to 2025-09-21
+­şöı Checking cache for: BTCUSDT 15m 2025-09-20 to 2025-09-21 [spot]
+­şöı Cache check for: BTCUSDT 15m 2025-09-20 to 2025-09-21
+­şöæ Cache key: b0ad422a16cb1b2976cc147d08b0d7f0
+­şôü Cache path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b0ad422a16cb1b2976cc147d08b0d7f0.csv
+­şôä Metadata path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b0ad422a16cb1b2976cc147d08b0d7f0_meta.json
+­şôé Cache file exists: True
+­şôï Metadata file exists: True
+­şôè Cached metadata: {'symbol': 'BTCUSDT', 'interval': '15m', 'start_date': '2025-09-20', 'end_date': '2025-09-21', 'market_type': 'spot', 'cached_at': '2025-10-27T01:37:13.360855', 'rows': 1000, 'cache_key': 'b0ad422a16cb1b2976cc147d08b0d7f0'}
+­şòÉ Cache time: 2025-10-27 01:37:13.360855
+­şòÉ Current time: 2025-10-27 01:37:50.281583
+ÔÅ░ Cache age: 0.01 hours
+­şôà End date: 2025-09-21
+­şôà Days from now: 36
+­şôÜ Historical data - cache valid: True
+Ô£à Cache hit: BTCUSDT 15m (1000 rows)
+­şôĞ Using cached data: 1000 rows
+­şôè Preparing indicators for 1000 rows
+Ô£à Indicators prepared: 1000 clean rows from 1000 original rows
+­şôê Sample indicators - EMA_fast: 113989.4709, RSI: 32.43
+­şôè Data prepared: 1000 candles
+­şÆ░ Starting capital: $1000.00
+­şôê Spot Entry: 0.008220 BTCUSDT @ $115578.0900, Cost: $950.48
+­şôë Exit: $115685.6300, P&L: $0.12 (0.09%), Capital: $1000.12
+­şôê Spot Entry: 0.008219 BTCUSDT @ $115606.7400, Cost: $950.59
+­şôë Exit: $115685.6300, P&L: $-0.11 (0.07%), Capital: $1000.01
+­şôê Spot Entry: 0.008215 BTCUSDT @ $115639.9900, Cost: $950.49
+­şôë Exit: $115685.6300, P&L: $-0.39 (0.04%), Capital: $999.63
+­şôê Spot Entry: 0.008207 BTCUSDT @ $115717.4900, Cost: $950.12
+­şôë Exit: $115685.6300, P&L: $-1.02 (-0.03%), Capital: $998.61
+­şôê Spot Entry: 0.008205 BTCUSDT @ $115625.8600, Cost: $949.15
+­şôë Exit: $115685.6300, P&L: $-0.27 (0.05%), Capital: $998.34
+­şôê Spot Entry: 0.008198 BTCUSDT @ $115690.7600, Cost: $948.89
+­şôë Exit: $115232.2900, P&L: $-4.52 (-0.40%), Capital: $993.82
+­şôê Spot Entry: 0.008159 BTCUSDT @ $115715.9900, Cost: $944.60
+­şôë Exit: $115232.2900, P&L: $-4.70 (-0.42%), Capital: $989.12
+­şôê Spot Entry: 0.008125 BTCUSDT @ $115649.5300, Cost: $940.13
+­şôë Exit: $115232.2900, P&L: $-4.14 (-0.36%), Capital: $984.98
+­şôê Spot Entry: 0.008170 BTCUSDT @ $114530.0100, Cost: $936.20
+­şôë Exit: $114186.4200, P&L: $-3.55 (-0.30%), Capital: $981.42
+­şôê Spot Entry: 0.008266 BTCUSDT @ $112792.1600, Cost: $932.82
+­şôë Exit: $113092.4617, P&L: $1.74 (0.27%), Capital: $983.16
+­şôê Spot Entry: 0.008272 BTCUSDT @ $112905.3200, Cost: $934.47
+­şôë Exit: $113092.4617, P&L: $0.80 (0.17%), Capital: $983.96
+­şôê Spot Entry: 0.008287 BTCUSDT @ $112795.3100, Cost: $935.23
+­şôë Exit: $113092.4617, P&L: $1.71 (0.26%), Capital: $985.67
+­şôê Spot Entry: 0.008308 BTCUSDT @ $112705.5700, Cost: $936.86
+­şôë Exit: $113092.4617, P&L: $2.46 (0.34%), Capital: $988.14
+­şôê Spot Entry: 0.008326 BTCUSDT @ $112747.7200, Cost: $939.20
+­şôë Exit: $112422.6372, P&L: $-3.46 (-0.29%), Capital: $984.68
+­şôê Spot Entry: 0.008332 BTCUSDT @ $112272.9200, Cost: $935.92
+­şôë Exit: $112950.6285, P&L: $4.90 (0.60%), Capital: $989.58
+­şôê Spot Entry: 0.008361 BTCUSDT @ $112442.3000, Cost: $940.57
+­şôë Exit: $112950.6285, P&L: $3.50 (0.45%), Capital: $993.08
+­şôê Spot Entry: 0.008376 BTCUSDT @ $112633.7200, Cost: $943.89
+­şôë Exit: $112950.6285, P&L: $1.90 (0.28%), Capital: $994.97
+­şôê Spot Entry: 0.008390 BTCUSDT @ $112665.4400, Cost: $945.70
+­şôë Exit: $112950.6285, P&L: $1.64 (0.25%), Capital: $996.61
+­şôê Spot Entry: 0.008431 BTCUSDT @ $112293.2300, Cost: $947.25
+­şôë Exit: $112162.5000, P&L: $-1.86 (-0.12%), Capital: $994.75
+­şôê Spot Entry: 0.008421 BTCUSDT @ $112217.2600, Cost: $945.49
+­şôë Exit: $112162.5000, P&L: $-1.22 (-0.05%), Capital: $993.53
+­şôê Spot Entry: 0.008410 BTCUSDT @ $112230.7200, Cost: $944.33
+­şôë Exit: $112162.5000, P&L: $-1.33 (-0.06%), Capital: $992.20
+­şôê Spot Entry: 0.008392 BTCUSDT @ $112319.2400, Cost: $943.07
+­şôë Exit: $112162.5000, P&L: $-2.07 (-0.14%), Capital: $990.14
+­şôê Spot Entry: 0.008365 BTCUSDT @ $112451.2600, Cost: $941.10
+­şôë Exit: $112162.5000, P&L: $-3.17 (-0.26%), Capital: $986.97
+­şôê Spot Entry: 0.008373 BTCUSDT @ $111980.8600, Cost: $938.09
+­şôë Exit: $111909.7206, P&L: $-1.35 (-0.06%), Capital: $985.62
+­şôê Spot Entry: 0.008358 BTCUSDT @ $112031.1700, Cost: $936.81
+­şôë Exit: $111909.7206, P&L: $-1.76 (-0.11%), Capital: $983.86
+­şôê Spot Entry: 0.008353 BTCUSDT @ $111891.2600, Cost: $935.13
+­şôë Exit: $111909.7206, P&L: $-0.59 (0.02%), Capital: $983.27
+­şôê Spot Entry: 0.008334 BTCUSDT @ $112079.7700, Cost: $934.57
+­şôë Exit: $111799.2829, P&L: $-3.08 (-0.25%), Capital: $980.18
+­şôê Spot Entry: 0.008346 BTCUSDT @ $111571.5800, Cost: $931.64
+­şôë Exit: $111518.5576, P&L: $-1.19 (-0.05%), Capital: $978.99
+­şôê Spot Entry: 0.008496 BTCUSDT @ $109472.1300, Cost: $930.51
+­şôë Exit: $109469.4435, P&L: $-0.77 (-0.00%), Capital: $978.23
+­şôê Spot Entry: 0.008476 BTCUSDT @ $109639.1300, Cost: $929.78
+­şôë Exit: $109469.4435, P&L: $-2.18 (-0.15%), Capital: $976.05
+­şôê Spot Entry: 0.008463 BTCUSDT @ $109560.0100, Cost: $927.71
+­şôë Exit: $109469.4435, P&L: $-1.51 (-0.08%), Capital: $974.54
+­şôê Spot Entry: 0.008443 BTCUSDT @ $109649.9900, Cost: $926.27
+­şôë Exit: $109469.4435, P&L: $-2.26 (-0.16%), Capital: $972.27
+­şôê Spot Entry: 0.008421 BTCUSDT @ $109680.4000, Cost: $924.12
+­şôë Exit: $109469.4435, P&L: $-2.51 (-0.19%), Capital: $969.76
+­şôê Spot Entry: 0.008406 BTCUSDT @ $109590.4200, Cost: $921.73
+­şôë Exit: $109635.8500, P&L: $-0.36 (0.04%), Capital: $969.40
+­şôê Spot Entry: 0.008399 BTCUSDT @ $109649.2900, Cost: $921.39
+­şôë Exit: $109414.6783, P&L: $-2.71 (-0.21%), Capital: $966.70
+­şôê Spot Entry: 0.008376 BTCUSDT @ $109635.9800, Cost: $918.82
+­şôë Exit: $109413.0432, P&L: $-2.60 (-0.20%), Capital: $964.09
+­şôê Spot Entry: 0.008360 BTCUSDT @ $109553.7700, Cost: $916.35
+­şôë Exit: $109635.8500, P&L: $-0.05 (0.07%), Capital: $964.05
+­şôê Spot Entry: 0.008360 BTCUSDT @ $109550.0000, Cost: $916.30
+­şôë Exit: $109635.8500, P&L: $-0.02 (0.08%), Capital: $964.03
+­şôê Spot Entry: 0.008342 BTCUSDT @ $109787.7400, Cost: $916.29
+­şôë Exit: $109458.3768, P&L: $-3.48 (-0.30%), Capital: $960.55
+­şôê Spot Entry: 0.008338 BTCUSDT @ $109437.4200, Cost: $912.98
+­şôë Exit: $111078.9813, P&L: $12.95 (1.50%), Capital: $973.51
+­şôê Spot Entry: 0.008453 BTCUSDT @ $109410.0000, Cost: $925.29
+­şôë Exit: $111051.1500, P&L: $13.13 (1.50%), Capital: $986.64
+­şôê Spot Entry: 0.008563 BTCUSDT @ $109458.2800, Cost: $937.77
+­şôë Exit: $111100.1542, P&L: $13.31 (1.50%), Capital: $999.94
+­şôê Spot Entry: 0.008467 BTCUSDT @ $112198.8700, Cost: $950.42
+­şôë Exit: $111973.0700, P&L: $-2.67 (-0.20%), Capital: $997.27
+­şôê Spot Entry: 0.008455 BTCUSDT @ $112056.4800, Cost: $947.88
+­şôë Exit: $113737.3272, P&L: $13.45 (1.50%), Capital: $1010.72
+­şôê Spot Entry: 0.008553 BTCUSDT @ $112260.5700, Cost: $960.66
+­şôë Exit: $111973.0700, P&L: $-3.23 (-0.26%), Capital: $1007.49
+­şôê Spot Entry: 0.008527 BTCUSDT @ $112241.5300, Cost: $957.60
+­şôë Exit: $111973.0700, P&L: $-3.05 (-0.24%), Capital: $1004.44
+­şôê Spot Entry: 0.008531 BTCUSDT @ $111855.3000, Cost: $954.69
+­şôë Exit: $113533.1295, P&L: $13.55 (1.50%), Capital: $1017.98
+­şôê Spot Entry: 0.008455 BTCUSDT @ $114386.0000, Cost: $967.57
+­şôë Exit: $113891.6400, P&L: $-4.95 (-0.43%), Capital: $1013.03
+­şôê Spot Entry: 0.008387 BTCUSDT @ $114751.7500, Cost: $962.86
+­şôë Exit: $114447.6240, P&L: $-3.32 (-0.27%), Capital: $1009.71
+­şôê Spot Entry: 0.008368 BTCUSDT @ $114631.2000, Cost: $959.71
+­şôë Exit: $114287.3164, P&L: $-3.64 (-0.30%), Capital: $1006.07
+­şôê Spot Entry: 0.008351 BTCUSDT @ $114448.3100, Cost: $956.24
+­şôë Exit: $114239.4404, P&L: $-2.51 (-0.18%), Capital: $1003.56
+­şöı Final Calculations:
+   Initial Capital: $1000.00
+   Final Capital: $1003.56
+   Net P&L: $3.56
+   Total Trades: 51
+   Winning: 14, Losing: 37
+   Total Fees: $38.32
+   Win Rate: 27.45%
+   Total Return: 0.36%
+­şöğ BacktestService initialized with cache dir: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data
+­şôü Cache directory exists: True
+­şôé Cache directory contents: ['048dd04a8a64bc7fe2bd1077a0cfe316.csv', '048dd04a8a64bc7fe2bd1077a0cfe316_meta.json', '0b3eeac287ef911a25f08bef363d9356.csv', '0b3eeac287ef911a25f08bef363d9356_meta.json', '83935708ee9893be2af170d56f5c18c3.csv', '83935708ee9893be2af170d56f5c18c3_meta.json', '9413d3a9b7ed1583a2ce139a06b073a1.csv', '9413d3a9b7ed1583a2ce139a06b073a1_meta.json', 'b0ad422a16cb1b2976cc147d08b0d7f0.csv', 'b0ad422a16cb1b2976cc147d08b0d7f0_meta.json', 'b508e30ab43678519e6f1f332c375f9c.csv', 'b508e30ab43678519e6f1f332c375f9c_meta.json', 'f3d31df3a34feecfe826dd91bf827ea6.csv', 'f3d31df3a34feecfe826dd91bf827ea6_meta.json', 'f7fa6e899c80c8fa106ee051da562ded.csv', 'f7fa6e899c80c8fa106ee051da562ded_meta.json', 'f95cdfc6011812c84b3c1ea5803512d4.csv', 'f95cdfc6011812c84b3c1ea5803512d4_meta.json']
+­şÜÇ Starting spot backtest for BTCUSDT 15m
+ÔÜá´©Å No user or database session - Running in TEST MODE
+­şğ¬ Running in TEST MODE
+­şÆ░ Spot trading (no leverage)
+­şôà Using date range: 2025-09-20 to 2025-09-21
+­şôà Using date range: 2025-09-20 to 2025-09-21
+­şöı Checking cache for: BTCUSDT 15m 2025-09-20 to 2025-09-21 [spot]
+­şöı Cache check for: BTCUSDT 15m 2025-09-20 to 2025-09-21
+­şöæ Cache key: b0ad422a16cb1b2976cc147d08b0d7f0
+­şôü Cache path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b0ad422a16cb1b2976cc147d08b0d7f0.csv
+­şôä Metadata path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b0ad422a16cb1b2976cc147d08b0d7f0_meta.json
+­şôé Cache file exists: True
+­şôï Metadata file exists: True
+­şôè Cached metadata: {'symbol': 'BTCUSDT', 'interval': '15m', 'start_date': '2025-09-20', 'end_date': '2025-09-21', 'market_type': 'spot', 'cached_at': '2025-10-27T01:37:13.360855', 'rows': 1000, 'cache_key': 'b0ad422a16cb1b2976cc147d08b0d7f0'}
+­şòÉ Cache time: 2025-10-27 01:37:13.360855
+­şòÉ Current time: 2025-10-27 01:37:50.483334
+ÔÅ░ Cache age: 0.01 hours
+­şôà End date: 2025-09-21
+­şôà Days from now: 36
+­şôÜ Historical data - cache valid: True
+Ô£à Cache hit: BTCUSDT 15m (1000 rows)
+­şôĞ Using cached data: 1000 rows
+­şôè Preparing indicators for 1000 rows
+Ô£à Indicators prepared: 1000 clean rows from 1000 original rows
+­şôê Sample indicators - EMA_fast: 113989.4709, RSI: 38.09
+­şôè Data prepared: 1000 candles
+­şÆ░ Starting capital: $1000.00
+­şôê Spot Entry: 0.008220 BTCUSDT @ $115578.0900, Cost: $950.48
+­şôë Exit: $115685.6300, P&L: $0.12 (0.09%), Capital: $1000.12
+­şôê Spot Entry: 0.008219 BTCUSDT @ $115606.7400, Cost: $950.59
+­şôë Exit: $115685.6300, P&L: $-0.11 (0.07%), Capital: $1000.01
+­şôê Spot Entry: 0.008215 BTCUSDT @ $115639.9900, Cost: $950.49
+­şôë Exit: $115685.6300, P&L: $-0.39 (0.04%), Capital: $999.63
+­şôê Spot Entry: 0.008207 BTCUSDT @ $115717.4900, Cost: $950.12
+­şôë Exit: $115685.6300, P&L: $-1.02 (-0.03%), Capital: $998.61
+­şôê Spot Entry: 0.008205 BTCUSDT @ $115625.8600, Cost: $949.15
+­şôë Exit: $115685.6300, P&L: $-0.27 (0.05%), Capital: $998.34
+­şôê Spot Entry: 0.008198 BTCUSDT @ $115690.7600, Cost: $948.89
+­şôë Exit: $115232.2900, P&L: $-4.52 (-0.40%), Capital: $993.82
+­şôê Spot Entry: 0.008159 BTCUSDT @ $115715.9900, Cost: $944.60
+­şôë Exit: $115232.2900, P&L: $-4.70 (-0.42%), Capital: $989.12
+­şôê Spot Entry: 0.008125 BTCUSDT @ $115649.5300, Cost: $940.13
+­şôë Exit: $115232.2900, P&L: $-4.14 (-0.36%), Capital: $984.98
+­şôê Spot Entry: 0.008170 BTCUSDT @ $114530.0100, Cost: $936.20
+­şôë Exit: $114186.4200, P&L: $-3.55 (-0.30%), Capital: $981.42
+­şôê Spot Entry: 0.008266 BTCUSDT @ $112792.1600, Cost: $932.82
+­şôë Exit: $113092.4617, P&L: $1.74 (0.27%), Capital: $983.16
+­şôê Spot Entry: 0.008272 BTCUSDT @ $112905.3200, Cost: $934.47
+­şôë Exit: $113092.4617, P&L: $0.80 (0.17%), Capital: $983.96
+­şôê Spot Entry: 0.008287 BTCUSDT @ $112795.3100, Cost: $935.23
+­şôë Exit: $113092.4617, P&L: $1.71 (0.26%), Capital: $985.67
+­şôê Spot Entry: 0.008308 BTCUSDT @ $112705.5700, Cost: $936.86
+­şôë Exit: $113092.4617, P&L: $2.46 (0.34%), Capital: $988.14
+­şôê Spot Entry: 0.008326 BTCUSDT @ $112747.7200, Cost: $939.20
+­şôë Exit: $112422.6372, P&L: $-3.46 (-0.29%), Capital: $984.68
+­şôê Spot Entry: 0.008332 BTCUSDT @ $112272.9200, Cost: $935.92
+­şôë Exit: $112950.6285, P&L: $4.90 (0.60%), Capital: $989.58
+­şôê Spot Entry: 0.008361 BTCUSDT @ $112442.3000, Cost: $940.57
+­şôë Exit: $112950.6285, P&L: $3.50 (0.45%), Capital: $993.08
+­şôê Spot Entry: 0.008376 BTCUSDT @ $112633.7200, Cost: $943.89
+­şôë Exit: $112950.6285, P&L: $1.90 (0.28%), Capital: $994.97
+­şôê Spot Entry: 0.008381 BTCUSDT @ $112777.7500, Cost: $945.70
+­şôë Exit: $112950.6285, P&L: $0.69 (0.15%), Capital: $995.67
+­şôê Spot Entry: 0.008423 BTCUSDT @ $112293.2300, Cost: $946.36
+­şôë Exit: $112162.5000, P&L: $-1.86 (-0.12%), Capital: $993.81
+­şôê Spot Entry: 0.008413 BTCUSDT @ $112217.2600, Cost: $944.59
+­şôë Exit: $112162.5000, P&L: $-1.22 (-0.05%), Capital: $992.59
+­şôê Spot Entry: 0.008402 BTCUSDT @ $112230.7200, Cost: $943.43
+­şôë Exit: $112162.5000, P&L: $-1.33 (-0.06%), Capital: $991.27
+­şôê Spot Entry: 0.008384 BTCUSDT @ $112319.2400, Cost: $942.17
+­şôë Exit: $112162.5000, P&L: $-2.07 (-0.14%), Capital: $989.20
+­şôê Spot Entry: 0.008361 BTCUSDT @ $112399.4500, Cost: $940.21
+­şôë Exit: $112162.5000, P&L: $-2.73 (-0.21%), Capital: $986.47
+­şôê Spot Entry: 0.008369 BTCUSDT @ $111980.8600, Cost: $937.61
+­şôë Exit: $111909.7206, P&L: $-1.34 (-0.06%), Capital: $985.12
+­şôê Spot Entry: 0.008354 BTCUSDT @ $112031.1700, Cost: $936.33
+­şôë Exit: $111909.7206, P&L: $-1.76 (-0.11%), Capital: $983.36
+­şôê Spot Entry: 0.008349 BTCUSDT @ $111891.2600, Cost: $934.66
+­şôë Exit: $111909.7206, P&L: $-0.59 (0.02%), Capital: $982.77
+­şôê Spot Entry: 0.008330 BTCUSDT @ $112079.7700, Cost: $934.09
+­şôë Exit: $111799.2829, P&L: $-3.08 (-0.25%), Capital: $979.68
+­şôê Spot Entry: 0.008342 BTCUSDT @ $111571.5800, Cost: $931.16
+­şôë Exit: $111518.5576, P&L: $-1.19 (-0.05%), Capital: $978.50
+­şôê Spot Entry: 0.008543 BTCUSDT @ $108809.2500, Cost: $930.04
+­şôë Exit: $109643.4600, P&L: $6.38 (0.77%), Capital: $984.88
+­şôê Spot Entry: 0.008547 BTCUSDT @ $109472.1300, Cost: $936.10
+­şôë Exit: $109469.4435, P&L: $-0.77 (-0.00%), Capital: $984.11
+­şôê Spot Entry: 0.008527 BTCUSDT @ $109639.1300, Cost: $935.37
+­şôë Exit: $109469.4435, P&L: $-2.19 (-0.15%), Capital: $981.91
+­şôê Spot Entry: 0.008514 BTCUSDT @ $109560.0100, Cost: $933.28
+­şôë Exit: $109469.4435, P&L: $-1.52 (-0.08%), Capital: $980.39
+­şôê Spot Entry: 0.008494 BTCUSDT @ $109649.9900, Cost: $931.84
+­şôë Exit: $109469.4435, P&L: $-2.28 (-0.16%), Capital: $978.12
+­şôê Spot Entry: 0.008479 BTCUSDT @ $109590.4200, Cost: $929.67
+­şôë Exit: $109635.8500, P&L: $-0.36 (0.04%), Capital: $977.76
+­şôê Spot Entry: 0.008471 BTCUSDT @ $109649.2900, Cost: $929.33
+­şôë Exit: $109414.6783, P&L: $-2.73 (-0.21%), Capital: $975.03
+­şôê Spot Entry: 0.008449 BTCUSDT @ $109635.9800, Cost: $926.74
+­şôë Exit: $109413.0432, P&L: $-2.62 (-0.20%), Capital: $972.40
+­şôê Spot Entry: 0.008432 BTCUSDT @ $109553.7700, Cost: $924.25
+­şôë Exit: $109635.8500, P&L: $-0.05 (0.07%), Capital: $972.36
+­şôê Spot Entry: 0.008432 BTCUSDT @ $109550.0000, Cost: $924.20
+­şôë Exit: $109635.8500, P&L: $-0.02 (0.08%), Capital: $972.34
+­şôê Spot Entry: 0.008414 BTCUSDT @ $109787.7400, Cost: $924.19
+­şôë Exit: $109458.3768, P&L: $-3.51 (-0.30%), Capital: $968.83
+­şôê Spot Entry: 0.008410 BTCUSDT @ $109437.4200, Cost: $920.85
+­şôë Exit: $111078.9813, P&L: $13.07 (1.50%), Capital: $981.90
+­şôê Spot Entry: 0.008526 BTCUSDT @ $109410.0000, Cost: $933.27
+­şôë Exit: $111051.1500, P&L: $13.24 (1.50%), Capital: $995.14
+­şôê Spot Entry: 0.008637 BTCUSDT @ $109458.2800, Cost: $945.85
+­şôë Exit: $111100.1542, P&L: $13.42 (1.50%), Capital: $1008.56
+­şôê Spot Entry: 0.008540 BTCUSDT @ $112198.8700, Cost: $958.61
+­şôë Exit: $111973.0700, P&L: $-2.69 (-0.20%), Capital: $1005.86
+­şôê Spot Entry: 0.008528 BTCUSDT @ $112056.4800, Cost: $956.05
+­şôë Exit: $113737.3272, P&L: $13.56 (1.50%), Capital: $1019.43
+­şôê Spot Entry: 0.008627 BTCUSDT @ $112260.5700, Cost: $968.94
+­şôë Exit: $111973.0700, P&L: $-3.25 (-0.26%), Capital: $1016.18
+­şôê Spot Entry: 0.008601 BTCUSDT @ $112241.5300, Cost: $965.85
+­şôë Exit: $111973.0700, P&L: $-3.08 (-0.24%), Capital: $1013.09
+­şôê Spot Entry: 0.008604 BTCUSDT @ $111855.3000, Cost: $962.92
+­şôë Exit: $113533.1295, P&L: $13.66 (1.50%), Capital: $1026.76
+­şôê Spot Entry: 0.008527 BTCUSDT @ $114386.0000, Cost: $975.91
+­şôë Exit: $113891.6400, P&L: $-4.99 (-0.43%), Capital: $1021.76
+­şôê Spot Entry: 0.008459 BTCUSDT @ $114751.7500, Cost: $971.16
+­şôë Exit: $114447.6240, P&L: $-3.35 (-0.27%), Capital: $1018.41
+­şôê Spot Entry: 0.008440 BTCUSDT @ $114631.2000, Cost: $967.98
+­şôë Exit: $114287.3164, P&L: $-3.68 (-0.30%), Capital: $1014.74
+­şôê Spot Entry: 0.008423 BTCUSDT @ $114448.3100, Cost: $964.48
+­şôë Exit: $114239.4404, P&L: $-2.53 (-0.18%), Capital: $1012.21
+­şöı Final Calculations:
+   Initial Capital: $1000.00
+   Final Capital: $1012.21
+   Net P&L: $12.21
+   Total Trades: 51
+   Winning: 15, Losing: 36
+   Total Fees: $38.45
+   Win Rate: 29.41%
+   Total Return: 1.22%
+­şöğ BacktestService initialized with cache dir: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data
+­şôü Cache directory exists: True
+­şôé Cache directory contents: ['048dd04a8a64bc7fe2bd1077a0cfe316.csv', '048dd04a8a64bc7fe2bd1077a0cfe316_meta.json', '0b3eeac287ef911a25f08bef363d9356.csv', '0b3eeac287ef911a25f08bef363d9356_meta.json', '83935708ee9893be2af170d56f5c18c3.csv', '83935708ee9893be2af170d56f5c18c3_meta.json', '9413d3a9b7ed1583a2ce139a06b073a1.csv', '9413d3a9b7ed1583a2ce139a06b073a1_meta.json', 'b0ad422a16cb1b2976cc147d08b0d7f0.csv', 'b0ad422a16cb1b2976cc147d08b0d7f0_meta.json', 'b508e30ab43678519e6f1f332c375f9c.csv', 'b508e30ab43678519e6f1f332c375f9c_meta.json', 'f3d31df3a34feecfe826dd91bf827ea6.csv', 'f3d31df3a34feecfe826dd91bf827ea6_meta.json', 'f7fa6e899c80c8fa106ee051da562ded.csv', 'f7fa6e899c80c8fa106ee051da562ded_meta.json', 'f95cdfc6011812c84b3c1ea5803512d4.csv', 'f95cdfc6011812c84b3c1ea5803512d4_meta.json']
+­şÜÇ Starting spot backtest for BTCUSDT 15m
+ÔÜá´©Å No user or database session - Running in TEST MODE
+­şğ¬ Running in TEST MODE
+­şÆ░ Spot trading (no leverage)
+­şôà Using date range: 2025-09-20 to 2025-09-21
+­şôà Using date range: 2025-09-20 to 2025-09-21
+­şöı Checking cache for: BTCUSDT 15m 2025-09-20 to 2025-09-21 [spot]
+­şöı Cache check for: BTCUSDT 15m 2025-09-20 to 2025-09-21
+­şöæ Cache key: b0ad422a16cb1b2976cc147d08b0d7f0
+­şôü Cache path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b0ad422a16cb1b2976cc147d08b0d7f0.csv
+­şôä Metadata path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b0ad422a16cb1b2976cc147d08b0d7f0_meta.json
+­şôé Cache file exists: True
+­şôï Metadata file exists: True
+­şôè Cached metadata: {'symbol': 'BTCUSDT', 'interval': '15m', 'start_date': '2025-09-20', 'end_date': '2025-09-21', 'market_type': 'spot', 'cached_at': '2025-10-27T01:37:13.360855', 'rows': 1000, 'cache_key': 'b0ad422a16cb1b2976cc147d08b0d7f0'}
+­şòÉ Cache time: 2025-10-27 01:37:13.360855
+­şòÉ Current time: 2025-10-27 01:37:50.686055
+ÔÅ░ Cache age: 0.01 hours
+­şôà End date: 2025-09-21
+­şôà Days from now: 36
+­şôÜ Historical data - cache valid: True
+Ô£à Cache hit: BTCUSDT 15m (1000 rows)
+­şôĞ Using cached data: 1000 rows
+­şôè Preparing indicators for 1000 rows
+Ô£à Indicators prepared: 1000 clean rows from 1000 original rows
+­şôê Sample indicators - EMA_fast: 114017.3212, RSI: 32.43
+­şôè Data prepared: 1000 candles
+­şÆ░ Starting capital: $1000.00
+­şôê Spot Entry: 0.008218 BTCUSDT @ $115606.7400, Cost: $950.48
+­şôë Exit: $115685.6300, P&L: $-0.11 (0.07%), Capital: $999.89
+­şôê Spot Entry: 0.008214 BTCUSDT @ $115639.9900, Cost: $950.37
+­şôë Exit: $115685.6300, P&L: $-0.39 (0.04%), Capital: $999.50
+­şôê Spot Entry: 0.008206 BTCUSDT @ $115717.4900, Cost: $950.00
+­şôë Exit: $115685.6300, P&L: $-1.02 (-0.03%), Capital: $998.48
+­şôê Spot Entry: 0.008204 BTCUSDT @ $115625.8600, Cost: $949.03
+­şôë Exit: $115685.6300, P&L: $-0.27 (0.05%), Capital: $998.21
+­şôê Spot Entry: 0.008198 BTCUSDT @ $115677.6600, Cost: $948.78
+­şôë Exit: $115685.6300, P&L: $-0.69 (0.01%), Capital: $997.52
+­şôê Spot Entry: 0.008191 BTCUSDT @ $115690.7600, Cost: $948.12
+­şôë Exit: $115232.2900, P&L: $-4.51 (-0.40%), Capital: $993.01
+­şôê Spot Entry: 0.008152 BTCUSDT @ $115715.9900, Cost: $943.83
+­şôë Exit: $115232.2900, P&L: $-4.70 (-0.42%), Capital: $988.31
+­şôê Spot Entry: 0.008118 BTCUSDT @ $115649.5300, Cost: $939.36
+­şôë Exit: $115232.2900, P&L: $-4.14 (-0.36%), Capital: $984.17
+­şôê Spot Entry: 0.008163 BTCUSDT @ $114530.0100, Cost: $935.43
+­şôë Exit: $114186.4200, P&L: $-3.55 (-0.30%), Capital: $980.62
+­şôê Spot Entry: 0.008259 BTCUSDT @ $112792.1600, Cost: $932.06
+­şôë Exit: $113092.4617, P&L: $1.73 (0.27%), Capital: $982.36
+­şôê Spot Entry: 0.008266 BTCUSDT @ $112905.3200, Cost: $933.70
+­şôë Exit: $113092.4617, P&L: $0.80 (0.17%), Capital: $983.16
+­şôê Spot Entry: 0.008280 BTCUSDT @ $112795.3100, Cost: $934.46
+­şôë Exit: $113092.4617, P&L: $1.71 (0.26%), Capital: $984.87
+­şôê Spot Entry: 0.008301 BTCUSDT @ $112705.5700, Cost: $936.09
+­şôë Exit: $113092.4617, P&L: $2.46 (0.34%), Capital: $987.33
+­şôê Spot Entry: 0.008319 BTCUSDT @ $112747.7200, Cost: $938.43
+­şôë Exit: $112422.6372, P&L: $-3.45 (-0.29%), Capital: $983.88
+­şôê Spot Entry: 0.008325 BTCUSDT @ $112272.9200, Cost: $935.15
+­şôë Exit: $112950.6285, P&L: $4.89 (0.60%), Capital: $988.77
+­şôê Spot Entry: 0.008354 BTCUSDT @ $112442.3000, Cost: $939.80
+­şôë Exit: $112950.6285, P&L: $3.49 (0.45%), Capital: $992.26
+­şôê Spot Entry: 0.008369 BTCUSDT @ $112633.7200, Cost: $943.12
+­şôë Exit: $112950.6285, P&L: $1.90 (0.28%), Capital: $994.16
+­şôê Spot Entry: 0.008383 BTCUSDT @ $112665.4400, Cost: $944.92
+­şôë Exit: $112950.6285, P&L: $1.63 (0.25%), Capital: $995.79
+­şôê Spot Entry: 0.008424 BTCUSDT @ $112293.2300, Cost: $946.48
+­şôë Exit: $112162.5000, P&L: $-1.86 (-0.12%), Capital: $993.94
+­şôê Spot Entry: 0.008414 BTCUSDT @ $112217.2600, Cost: $944.71
+­şôë Exit: $112162.5000, P&L: $-1.22 (-0.05%), Capital: $992.72
+­şôê Spot Entry: 0.008403 BTCUSDT @ $112230.7200, Cost: $943.56
+­şôë Exit: $112162.5000, P&L: $-1.33 (-0.06%), Capital: $991.39
+­şôê Spot Entry: 0.008385 BTCUSDT @ $112319.2400, Cost: $942.29
+­şôë Exit: $112162.5000, P&L: $-2.07 (-0.14%), Capital: $989.33
+­şôê Spot Entry: 0.008358 BTCUSDT @ $112451.2600, Cost: $940.33
+­şôë Exit: $112162.5000, P&L: $-3.16 (-0.26%), Capital: $986.16
+­şôê Spot Entry: 0.008366 BTCUSDT @ $111980.8600, Cost: $937.32
+­şôë Exit: $111909.7206, P&L: $-1.34 (-0.06%), Capital: $984.82
+­şôê Spot Entry: 0.008351 BTCUSDT @ $112031.1700, Cost: $936.04
+­şôë Exit: $111909.7206, P&L: $-1.76 (-0.11%), Capital: $983.05
+­şôê Spot Entry: 0.008347 BTCUSDT @ $111891.2600, Cost: $934.37
+­şôë Exit: $111909.7206, P&L: $-0.59 (0.02%), Capital: $982.46
+­şôê Spot Entry: 0.008327 BTCUSDT @ $112079.7700, Cost: $933.80
+­şôë Exit: $111799.2829, P&L: $-3.08 (-0.25%), Capital: $979.38
+­şôê Spot Entry: 0.008336 BTCUSDT @ $111617.0100, Cost: $930.88
+­şôë Exit: $111383.8929, P&L: $-2.69 (-0.21%), Capital: $976.69
+­şôê Spot Entry: 0.008476 BTCUSDT @ $109472.1300, Cost: $928.32
+­şôë Exit: $109469.4435, P&L: $-0.77 (-0.00%), Capital: $975.93
+­şôê Spot Entry: 0.008456 BTCUSDT @ $109639.1300, Cost: $927.59
+­şôë Exit: $109469.4435, P&L: $-2.18 (-0.15%), Capital: $973.75
+­şôê Spot Entry: 0.008443 BTCUSDT @ $109560.0100, Cost: $925.53
+­şôë Exit: $109469.4435, P&L: $-1.50 (-0.08%), Capital: $972.25
+­şôê Spot Entry: 0.008423 BTCUSDT @ $109649.9900, Cost: $924.10
+­şôë Exit: $109469.4435, P&L: $-2.26 (-0.16%), Capital: $969.99
+­şôê Spot Entry: 0.008402 BTCUSDT @ $109680.4000, Cost: $921.95
+­şôë Exit: $109469.4435, P&L: $-2.51 (-0.19%), Capital: $967.48
+­şôê Spot Entry: 0.008387 BTCUSDT @ $109590.4200, Cost: $919.56
+­şôë Exit: $109635.8500, P&L: $-0.35 (0.04%), Capital: $967.12
+­şôê Spot Entry: 0.008379 BTCUSDT @ $109649.2900, Cost: $919.23
+­şôë Exit: $109414.6783, P&L: $-2.70 (-0.21%), Capital: $964.42
+­şôê Spot Entry: 0.008357 BTCUSDT @ $109635.9800, Cost: $916.66
+­şôë Exit: $109413.0432, P&L: $-2.60 (-0.20%), Capital: $961.83
+­şôê Spot Entry: 0.008341 BTCUSDT @ $109553.7700, Cost: $914.19
+­şôë Exit: $109635.8500, P&L: $-0.05 (0.07%), Capital: $961.78
+­şôê Spot Entry: 0.008340 BTCUSDT @ $109550.0000, Cost: $914.15
+­şôë Exit: $109635.8500, P&L: $-0.02 (0.08%), Capital: $961.77
+­şôê Spot Entry: 0.008322 BTCUSDT @ $109787.7400, Cost: $914.14
+­şôë Exit: $109458.3768, P&L: $-3.47 (-0.30%), Capital: $958.30
+­şôê Spot Entry: 0.008319 BTCUSDT @ $109437.4200, Cost: $910.84
+­şôë Exit: $111078.9813, P&L: $12.92 (1.50%), Capital: $971.22
+­şôê Spot Entry: 0.008433 BTCUSDT @ $109410.0000, Cost: $923.12
+­şôë Exit: $111051.1500, P&L: $13.10 (1.50%), Capital: $984.32
+­şôê Spot Entry: 0.008543 BTCUSDT @ $109458.2800, Cost: $935.57
+­şôë Exit: $111100.1542, P&L: $13.27 (1.50%), Capital: $997.59
+­şôê Spot Entry: 0.008447 BTCUSDT @ $112198.8700, Cost: $948.18
+­şôë Exit: $111973.0700, P&L: $-2.66 (-0.20%), Capital: $994.93
+­şôê Spot Entry: 0.008435 BTCUSDT @ $112056.4800, Cost: $945.65
+­şôë Exit: $113737.3272, P&L: $13.42 (1.50%), Capital: $1008.34
+­şôê Spot Entry: 0.008533 BTCUSDT @ $112260.5700, Cost: $958.40
+­şôë Exit: $111973.0700, P&L: $-3.22 (-0.26%), Capital: $1005.12
+­şôê Spot Entry: 0.008507 BTCUSDT @ $112241.5300, Cost: $955.35
+­şôë Exit: $111973.0700, P&L: $-3.05 (-0.24%), Capital: $1002.08
+­şôê Spot Entry: 0.008497 BTCUSDT @ $112042.9700, Cost: $952.45
+­şôë Exit: $113723.6145, P&L: $13.51 (1.50%), Capital: $1015.59
+­şôê Spot Entry: 0.008435 BTCUSDT @ $114386.0000, Cost: $965.29
+­şôë Exit: $113891.6400, P&L: $-4.94 (-0.43%), Capital: $1010.65
+­şôê Spot Entry: 0.008367 BTCUSDT @ $114751.7500, Cost: $960.60
+­şôë Exit: $114447.6240, P&L: $-3.31 (-0.27%), Capital: $1007.34
+­şôê Spot Entry: 0.008348 BTCUSDT @ $114631.2000, Cost: $957.45
+­şôë Exit: $114287.3164, P&L: $-3.64 (-0.30%), Capital: $1003.70
+­şôê Spot Entry: 0.008328 BTCUSDT @ $114500.3100, Cost: $953.99
+­şôë Exit: $114239.4404, P&L: $-2.93 (-0.23%), Capital: $1000.77
+­şöı Final Calculations:
+   Initial Capital: $1000.00
+   Final Capital: $1000.77
+   Net P&L: $0.77
+   Total Trades: 51
+   Winning: 13, Losing: 38
+   Total Fees: $38.26
+   Win Rate: 25.49%
+   Total Return: 0.08%
+­şöğ BacktestService initialized with cache dir: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data
+­şôü Cache directory exists: True
+­şôé Cache directory contents: ['048dd04a8a64bc7fe2bd1077a0cfe316.csv', '048dd04a8a64bc7fe2bd1077a0cfe316_meta.json', '0b3eeac287ef911a25f08bef363d9356.csv', '0b3eeac287ef911a25f08bef363d9356_meta.json', '83935708ee9893be2af170d56f5c18c3.csv', '83935708ee9893be2af170d56f5c18c3_meta.json', '9413d3a9b7ed1583a2ce139a06b073a1.csv', '9413d3a9b7ed1583a2ce139a06b073a1_meta.json', 'b0ad422a16cb1b2976cc147d08b0d7f0.csv', 'b0ad422a16cb1b2976cc147d08b0d7f0_meta.json', 'b508e30ab43678519e6f1f332c375f9c.csv', 'b508e30ab43678519e6f1f332c375f9c_meta.json', 'f3d31df3a34feecfe826dd91bf827ea6.csv', 'f3d31df3a34feecfe826dd91bf827ea6_meta.json', 'f7fa6e899c80c8fa106ee051da562ded.csv', 'f7fa6e899c80c8fa106ee051da562ded_meta.json', 'f95cdfc6011812c84b3c1ea5803512d4.csv', 'f95cdfc6011812c84b3c1ea5803512d4_meta.json']
+­şÜÇ Starting spot backtest for BTCUSDT 15m
+ÔÜá´©Å No user or database session - Running in TEST MODE
+­şğ¬ Running in TEST MODE
+­şÆ░ Spot trading (no leverage)
+­şôà Using date range: 2025-09-20 to 2025-09-21
+­şôà Using date range: 2025-09-20 to 2025-09-21
+­şöı Checking cache for: BTCUSDT 15m 2025-09-20 to 2025-09-21 [spot]
+­şöı Cache check for: BTCUSDT 15m 2025-09-20 to 2025-09-21
+­şöæ Cache key: b0ad422a16cb1b2976cc147d08b0d7f0
+­şôü Cache path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b0ad422a16cb1b2976cc147d08b0d7f0.csv
+­şôä Metadata path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b0ad422a16cb1b2976cc147d08b0d7f0_meta.json
+­şôé Cache file exists: True
+­şôï Metadata file exists: True
+­şôè Cached metadata: {'symbol': 'BTCUSDT', 'interval': '15m', 'start_date': '2025-09-20', 'end_date': '2025-09-21', 'market_type': 'spot', 'cached_at': '2025-10-27T01:37:13.360855', 'rows': 1000, 'cache_key': 'b0ad422a16cb1b2976cc147d08b0d7f0'}
+­şòÉ Cache time: 2025-10-27 01:37:13.360855
+­şòÉ Current time: 2025-10-27 01:37:50.896192
+ÔÅ░ Cache age: 0.01 hours
+­şôà End date: 2025-09-21
+­şôà Days from now: 36
+­şôÜ Historical data - cache valid: True
+Ô£à Cache hit: BTCUSDT 15m (1000 rows)
+­şôĞ Using cached data: 1000 rows
+­şôè Preparing indicators for 1000 rows
+Ô£à Indicators prepared: 1000 clean rows from 1000 original rows
+­şôê Sample indicators - EMA_fast: 114017.3212, RSI: 38.09
+­şôè Data prepared: 1000 candles
+­şÆ░ Starting capital: $1000.00
+­şôê Spot Entry: 0.008218 BTCUSDT @ $115606.7400, Cost: $950.48
+­şôë Exit: $115685.6300, P&L: $-0.11 (0.07%), Capital: $999.89
+­şôê Spot Entry: 0.008214 BTCUSDT @ $115639.9900, Cost: $950.37
+­şôë Exit: $115685.6300, P&L: $-0.39 (0.04%), Capital: $999.50
+­şôê Spot Entry: 0.008206 BTCUSDT @ $115717.4900, Cost: $950.00
+­şôë Exit: $115685.6300, P&L: $-1.02 (-0.03%), Capital: $998.48
+­şôê Spot Entry: 0.008204 BTCUSDT @ $115625.8600, Cost: $949.03
+­şôë Exit: $115685.6300, P&L: $-0.27 (0.05%), Capital: $998.21
+­şôê Spot Entry: 0.008198 BTCUSDT @ $115677.6600, Cost: $948.78
+­şôë Exit: $115685.6300, P&L: $-0.69 (0.01%), Capital: $997.52
+­şôê Spot Entry: 0.008191 BTCUSDT @ $115690.7600, Cost: $948.12
+­şôë Exit: $115232.2900, P&L: $-4.51 (-0.40%), Capital: $993.01
+­şôê Spot Entry: 0.008152 BTCUSDT @ $115715.9900, Cost: $943.83
+­şôë Exit: $115232.2900, P&L: $-4.70 (-0.42%), Capital: $988.31
+­şôê Spot Entry: 0.008118 BTCUSDT @ $115649.5300, Cost: $939.36
+­şôë Exit: $115232.2900, P&L: $-4.14 (-0.36%), Capital: $984.17
+­şôê Spot Entry: 0.008163 BTCUSDT @ $114530.0100, Cost: $935.43
+­şôë Exit: $114186.4200, P&L: $-3.55 (-0.30%), Capital: $980.62
+­şôê Spot Entry: 0.008259 BTCUSDT @ $112792.1600, Cost: $932.06
+­şôë Exit: $113092.4617, P&L: $1.73 (0.27%), Capital: $982.36
+­şôê Spot Entry: 0.008266 BTCUSDT @ $112905.3200, Cost: $933.70
+­şôë Exit: $113092.4617, P&L: $0.80 (0.17%), Capital: $983.16
+­şôê Spot Entry: 0.008280 BTCUSDT @ $112795.3100, Cost: $934.46
+­şôë Exit: $113092.4617, P&L: $1.71 (0.26%), Capital: $984.87
+­şôê Spot Entry: 0.008301 BTCUSDT @ $112705.5700, Cost: $936.09
+­şôë Exit: $113092.4617, P&L: $2.46 (0.34%), Capital: $987.33
+­şôê Spot Entry: 0.008319 BTCUSDT @ $112747.7200, Cost: $938.43
+­şôë Exit: $112422.6372, P&L: $-3.45 (-0.29%), Capital: $983.88
+­şôê Spot Entry: 0.008325 BTCUSDT @ $112272.9200, Cost: $935.15
+­şôë Exit: $112950.6285, P&L: $4.89 (0.60%), Capital: $988.77
+­şôê Spot Entry: 0.008354 BTCUSDT @ $112442.3000, Cost: $939.80
+­şôë Exit: $112950.6285, P&L: $3.49 (0.45%), Capital: $992.26
+­şôê Spot Entry: 0.008369 BTCUSDT @ $112633.7200, Cost: $943.12
+­şôë Exit: $112950.6285, P&L: $1.90 (0.28%), Capital: $994.16
+­şôê Spot Entry: 0.008374 BTCUSDT @ $112777.7500, Cost: $944.92
+­şôë Exit: $112950.6285, P&L: $0.69 (0.15%), Capital: $994.85
+­şôê Spot Entry: 0.008416 BTCUSDT @ $112293.2300, Cost: $945.58
+­şôë Exit: $112162.5000, P&L: $-1.86 (-0.12%), Capital: $993.00
+­şôê Spot Entry: 0.008406 BTCUSDT @ $112217.2600, Cost: $943.82
+­şôë Exit: $112162.5000, P&L: $-1.21 (-0.05%), Capital: $991.78
+­şôê Spot Entry: 0.008395 BTCUSDT @ $112230.7200, Cost: $942.66
+­şôë Exit: $112162.5000, P&L: $-1.33 (-0.06%), Capital: $990.45
+­şôê Spot Entry: 0.008377 BTCUSDT @ $112319.2400, Cost: $941.40
+­şôë Exit: $112162.5000, P&L: $-2.07 (-0.14%), Capital: $988.39
+­şôê Spot Entry: 0.008354 BTCUSDT @ $112399.4500, Cost: $939.44
+­şôë Exit: $112162.5000, P&L: $-2.73 (-0.21%), Capital: $985.66
+­şôê Spot Entry: 0.008362 BTCUSDT @ $111980.8600, Cost: $936.84
+­şôë Exit: $111909.7206, P&L: $-1.34 (-0.06%), Capital: $984.32
+­şôê Spot Entry: 0.008347 BTCUSDT @ $112031.1700, Cost: $935.57
+­şôë Exit: $111909.7206, P&L: $-1.76 (-0.11%), Capital: $982.55
+­şôê Spot Entry: 0.008342 BTCUSDT @ $111891.2600, Cost: $933.89
+­şôë Exit: $111909.7206, P&L: $-0.59 (0.02%), Capital: $981.96
+­şôê Spot Entry: 0.008323 BTCUSDT @ $112079.7700, Cost: $933.33
+­şôë Exit: $111799.2829, P&L: $-3.08 (-0.25%), Capital: $978.88
+­şôê Spot Entry: 0.008331 BTCUSDT @ $111617.0100, Cost: $930.40
+­şôë Exit: $111383.8929, P&L: $-2.69 (-0.21%), Capital: $976.20
+­şôê Spot Entry: 0.008471 BTCUSDT @ $109472.1300, Cost: $927.85
+­şôë Exit: $109469.4435, P&L: $-0.76 (-0.00%), Capital: $975.43
+­şôê Spot Entry: 0.008452 BTCUSDT @ $109639.1300, Cost: $927.12
+­şôë Exit: $109469.4435, P&L: $-2.18 (-0.15%), Capital: $973.26
+­şôê Spot Entry: 0.008439 BTCUSDT @ $109560.0100, Cost: $925.06
+­şôë Exit: $109469.4435, P&L: $-1.50 (-0.08%), Capital: $971.75
+­şôê Spot Entry: 0.008419 BTCUSDT @ $109649.9900, Cost: $923.63
+­şôë Exit: $109469.4435, P&L: $-2.26 (-0.16%), Capital: $969.49
+­şôê Spot Entry: 0.008397 BTCUSDT @ $109680.4000, Cost: $921.48
+­şôë Exit: $109469.4435, P&L: $-2.51 (-0.19%), Capital: $966.99
+­şôê Spot Entry: 0.008382 BTCUSDT @ $109590.4200, Cost: $919.10
+­şôë Exit: $109635.8500, P&L: $-0.35 (0.04%), Capital: $966.63
+­şôê Spot Entry: 0.008375 BTCUSDT @ $109649.2900, Cost: $918.76
+­şôë Exit: $109414.6783, P&L: $-2.70 (-0.21%), Capital: $963.93
+­şôê Spot Entry: 0.008353 BTCUSDT @ $109635.9800, Cost: $916.19
+­şôë Exit: $109413.0432, P&L: $-2.59 (-0.20%), Capital: $961.34
+­şôê Spot Entry: 0.008336 BTCUSDT @ $109553.7700, Cost: $913.73
+­şôë Exit: $109635.8500, P&L: $-0.05 (0.07%), Capital: $961.29
+­şôê Spot Entry: 0.008336 BTCUSDT @ $109550.0000, Cost: $913.68
+­şôë Exit: $109635.8500, P&L: $-0.02 (0.08%), Capital: $961.28
+­şôê Spot Entry: 0.008318 BTCUSDT @ $109787.7400, Cost: $913.67
+­şôë Exit: $109458.3768, P&L: $-3.47 (-0.30%), Capital: $957.81
+­şôê Spot Entry: 0.008314 BTCUSDT @ $109437.4200, Cost: $910.37
+­şôë Exit: $111078.9813, P&L: $12.92 (1.50%), Capital: $970.72
+­şôê Spot Entry: 0.008429 BTCUSDT @ $109410.0000, Cost: $922.65
+­şôë Exit: $111051.1500, P&L: $13.09 (1.50%), Capital: $983.82
+­şôê Spot Entry: 0.008539 BTCUSDT @ $109458.2800, Cost: $935.09
+­şôë Exit: $111100.1542, P&L: $13.27 (1.50%), Capital: $997.08
+­şôê Spot Entry: 0.008442 BTCUSDT @ $112198.8700, Cost: $947.70
+­şôë Exit: $111973.0700, P&L: $-2.66 (-0.20%), Capital: $994.42
+­şôê Spot Entry: 0.008431 BTCUSDT @ $112056.4800, Cost: $945.17
+­şôë Exit: $113737.3272, P&L: $13.41 (1.50%), Capital: $1007.83
+­şôê Spot Entry: 0.008529 BTCUSDT @ $112260.5700, Cost: $957.92
+­şôë Exit: $111973.0700, P&L: $-3.22 (-0.26%), Capital: $1004.61
+­şôê Spot Entry: 0.008503 BTCUSDT @ $112241.5300, Cost: $954.86
+­şôë Exit: $111973.0700, P&L: $-3.05 (-0.24%), Capital: $1001.57
+­şôê Spot Entry: 0.008506 BTCUSDT @ $111855.3000, Cost: $951.96
+­şôë Exit: $113533.1295, P&L: $13.51 (1.50%), Capital: $1015.07
+­şôê Spot Entry: 0.008430 BTCUSDT @ $114386.0000, Cost: $964.80
+­şôë Exit: $113891.6400, P&L: $-4.94 (-0.43%), Capital: $1010.14
+­şôê Spot Entry: 0.008363 BTCUSDT @ $114751.7500, Cost: $960.11
+­şôë Exit: $114447.6240, P&L: $-3.31 (-0.27%), Capital: $1006.83
+­şôê Spot Entry: 0.008344 BTCUSDT @ $114631.2000, Cost: $956.96
+­şôë Exit: $114287.3164, P&L: $-3.63 (-0.30%), Capital: $1003.19
+­şôê Spot Entry: 0.008323 BTCUSDT @ $114500.3100, Cost: $953.51
+­şôë Exit: $114239.4404, P&L: $-2.93 (-0.23%), Capital: $1000.26
+­şöı Final Calculations:
+   Initial Capital: $1000.00
+   Final Capital: $1000.26
+   Net P&L: $0.26
+   Total Trades: 51
+   Winning: 13, Losing: 38
+   Total Fees: $38.25
+   Win Rate: 25.49%
+   Total Return: 0.03%
+­şöğ BacktestService initialized with cache dir: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data
+­şôü Cache directory exists: True
+­şôé Cache directory contents: ['048dd04a8a64bc7fe2bd1077a0cfe316.csv', '048dd04a8a64bc7fe2bd1077a0cfe316_meta.json', '0b3eeac287ef911a25f08bef363d9356.csv', '0b3eeac287ef911a25f08bef363d9356_meta.json', '83935708ee9893be2af170d56f5c18c3.csv', '83935708ee9893be2af170d56f5c18c3_meta.json', '9413d3a9b7ed1583a2ce139a06b073a1.csv', '9413d3a9b7ed1583a2ce139a06b073a1_meta.json', 'b0ad422a16cb1b2976cc147d08b0d7f0.csv', 'b0ad422a16cb1b2976cc147d08b0d7f0_meta.json', 'b508e30ab43678519e6f1f332c375f9c.csv', 'b508e30ab43678519e6f1f332c375f9c_meta.json', 'f3d31df3a34feecfe826dd91bf827ea6.csv', 'f3d31df3a34feecfe826dd91bf827ea6_meta.json', 'f7fa6e899c80c8fa106ee051da562ded.csv', 'f7fa6e899c80c8fa106ee051da562ded_meta.json', 'f95cdfc6011812c84b3c1ea5803512d4.csv', 'f95cdfc6011812c84b3c1ea5803512d4_meta.json']
+­şÜÇ Starting spot backtest for BTCUSDT 15m
+ÔÜá´©Å No user or database session - Running in TEST MODE
+­şğ¬ Running in TEST MODE
+­şÆ░ Spot trading (no leverage)
+­şôà Using date range: 2025-09-20 to 2025-09-21
+­şôà Using date range: 2025-09-20 to 2025-09-21
+­şöı Checking cache for: BTCUSDT 15m 2025-09-20 to 2025-09-21 [spot]
+­şöı Cache check for: BTCUSDT 15m 2025-09-20 to 2025-09-21
+­şöæ Cache key: b0ad422a16cb1b2976cc147d08b0d7f0
+­şôü Cache path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b0ad422a16cb1b2976cc147d08b0d7f0.csv
+­şôä Metadata path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b0ad422a16cb1b2976cc147d08b0d7f0_meta.json
+­şôé Cache file exists: True
+­şôï Metadata file exists: True
+­şôè Cached metadata: {'symbol': 'BTCUSDT', 'interval': '15m', 'start_date': '2025-09-20', 'end_date': '2025-09-21', 'market_type': 'spot', 'cached_at': '2025-10-27T01:37:13.360855', 'rows': 1000, 'cache_key': 'b0ad422a16cb1b2976cc147d08b0d7f0'}
+­şòÉ Cache time: 2025-10-27 01:37:13.360855
+­şòÉ Current time: 2025-10-27 01:37:51.098337
+ÔÅ░ Cache age: 0.01 hours
+­şôà End date: 2025-09-21
+­şôà Days from now: 36
+­şôÜ Historical data - cache valid: True
+Ô£à Cache hit: BTCUSDT 15m (1000 rows)
+­şôĞ Using cached data: 1000 rows
+­şôè Preparing indicators for 1000 rows
+Ô£à Indicators prepared: 1000 clean rows from 1000 original rows
+­şôê Sample indicators - EMA_fast: 114017.3212, RSI: 32.43
+­şôè Data prepared: 1000 candles
+­şÆ░ Starting capital: $1000.00
+­şôê Spot Entry: 0.008220 BTCUSDT @ $115578.0900, Cost: $950.48
+­şôë Exit: $115685.6300, P&L: $0.12 (0.09%), Capital: $1000.12
+­şôê Spot Entry: 0.008219 BTCUSDT @ $115606.7400, Cost: $950.59
+­şôë Exit: $115685.6300, P&L: $-0.11 (0.07%), Capital: $1000.01
+­şôê Spot Entry: 0.008215 BTCUSDT @ $115639.9900, Cost: $950.49
+­şôë Exit: $115685.6300, P&L: $-0.39 (0.04%), Capital: $999.63
+­şôê Spot Entry: 0.008207 BTCUSDT @ $115717.4900, Cost: $950.12
+­şôë Exit: $115685.6300, P&L: $-1.02 (-0.03%), Capital: $998.61
+­şôê Spot Entry: 0.008205 BTCUSDT @ $115625.8600, Cost: $949.15
+­şôë Exit: $115685.6300, P&L: $-0.27 (0.05%), Capital: $998.34
+­şôê Spot Entry: 0.008198 BTCUSDT @ $115690.7600, Cost: $948.89
+­şôë Exit: $115232.2900, P&L: $-4.52 (-0.40%), Capital: $993.82
+­şôê Spot Entry: 0.008159 BTCUSDT @ $115715.9900, Cost: $944.60
+­şôë Exit: $115232.2900, P&L: $-4.70 (-0.42%), Capital: $989.12
+­şôê Spot Entry: 0.008125 BTCUSDT @ $115649.5300, Cost: $940.13
+­şôë Exit: $115232.2900, P&L: $-4.14 (-0.36%), Capital: $984.98
+­şôê Spot Entry: 0.008170 BTCUSDT @ $114530.0100, Cost: $936.20
+­şôë Exit: $114186.4200, P&L: $-3.55 (-0.30%), Capital: $981.42
+­şôê Spot Entry: 0.008266 BTCUSDT @ $112792.1600, Cost: $932.82
+­şôë Exit: $113092.4617, P&L: $1.74 (0.27%), Capital: $983.16
+­şôê Spot Entry: 0.008272 BTCUSDT @ $112905.3200, Cost: $934.47
+­şôë Exit: $113092.4617, P&L: $0.80 (0.17%), Capital: $983.96
+­şôê Spot Entry: 0.008287 BTCUSDT @ $112795.3100, Cost: $935.23
+­şôë Exit: $113092.4617, P&L: $1.71 (0.26%), Capital: $985.67
+­şôê Spot Entry: 0.008308 BTCUSDT @ $112705.5700, Cost: $936.86
+­şôë Exit: $113092.4617, P&L: $2.46 (0.34%), Capital: $988.14
+­şôê Spot Entry: 0.008326 BTCUSDT @ $112747.7200, Cost: $939.20
+­şôë Exit: $112422.6372, P&L: $-3.46 (-0.29%), Capital: $984.68
+­şôê Spot Entry: 0.008332 BTCUSDT @ $112272.9200, Cost: $935.92
+­şôë Exit: $112950.6285, P&L: $4.90 (0.60%), Capital: $989.58
+­şôê Spot Entry: 0.008361 BTCUSDT @ $112442.3000, Cost: $940.57
+­şôë Exit: $112950.6285, P&L: $3.50 (0.45%), Capital: $993.08
+­şôê Spot Entry: 0.008376 BTCUSDT @ $112633.7200, Cost: $943.89
+­şôë Exit: $112950.6285, P&L: $1.90 (0.28%), Capital: $994.97
+­şôê Spot Entry: 0.008390 BTCUSDT @ $112665.4400, Cost: $945.70
+­şôë Exit: $112950.6285, P&L: $1.64 (0.25%), Capital: $996.61
+­şôê Spot Entry: 0.008431 BTCUSDT @ $112293.2300, Cost: $947.25
+­şôë Exit: $112162.5000, P&L: $-1.86 (-0.12%), Capital: $994.75
+­şôê Spot Entry: 0.008421 BTCUSDT @ $112217.2600, Cost: $945.49
+­şôë Exit: $112162.5000, P&L: $-1.22 (-0.05%), Capital: $993.53
+­şôê Spot Entry: 0.008410 BTCUSDT @ $112230.7200, Cost: $944.33
+­şôë Exit: $112162.5000, P&L: $-1.33 (-0.06%), Capital: $992.20
+­şôê Spot Entry: 0.008392 BTCUSDT @ $112319.2400, Cost: $943.07
+­şôë Exit: $112162.5000, P&L: $-2.07 (-0.14%), Capital: $990.14
+­şôê Spot Entry: 0.008365 BTCUSDT @ $112451.2600, Cost: $941.10
+­şôë Exit: $112162.5000, P&L: $-3.17 (-0.26%), Capital: $986.97
+­şôê Spot Entry: 0.008373 BTCUSDT @ $111980.8600, Cost: $938.09
+­şôë Exit: $111909.7206, P&L: $-1.35 (-0.06%), Capital: $985.62
+­şôê Spot Entry: 0.008358 BTCUSDT @ $112031.1700, Cost: $936.81
+­şôë Exit: $111909.7206, P&L: $-1.76 (-0.11%), Capital: $983.86
+­şôê Spot Entry: 0.008353 BTCUSDT @ $111891.2600, Cost: $935.13
+­şôë Exit: $111909.7206, P&L: $-0.59 (0.02%), Capital: $983.27
+­şôê Spot Entry: 0.008334 BTCUSDT @ $112079.7700, Cost: $934.57
+­şôë Exit: $111799.2829, P&L: $-3.08 (-0.25%), Capital: $980.18
+­şôê Spot Entry: 0.008343 BTCUSDT @ $111617.0100, Cost: $931.64
+­şôë Exit: $111383.8929, P&L: $-2.69 (-0.21%), Capital: $977.49
+­şôê Spot Entry: 0.008483 BTCUSDT @ $109472.1300, Cost: $929.08
+­şôë Exit: $109469.4435, P&L: $-0.77 (-0.00%), Capital: $976.73
+­şôê Spot Entry: 0.008463 BTCUSDT @ $109639.1300, Cost: $928.35
+­şôë Exit: $109469.4435, P&L: $-2.18 (-0.15%), Capital: $974.55
+­şôê Spot Entry: 0.008450 BTCUSDT @ $109560.0100, Cost: $926.28
+­şôë Exit: $109469.4435, P&L: $-1.51 (-0.08%), Capital: $973.04
+­şôê Spot Entry: 0.008430 BTCUSDT @ $109649.9900, Cost: $924.85
+­şôë Exit: $109469.4435, P&L: $-2.26 (-0.16%), Capital: $970.78
+­şôê Spot Entry: 0.008408 BTCUSDT @ $109680.4000, Cost: $922.70
+­şôë Exit: $109469.4435, P&L: $-2.51 (-0.19%), Capital: $968.27
+­şôê Spot Entry: 0.008394 BTCUSDT @ $109590.4200, Cost: $920.32
+­şôë Exit: $109635.8500, P&L: $-0.35 (0.04%), Capital: $967.92
+­şôê Spot Entry: 0.008386 BTCUSDT @ $109649.2900, Cost: $919.98
+­şôë Exit: $109414.6783, P&L: $-2.70 (-0.21%), Capital: $965.21
+­şôê Spot Entry: 0.008364 BTCUSDT @ $109635.9800, Cost: $917.41
+­şôë Exit: $109413.0432, P&L: $-2.60 (-0.20%), Capital: $962.62
+­şôê Spot Entry: 0.008347 BTCUSDT @ $109553.7700, Cost: $914.94
+­şôë Exit: $109635.8500, P&L: $-0.05 (0.07%), Capital: $962.57
+­şôê Spot Entry: 0.008347 BTCUSDT @ $109550.0000, Cost: $914.90
+­şôë Exit: $109635.8500, P&L: $-0.02 (0.08%), Capital: $962.55
+­şôê Spot Entry: 0.008329 BTCUSDT @ $109787.7400, Cost: $914.88
+­şôë Exit: $109458.3768, P&L: $-3.47 (-0.30%), Capital: $959.08
+­şôê Spot Entry: 0.008308 BTCUSDT @ $109670.0100, Cost: $911.58
+­şôë Exit: $111315.0601, P&L: $12.93 (1.50%), Capital: $972.01
+­şôê Spot Entry: 0.008438 BTCUSDT @ $109437.4200, Cost: $923.88
+­şôë Exit: $111078.9813, P&L: $13.11 (1.50%), Capital: $985.12
+­şôê Spot Entry: 0.008554 BTCUSDT @ $109410.0000, Cost: $936.33
+­şôë Exit: $111051.1500, P&L: $13.29 (1.50%), Capital: $998.41
+­şôê Spot Entry: 0.008454 BTCUSDT @ $112198.8700, Cost: $948.96
+­şôë Exit: $111973.0700, P&L: $-2.67 (-0.20%), Capital: $995.74
+­şôê Spot Entry: 0.008442 BTCUSDT @ $112056.4800, Cost: $946.43
+­şôë Exit: $113737.3272, P&L: $13.43 (1.50%), Capital: $1009.17
+­şôê Spot Entry: 0.008540 BTCUSDT @ $112260.5700, Cost: $959.19
+­şôë Exit: $111973.0700, P&L: $-3.22 (-0.26%), Capital: $1005.95
+­şôê Spot Entry: 0.008514 BTCUSDT @ $112241.5300, Cost: $956.13
+­şôë Exit: $111973.0700, P&L: $-3.05 (-0.24%), Capital: $1002.90
+­şôê Spot Entry: 0.008503 BTCUSDT @ $112042.9700, Cost: $953.23
+­şôë Exit: $113723.6145, P&L: $13.52 (1.50%), Capital: $1016.42
+­şôê Spot Entry: 0.008442 BTCUSDT @ $114386.0000, Cost: $966.08
+­şôë Exit: $113891.6400, P&L: $-4.94 (-0.43%), Capital: $1011.48
+­şôê Spot Entry: 0.008374 BTCUSDT @ $114751.7500, Cost: $961.38
+­şôë Exit: $114447.6240, P&L: $-3.31 (-0.27%), Capital: $1008.16
+­şôê Spot Entry: 0.008355 BTCUSDT @ $114631.2000, Cost: $958.23
+­şôë Exit: $114287.3164, P&L: $-3.64 (-0.30%), Capital: $1004.52
+­şôê Spot Entry: 0.008334 BTCUSDT @ $114500.3100, Cost: $954.78
+­şôë Exit: $114239.4404, P&L: $-2.94 (-0.23%), Capital: $1001.59
+­şöı Final Calculations:
+   Initial Capital: $1000.00
+   Final Capital: $1001.59
+   Net P&L: $1.59
+   Total Trades: 51
+   Winning: 14, Losing: 37
+   Total Fees: $38.29
+   Win Rate: 27.45%
+   Total Return: 0.16%
+­şöğ BacktestService initialized with cache dir: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data
+­şôü Cache directory exists: True
+­şôé Cache directory contents: ['048dd04a8a64bc7fe2bd1077a0cfe316.csv', '048dd04a8a64bc7fe2bd1077a0cfe316_meta.json', '0b3eeac287ef911a25f08bef363d9356.csv', '0b3eeac287ef911a25f08bef363d9356_meta.json', '83935708ee9893be2af170d56f5c18c3.csv', '83935708ee9893be2af170d56f5c18c3_meta.json', '9413d3a9b7ed1583a2ce139a06b073a1.csv', '9413d3a9b7ed1583a2ce139a06b073a1_meta.json', 'b0ad422a16cb1b2976cc147d08b0d7f0.csv', 'b0ad422a16cb1b2976cc147d08b0d7f0_meta.json', 'b508e30ab43678519e6f1f332c375f9c.csv', 'b508e30ab43678519e6f1f332c375f9c_meta.json', 'f3d31df3a34feecfe826dd91bf827ea6.csv', 'f3d31df3a34feecfe826dd91bf827ea6_meta.json', 'f7fa6e899c80c8fa106ee051da562ded.csv', 'f7fa6e899c80c8fa106ee051da562ded_meta.json', 'f95cdfc6011812c84b3c1ea5803512d4.csv', 'f95cdfc6011812c84b3c1ea5803512d4_meta.json']
+­şÜÇ Starting spot backtest for BTCUSDT 15m
+ÔÜá´©Å No user or database session - Running in TEST MODE
+­şğ¬ Running in TEST MODE
+­şÆ░ Spot trading (no leverage)
+­şôà Using date range: 2025-09-20 to 2025-09-21
+­şôà Using date range: 2025-09-20 to 2025-09-21
+­şöı Checking cache for: BTCUSDT 15m 2025-09-20 to 2025-09-21 [spot]
+­şöı Cache check for: BTCUSDT 15m 2025-09-20 to 2025-09-21
+­şöæ Cache key: b0ad422a16cb1b2976cc147d08b0d7f0
+­şôü Cache path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b0ad422a16cb1b2976cc147d08b0d7f0.csv
+­şôä Metadata path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b0ad422a16cb1b2976cc147d08b0d7f0_meta.json
+­şôé Cache file exists: True
+­şôï Metadata file exists: True
+­şôè Cached metadata: {'symbol': 'BTCUSDT', 'interval': '15m', 'start_date': '2025-09-20', 'end_date': '2025-09-21', 'market_type': 'spot', 'cached_at': '2025-10-27T01:37:13.360855', 'rows': 1000, 'cache_key': 'b0ad422a16cb1b2976cc147d08b0d7f0'}
+­şòÉ Cache time: 2025-10-27 01:37:13.360855
+­şòÉ Current time: 2025-10-27 01:37:51.303232
+ÔÅ░ Cache age: 0.01 hours
+­şôà End date: 2025-09-21
+­şôà Days from now: 36
+­şôÜ Historical data - cache valid: True
+Ô£à Cache hit: BTCUSDT 15m (1000 rows)
+­şôĞ Using cached data: 1000 rows
+­şôè Preparing indicators for 1000 rows
+Ô£à Indicators prepared: 1000 clean rows from 1000 original rows
+­şôê Sample indicators - EMA_fast: 114017.3212, RSI: 38.09
+­şôè Data prepared: 1000 candles
+­şÆ░ Starting capital: $1000.00
+­şôê Spot Entry: 0.008220 BTCUSDT @ $115578.0900, Cost: $950.48
+­şôë Exit: $115685.6300, P&L: $0.12 (0.09%), Capital: $1000.12
+­şôê Spot Entry: 0.008219 BTCUSDT @ $115606.7400, Cost: $950.59
+­şôë Exit: $115685.6300, P&L: $-0.11 (0.07%), Capital: $1000.01
+­şôê Spot Entry: 0.008215 BTCUSDT @ $115639.9900, Cost: $950.49
+­şôë Exit: $115685.6300, P&L: $-0.39 (0.04%), Capital: $999.63
+­şôê Spot Entry: 0.008207 BTCUSDT @ $115717.4900, Cost: $950.12
+­şôë Exit: $115685.6300, P&L: $-1.02 (-0.03%), Capital: $998.61
+­şôê Spot Entry: 0.008205 BTCUSDT @ $115625.8600, Cost: $949.15
+­şôë Exit: $115685.6300, P&L: $-0.27 (0.05%), Capital: $998.34
+­şôê Spot Entry: 0.008198 BTCUSDT @ $115690.7600, Cost: $948.89
+­şôë Exit: $115232.2900, P&L: $-4.52 (-0.40%), Capital: $993.82
+­şôê Spot Entry: 0.008159 BTCUSDT @ $115715.9900, Cost: $944.60
+­şôë Exit: $115232.2900, P&L: $-4.70 (-0.42%), Capital: $989.12
+­şôê Spot Entry: 0.008125 BTCUSDT @ $115649.5300, Cost: $940.13
+­şôë Exit: $115232.2900, P&L: $-4.14 (-0.36%), Capital: $984.98
+­şôê Spot Entry: 0.008170 BTCUSDT @ $114530.0100, Cost: $936.20
+­şôë Exit: $114186.4200, P&L: $-3.55 (-0.30%), Capital: $981.42
+­şôê Spot Entry: 0.008266 BTCUSDT @ $112792.1600, Cost: $932.82
+­şôë Exit: $113092.4617, P&L: $1.74 (0.27%), Capital: $983.16
+­şôê Spot Entry: 0.008272 BTCUSDT @ $112905.3200, Cost: $934.47
+­şôë Exit: $113092.4617, P&L: $0.80 (0.17%), Capital: $983.96
+­şôê Spot Entry: 0.008287 BTCUSDT @ $112795.3100, Cost: $935.23
+­şôë Exit: $113092.4617, P&L: $1.71 (0.26%), Capital: $985.67
+­şôê Spot Entry: 0.008308 BTCUSDT @ $112705.5700, Cost: $936.86
+­şôë Exit: $113092.4617, P&L: $2.46 (0.34%), Capital: $988.14
+­şôê Spot Entry: 0.008326 BTCUSDT @ $112747.7200, Cost: $939.20
+­şôë Exit: $112422.6372, P&L: $-3.46 (-0.29%), Capital: $984.68
+­şôê Spot Entry: 0.008332 BTCUSDT @ $112272.9200, Cost: $935.92
+­şôë Exit: $112950.6285, P&L: $4.90 (0.60%), Capital: $989.58
+­şôê Spot Entry: 0.008361 BTCUSDT @ $112442.3000, Cost: $940.57
+­şôë Exit: $112950.6285, P&L: $3.50 (0.45%), Capital: $993.08
+­şôê Spot Entry: 0.008376 BTCUSDT @ $112633.7200, Cost: $943.89
+­şôë Exit: $112950.6285, P&L: $1.90 (0.28%), Capital: $994.97
+­şôê Spot Entry: 0.008381 BTCUSDT @ $112777.7500, Cost: $945.70
+­şôë Exit: $112950.6285, P&L: $0.69 (0.15%), Capital: $995.67
+­şôê Spot Entry: 0.008423 BTCUSDT @ $112293.2300, Cost: $946.36
+­şôë Exit: $112162.5000, P&L: $-1.86 (-0.12%), Capital: $993.81
+­şôê Spot Entry: 0.008413 BTCUSDT @ $112217.2600, Cost: $944.59
+­şôë Exit: $112162.5000, P&L: $-1.22 (-0.05%), Capital: $992.59
+­şôê Spot Entry: 0.008402 BTCUSDT @ $112230.7200, Cost: $943.43
+­şôë Exit: $112162.5000, P&L: $-1.33 (-0.06%), Capital: $991.27
+­şôê Spot Entry: 0.008384 BTCUSDT @ $112319.2400, Cost: $942.17
+­şôë Exit: $112162.5000, P&L: $-2.07 (-0.14%), Capital: $989.20
+­şôê Spot Entry: 0.008361 BTCUSDT @ $112399.4500, Cost: $940.21
+­şôë Exit: $112162.5000, P&L: $-2.73 (-0.21%), Capital: $986.47
+­şôê Spot Entry: 0.008369 BTCUSDT @ $111980.8600, Cost: $937.61
+­şôë Exit: $111909.7206, P&L: $-1.34 (-0.06%), Capital: $985.12
+­şôê Spot Entry: 0.008354 BTCUSDT @ $112031.1700, Cost: $936.33
+­şôë Exit: $111909.7206, P&L: $-1.76 (-0.11%), Capital: $983.36
+­şôê Spot Entry: 0.008349 BTCUSDT @ $111891.2600, Cost: $934.66
+­şôë Exit: $111909.7206, P&L: $-0.59 (0.02%), Capital: $982.77
+­şôê Spot Entry: 0.008330 BTCUSDT @ $112079.7700, Cost: $934.09
+­şôë Exit: $111799.2829, P&L: $-3.08 (-0.25%), Capital: $979.68
+­şôê Spot Entry: 0.008338 BTCUSDT @ $111617.0100, Cost: $931.16
+­şôë Exit: $111383.8929, P&L: $-2.69 (-0.21%), Capital: $976.99
+­şôê Spot Entry: 0.008530 BTCUSDT @ $108809.2500, Cost: $928.61
+­şôë Exit: $109643.4600, P&L: $6.37 (0.77%), Capital: $983.37
+­şôê Spot Entry: 0.008534 BTCUSDT @ $109472.1300, Cost: $934.66
+­şôë Exit: $109469.4435, P&L: $-0.77 (-0.00%), Capital: $982.60
+­şôê Spot Entry: 0.008514 BTCUSDT @ $109639.1300, Cost: $933.93
+­şôë Exit: $109469.4435, P&L: $-2.19 (-0.15%), Capital: $980.40
+­şôê Spot Entry: 0.008501 BTCUSDT @ $109560.0100, Cost: $931.85
+­şôë Exit: $109469.4435, P&L: $-1.51 (-0.08%), Capital: $978.89
+­şôê Spot Entry: 0.008481 BTCUSDT @ $109649.9900, Cost: $930.41
+­şôë Exit: $109469.4435, P&L: $-2.27 (-0.16%), Capital: $976.62
+­şôê Spot Entry: 0.008466 BTCUSDT @ $109590.4200, Cost: $928.25
+­şôë Exit: $109635.8500, P&L: $-0.36 (0.04%), Capital: $976.26
+­şôê Spot Entry: 0.008458 BTCUSDT @ $109649.2900, Cost: $927.91
+­şôë Exit: $109414.6783, P&L: $-2.73 (-0.21%), Capital: $973.53
+­şôê Spot Entry: 0.008436 BTCUSDT @ $109635.9800, Cost: $925.32
+­şôë Exit: $109413.0432, P&L: $-2.62 (-0.20%), Capital: $970.91
+­şôê Spot Entry: 0.008419 BTCUSDT @ $109553.7700, Cost: $922.83
+­şôë Exit: $109635.8500, P&L: $-0.05 (0.07%), Capital: $970.86
+­şôê Spot Entry: 0.008419 BTCUSDT @ $109550.0000, Cost: $922.78
+­şôë Exit: $109635.8500, P&L: $-0.02 (0.08%), Capital: $970.85
+­şôê Spot Entry: 0.008401 BTCUSDT @ $109787.7400, Cost: $922.77
+­şôë Exit: $109458.3768, P&L: $-3.50 (-0.30%), Capital: $967.35
+­şôê Spot Entry: 0.008379 BTCUSDT @ $109670.0100, Cost: $919.44
+­şôë Exit: $111315.0601, P&L: $13.05 (1.50%), Capital: $980.39
+­şôê Spot Entry: 0.008511 BTCUSDT @ $109437.4200, Cost: $931.84
+­şôë Exit: $111078.9813, P&L: $13.22 (1.50%), Capital: $993.61
+­şôê Spot Entry: 0.008627 BTCUSDT @ $109410.0000, Cost: $944.40
+­şôë Exit: $111051.1500, P&L: $13.40 (1.50%), Capital: $1007.01
+­şôê Spot Entry: 0.008526 BTCUSDT @ $112198.8700, Cost: $957.14
+­şôë Exit: $111973.0700, P&L: $-2.69 (-0.20%), Capital: $1004.32
+­şôê Spot Entry: 0.008515 BTCUSDT @ $112056.4800, Cost: $954.58
+­şôë Exit: $113737.3272, P&L: $13.54 (1.50%), Capital: $1017.87
+­şôê Spot Entry: 0.008614 BTCUSDT @ $112260.5700, Cost: $967.46
+­şôë Exit: $111973.0700, P&L: $-3.25 (-0.26%), Capital: $1014.62
+­şôê Spot Entry: 0.008588 BTCUSDT @ $112241.5300, Cost: $964.37
+­şôë Exit: $111973.0700, P&L: $-3.08 (-0.24%), Capital: $1011.54
+­şôê Spot Entry: 0.008591 BTCUSDT @ $111855.3000, Cost: $961.44
+­şôë Exit: $113533.1295, P&L: $13.64 (1.50%), Capital: $1025.18
+­şôê Spot Entry: 0.008514 BTCUSDT @ $114386.0000, Cost: $974.41
+­şôë Exit: $113891.6400, P&L: $-4.99 (-0.43%), Capital: $1020.19
+­şôê Spot Entry: 0.008446 BTCUSDT @ $114751.7500, Cost: $969.67
+­şôë Exit: $114447.6240, P&L: $-3.34 (-0.27%), Capital: $1016.85
+­şôê Spot Entry: 0.008427 BTCUSDT @ $114631.2000, Cost: $966.49
+­şôë Exit: $114287.3164, P&L: $-3.67 (-0.30%), Capital: $1013.18
+­şôê Spot Entry: 0.008406 BTCUSDT @ $114500.3100, Cost: $963.00
+­şôë Exit: $114239.4404, P&L: $-2.96 (-0.23%), Capital: $1010.22
+­şöı Final Calculations:
+   Initial Capital: $1000.00
+   Final Capital: $1010.22
+   Net P&L: $10.22
+   Total Trades: 51
+   Winning: 15, Losing: 36
+   Total Fees: $38.43
+   Win Rate: 29.41%
+   Total Return: 1.02%
+­şöğ BacktestService initialized with cache dir: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data
+­şôü Cache directory exists: True
+­şôé Cache directory contents: ['048dd04a8a64bc7fe2bd1077a0cfe316.csv', '048dd04a8a64bc7fe2bd1077a0cfe316_meta.json', '0b3eeac287ef911a25f08bef363d9356.csv', '0b3eeac287ef911a25f08bef363d9356_meta.json', '83935708ee9893be2af170d56f5c18c3.csv', '83935708ee9893be2af170d56f5c18c3_meta.json', '9413d3a9b7ed1583a2ce139a06b073a1.csv', '9413d3a9b7ed1583a2ce139a06b073a1_meta.json', 'b0ad422a16cb1b2976cc147d08b0d7f0.csv', 'b0ad422a16cb1b2976cc147d08b0d7f0_meta.json', 'b508e30ab43678519e6f1f332c375f9c.csv', 'b508e30ab43678519e6f1f332c375f9c_meta.json', 'f3d31df3a34feecfe826dd91bf827ea6.csv', 'f3d31df3a34feecfe826dd91bf827ea6_meta.json', 'f7fa6e899c80c8fa106ee051da562ded.csv', 'f7fa6e899c80c8fa106ee051da562ded_meta.json', 'f95cdfc6011812c84b3c1ea5803512d4.csv', 'f95cdfc6011812c84b3c1ea5803512d4_meta.json']
+­şÜÇ Starting spot backtest for BTCUSDT 15m
+ÔÜá´©Å No user or database session - Running in TEST MODE
+­şğ¬ Running in TEST MODE
+­şÆ░ Spot trading (no leverage)
+­şôà Using date range: 2025-09-20 to 2025-09-21
+­şôà Using date range: 2025-09-20 to 2025-09-21
+­şöı Checking cache for: BTCUSDT 15m 2025-09-20 to 2025-09-21 [spot]
+­şöı Cache check for: BTCUSDT 15m 2025-09-20 to 2025-09-21
+­şöæ Cache key: b0ad422a16cb1b2976cc147d08b0d7f0
+­şôü Cache path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b0ad422a16cb1b2976cc147d08b0d7f0.csv
+­şôä Metadata path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b0ad422a16cb1b2976cc147d08b0d7f0_meta.json
+­şôé Cache file exists: True
+­şôï Metadata file exists: True
+­şôè Cached metadata: {'symbol': 'BTCUSDT', 'interval': '15m', 'start_date': '2025-09-20', 'end_date': '2025-09-21', 'market_type': 'spot', 'cached_at': '2025-10-27T01:37:13.360855', 'rows': 1000, 'cache_key': 'b0ad422a16cb1b2976cc147d08b0d7f0'}
+­şòÉ Cache time: 2025-10-27 01:37:13.360855
+­şòÉ Current time: 2025-10-27 01:37:51.509173
+ÔÅ░ Cache age: 0.01 hours
+­şôà End date: 2025-09-21
+­şôà Days from now: 36
+­şôÜ Historical data - cache valid: True
+Ô£à Cache hit: BTCUSDT 15m (1000 rows)
+­şôĞ Using cached data: 1000 rows
+­şôè Preparing indicators for 1000 rows
+Ô£à Indicators prepared: 1000 clean rows from 1000 original rows
+­şôê Sample indicators - EMA_fast: 114017.3212, RSI: 32.43
+­şôè Data prepared: 1000 candles
+­şÆ░ Starting capital: $1000.00
+­şôê Spot Entry: 0.008220 BTCUSDT @ $115578.0900, Cost: $950.48
+­şôë Exit: $115685.6300, P&L: $0.12 (0.09%), Capital: $1000.12
+­şôê Spot Entry: 0.008219 BTCUSDT @ $115606.7400, Cost: $950.59
+­şôë Exit: $115685.6300, P&L: $-0.11 (0.07%), Capital: $1000.01
+­şôê Spot Entry: 0.008215 BTCUSDT @ $115639.9900, Cost: $950.49
+­şôë Exit: $115685.6300, P&L: $-0.39 (0.04%), Capital: $999.63
+­şôê Spot Entry: 0.008207 BTCUSDT @ $115717.4900, Cost: $950.12
+­şôë Exit: $115685.6300, P&L: $-1.02 (-0.03%), Capital: $998.61
+­şôê Spot Entry: 0.008205 BTCUSDT @ $115625.8600, Cost: $949.15
+­şôë Exit: $115685.6300, P&L: $-0.27 (0.05%), Capital: $998.34
+­şôê Spot Entry: 0.008198 BTCUSDT @ $115690.7600, Cost: $948.89
+­şôë Exit: $115232.2900, P&L: $-4.52 (-0.40%), Capital: $993.82
+­şôê Spot Entry: 0.008159 BTCUSDT @ $115715.9900, Cost: $944.60
+­şôë Exit: $115232.2900, P&L: $-4.70 (-0.42%), Capital: $989.12
+­şôê Spot Entry: 0.008125 BTCUSDT @ $115649.5300, Cost: $940.13
+­şôë Exit: $115232.2900, P&L: $-4.14 (-0.36%), Capital: $984.98
+­şôê Spot Entry: 0.008170 BTCUSDT @ $114530.0100, Cost: $936.20
+­şôë Exit: $114186.4200, P&L: $-3.55 (-0.30%), Capital: $981.42
+­şôê Spot Entry: 0.008266 BTCUSDT @ $112792.1600, Cost: $932.82
+­şôë Exit: $113092.4617, P&L: $1.74 (0.27%), Capital: $983.16
+­şôê Spot Entry: 0.008272 BTCUSDT @ $112905.3200, Cost: $934.47
+­şôë Exit: $113092.4617, P&L: $0.80 (0.17%), Capital: $983.96
+­şôê Spot Entry: 0.008287 BTCUSDT @ $112795.3100, Cost: $935.23
+­şôë Exit: $113092.4617, P&L: $1.71 (0.26%), Capital: $985.67
+­şôê Spot Entry: 0.008308 BTCUSDT @ $112705.5700, Cost: $936.86
+­şôë Exit: $113092.4617, P&L: $2.46 (0.34%), Capital: $988.14
+­şôê Spot Entry: 0.008326 BTCUSDT @ $112747.7200, Cost: $939.20
+­şôë Exit: $112422.6372, P&L: $-3.46 (-0.29%), Capital: $984.68
+­şôê Spot Entry: 0.008332 BTCUSDT @ $112272.9200, Cost: $935.92
+­şôë Exit: $112950.6285, P&L: $4.90 (0.60%), Capital: $989.58
+­şôê Spot Entry: 0.008361 BTCUSDT @ $112442.3000, Cost: $940.57
+­şôë Exit: $112950.6285, P&L: $3.50 (0.45%), Capital: $993.08
+­şôê Spot Entry: 0.008376 BTCUSDT @ $112633.7200, Cost: $943.89
+­şôë Exit: $112950.6285, P&L: $1.90 (0.28%), Capital: $994.97
+­şôê Spot Entry: 0.008390 BTCUSDT @ $112665.4400, Cost: $945.70
+­şôë Exit: $112950.6285, P&L: $1.64 (0.25%), Capital: $996.61
+­şôê Spot Entry: 0.008431 BTCUSDT @ $112293.2300, Cost: $947.25
+­şôë Exit: $112162.5000, P&L: $-1.86 (-0.12%), Capital: $994.75
+­şôê Spot Entry: 0.008421 BTCUSDT @ $112217.2600, Cost: $945.49
+­şôë Exit: $112162.5000, P&L: $-1.22 (-0.05%), Capital: $993.53
+­şôê Spot Entry: 0.008410 BTCUSDT @ $112230.7200, Cost: $944.33
+­şôë Exit: $112162.5000, P&L: $-1.33 (-0.06%), Capital: $992.20
+­şôê Spot Entry: 0.008392 BTCUSDT @ $112319.2400, Cost: $943.07
+­şôë Exit: $112162.5000, P&L: $-2.07 (-0.14%), Capital: $990.14
+­şôê Spot Entry: 0.008365 BTCUSDT @ $112451.2600, Cost: $941.10
+­şôë Exit: $112162.5000, P&L: $-3.17 (-0.26%), Capital: $986.97
+­şôê Spot Entry: 0.008373 BTCUSDT @ $111980.8600, Cost: $938.09
+­şôë Exit: $111909.7206, P&L: $-1.35 (-0.06%), Capital: $985.62
+­şôê Spot Entry: 0.008358 BTCUSDT @ $112031.1700, Cost: $936.81
+­şôë Exit: $111909.7206, P&L: $-1.76 (-0.11%), Capital: $983.86
+­şôê Spot Entry: 0.008353 BTCUSDT @ $111891.2600, Cost: $935.13
+­şôë Exit: $111909.7206, P&L: $-0.59 (0.02%), Capital: $983.27
+­şôê Spot Entry: 0.008334 BTCUSDT @ $112079.7700, Cost: $934.57
+­şôë Exit: $111799.2829, P&L: $-3.08 (-0.25%), Capital: $980.18
+­şôê Spot Entry: 0.008346 BTCUSDT @ $111571.5800, Cost: $931.64
+­şôë Exit: $111518.5576, P&L: $-1.19 (-0.05%), Capital: $978.99
+­şôê Spot Entry: 0.008496 BTCUSDT @ $109472.1300, Cost: $930.51
+­şôë Exit: $109469.4435, P&L: $-0.77 (-0.00%), Capital: $978.23
+­şôê Spot Entry: 0.008476 BTCUSDT @ $109639.1300, Cost: $929.78
+­şôë Exit: $109469.4435, P&L: $-2.18 (-0.15%), Capital: $976.05
+­şôê Spot Entry: 0.008463 BTCUSDT @ $109560.0100, Cost: $927.71
+­şôë Exit: $109469.4435, P&L: $-1.51 (-0.08%), Capital: $974.54
+­şôê Spot Entry: 0.008443 BTCUSDT @ $109649.9900, Cost: $926.27
+­şôë Exit: $109469.4435, P&L: $-2.26 (-0.16%), Capital: $972.27
+­şôê Spot Entry: 0.008421 BTCUSDT @ $109680.4000, Cost: $924.12
+­şôë Exit: $109469.4435, P&L: $-2.51 (-0.19%), Capital: $969.76
+­şôê Spot Entry: 0.008406 BTCUSDT @ $109590.4200, Cost: $921.73
+­şôë Exit: $109635.8500, P&L: $-0.36 (0.04%), Capital: $969.40
+­şôê Spot Entry: 0.008399 BTCUSDT @ $109649.2900, Cost: $921.39
+­şôë Exit: $109414.6783, P&L: $-2.71 (-0.21%), Capital: $966.70
+­şôê Spot Entry: 0.008376 BTCUSDT @ $109635.9800, Cost: $918.82
+­şôë Exit: $109413.0432, P&L: $-2.60 (-0.20%), Capital: $964.09
+­şôê Spot Entry: 0.008360 BTCUSDT @ $109553.7700, Cost: $916.35
+­şôë Exit: $109635.8500, P&L: $-0.05 (0.07%), Capital: $964.05
+­şôê Spot Entry: 0.008360 BTCUSDT @ $109550.0000, Cost: $916.30
+­şôë Exit: $109635.8500, P&L: $-0.02 (0.08%), Capital: $964.03
+­şôê Spot Entry: 0.008342 BTCUSDT @ $109787.7400, Cost: $916.29
+­şôë Exit: $109458.3768, P&L: $-3.48 (-0.30%), Capital: $960.55
+­şôê Spot Entry: 0.008321 BTCUSDT @ $109670.0100, Cost: $912.98
+­şôë Exit: $111315.0601, P&L: $12.95 (1.50%), Capital: $973.51
+­şôê Spot Entry: 0.008451 BTCUSDT @ $109437.4200, Cost: $925.29
+­şôë Exit: $111078.9813, P&L: $13.13 (1.50%), Capital: $986.64
+­şôê Spot Entry: 0.008567 BTCUSDT @ $109410.0000, Cost: $937.77
+­şôë Exit: $111051.1500, P&L: $13.31 (1.50%), Capital: $999.94
+­şôê Spot Entry: 0.008467 BTCUSDT @ $112198.8700, Cost: $950.42
+­şôë Exit: $111973.0700, P&L: $-2.67 (-0.20%), Capital: $997.27
+­şôê Spot Entry: 0.008455 BTCUSDT @ $112056.4800, Cost: $947.88
+­şôë Exit: $113737.3272, P&L: $13.45 (1.50%), Capital: $1010.72
+­şôê Spot Entry: 0.008553 BTCUSDT @ $112260.5700, Cost: $960.66
+­şôë Exit: $111973.0700, P&L: $-3.23 (-0.26%), Capital: $1007.49
+­şôê Spot Entry: 0.008527 BTCUSDT @ $112241.5300, Cost: $957.60
+­şôë Exit: $111973.0700, P&L: $-3.05 (-0.24%), Capital: $1004.44
+­şôê Spot Entry: 0.008517 BTCUSDT @ $112042.9700, Cost: $954.69
+­şôë Exit: $113723.6145, P&L: $13.55 (1.50%), Capital: $1017.98
+­şôê Spot Entry: 0.008455 BTCUSDT @ $114386.0000, Cost: $967.57
+­şôë Exit: $113891.6400, P&L: $-4.95 (-0.43%), Capital: $1013.03
+­şôê Spot Entry: 0.008387 BTCUSDT @ $114751.7500, Cost: $962.86
+­şôë Exit: $114447.6240, P&L: $-3.32 (-0.27%), Capital: $1009.71
+­şôê Spot Entry: 0.008368 BTCUSDT @ $114631.2000, Cost: $959.71
+­şôë Exit: $114287.3164, P&L: $-3.64 (-0.30%), Capital: $1006.07
+­şôê Spot Entry: 0.008351 BTCUSDT @ $114448.3100, Cost: $956.24
+­şôë Exit: $114239.4404, P&L: $-2.51 (-0.18%), Capital: $1003.56
+­şöı Final Calculations:
+   Initial Capital: $1000.00
+   Final Capital: $1003.56
+   Net P&L: $3.56
+   Total Trades: 51
+   Winning: 14, Losing: 37
+   Total Fees: $38.32
+   Win Rate: 27.45%
+   Total Return: 0.36%
+­şöğ BacktestService initialized with cache dir: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data
+­şôü Cache directory exists: True
+­şôé Cache directory contents: ['048dd04a8a64bc7fe2bd1077a0cfe316.csv', '048dd04a8a64bc7fe2bd1077a0cfe316_meta.json', '0b3eeac287ef911a25f08bef363d9356.csv', '0b3eeac287ef911a25f08bef363d9356_meta.json', '83935708ee9893be2af170d56f5c18c3.csv', '83935708ee9893be2af170d56f5c18c3_meta.json', '9413d3a9b7ed1583a2ce139a06b073a1.csv', '9413d3a9b7ed1583a2ce139a06b073a1_meta.json', 'b0ad422a16cb1b2976cc147d08b0d7f0.csv', 'b0ad422a16cb1b2976cc147d08b0d7f0_meta.json', 'b508e30ab43678519e6f1f332c375f9c.csv', 'b508e30ab43678519e6f1f332c375f9c_meta.json', 'f3d31df3a34feecfe826dd91bf827ea6.csv', 'f3d31df3a34feecfe826dd91bf827ea6_meta.json', 'f7fa6e899c80c8fa106ee051da562ded.csv', 'f7fa6e899c80c8fa106ee051da562ded_meta.json', 'f95cdfc6011812c84b3c1ea5803512d4.csv', 'f95cdfc6011812c84b3c1ea5803512d4_meta.json']
+­şÜÇ Starting spot backtest for BTCUSDT 15m
+ÔÜá´©Å No user or database session - Running in TEST MODE
+­şğ¬ Running in TEST MODE
+­şÆ░ Spot trading (no leverage)
+­şôà Using date range: 2025-09-20 to 2025-09-21
+­şôà Using date range: 2025-09-20 to 2025-09-21
+­şöı Checking cache for: BTCUSDT 15m 2025-09-20 to 2025-09-21 [spot]
+­şöı Cache check for: BTCUSDT 15m 2025-09-20 to 2025-09-21
+­şöæ Cache key: b0ad422a16cb1b2976cc147d08b0d7f0
+­şôü Cache path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b0ad422a16cb1b2976cc147d08b0d7f0.csv
+­şôä Metadata path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b0ad422a16cb1b2976cc147d08b0d7f0_meta.json
+­şôé Cache file exists: True
+­şôï Metadata file exists: True
+­şôè Cached metadata: {'symbol': 'BTCUSDT', 'interval': '15m', 'start_date': '2025-09-20', 'end_date': '2025-09-21', 'market_type': 'spot', 'cached_at': '2025-10-27T01:37:13.360855', 'rows': 1000, 'cache_key': 'b0ad422a16cb1b2976cc147d08b0d7f0'}
+­şòÉ Cache time: 2025-10-27 01:37:13.360855
+­şòÉ Current time: 2025-10-27 01:37:51.710127
+ÔÅ░ Cache age: 0.01 hours
+­şôà End date: 2025-09-21
+­şôà Days from now: 36
+­şôÜ Historical data - cache valid: True
+Ô£à Cache hit: BTCUSDT 15m (1000 rows)
+­şôĞ Using cached data: 1000 rows
+­şôè Preparing indicators for 1000 rows
+Ô£à Indicators prepared: 1000 clean rows from 1000 original rows
+­şôê Sample indicators - EMA_fast: 114017.3212, RSI: 38.09
+­şôè Data prepared: 1000 candles
+­şÆ░ Starting capital: $1000.00
+­şôê Spot Entry: 0.008220 BTCUSDT @ $115578.0900, Cost: $950.48
+­şôë Exit: $115685.6300, P&L: $0.12 (0.09%), Capital: $1000.12
+­şôê Spot Entry: 0.008219 BTCUSDT @ $115606.7400, Cost: $950.59
+­şôë Exit: $115685.6300, P&L: $-0.11 (0.07%), Capital: $1000.01
+­şôê Spot Entry: 0.008215 BTCUSDT @ $115639.9900, Cost: $950.49
+­şôë Exit: $115685.6300, P&L: $-0.39 (0.04%), Capital: $999.63
+­şôê Spot Entry: 0.008207 BTCUSDT @ $115717.4900, Cost: $950.12
+­şôë Exit: $115685.6300, P&L: $-1.02 (-0.03%), Capital: $998.61
+­şôê Spot Entry: 0.008205 BTCUSDT @ $115625.8600, Cost: $949.15
+­şôë Exit: $115685.6300, P&L: $-0.27 (0.05%), Capital: $998.34
+­şôê Spot Entry: 0.008198 BTCUSDT @ $115690.7600, Cost: $948.89
+­şôë Exit: $115232.2900, P&L: $-4.52 (-0.40%), Capital: $993.82
+­şôê Spot Entry: 0.008159 BTCUSDT @ $115715.9900, Cost: $944.60
+­şôë Exit: $115232.2900, P&L: $-4.70 (-0.42%), Capital: $989.12
+­şôê Spot Entry: 0.008125 BTCUSDT @ $115649.5300, Cost: $940.13
+­şôë Exit: $115232.2900, P&L: $-4.14 (-0.36%), Capital: $984.98
+­şôê Spot Entry: 0.008170 BTCUSDT @ $114530.0100, Cost: $936.20
+­şôë Exit: $114186.4200, P&L: $-3.55 (-0.30%), Capital: $981.42
+­şôê Spot Entry: 0.008266 BTCUSDT @ $112792.1600, Cost: $932.82
+­şôë Exit: $113092.4617, P&L: $1.74 (0.27%), Capital: $983.16
+­şôê Spot Entry: 0.008272 BTCUSDT @ $112905.3200, Cost: $934.47
+­şôë Exit: $113092.4617, P&L: $0.80 (0.17%), Capital: $983.96
+­şôê Spot Entry: 0.008287 BTCUSDT @ $112795.3100, Cost: $935.23
+­şôë Exit: $113092.4617, P&L: $1.71 (0.26%), Capital: $985.67
+­şôê Spot Entry: 0.008308 BTCUSDT @ $112705.5700, Cost: $936.86
+­şôë Exit: $113092.4617, P&L: $2.46 (0.34%), Capital: $988.14
+­şôê Spot Entry: 0.008326 BTCUSDT @ $112747.7200, Cost: $939.20
+­şôë Exit: $112422.6372, P&L: $-3.46 (-0.29%), Capital: $984.68
+­şôê Spot Entry: 0.008332 BTCUSDT @ $112272.9200, Cost: $935.92
+­şôë Exit: $112950.6285, P&L: $4.90 (0.60%), Capital: $989.58
+­şôê Spot Entry: 0.008361 BTCUSDT @ $112442.3000, Cost: $940.57
+­şôë Exit: $112950.6285, P&L: $3.50 (0.45%), Capital: $993.08
+­şôê Spot Entry: 0.008376 BTCUSDT @ $112633.7200, Cost: $943.89
+­şôë Exit: $112950.6285, P&L: $1.90 (0.28%), Capital: $994.97
+­şôê Spot Entry: 0.008381 BTCUSDT @ $112777.7500, Cost: $945.70
+­şôë Exit: $112950.6285, P&L: $0.69 (0.15%), Capital: $995.67
+­şôê Spot Entry: 0.008423 BTCUSDT @ $112293.2300, Cost: $946.36
+­şôë Exit: $112162.5000, P&L: $-1.86 (-0.12%), Capital: $993.81
+­şôê Spot Entry: 0.008413 BTCUSDT @ $112217.2600, Cost: $944.59
+­şôë Exit: $112162.5000, P&L: $-1.22 (-0.05%), Capital: $992.59
+­şôê Spot Entry: 0.008402 BTCUSDT @ $112230.7200, Cost: $943.43
+­şôë Exit: $112162.5000, P&L: $-1.33 (-0.06%), Capital: $991.27
+­şôê Spot Entry: 0.008384 BTCUSDT @ $112319.2400, Cost: $942.17
+­şôë Exit: $112162.5000, P&L: $-2.07 (-0.14%), Capital: $989.20
+­şôê Spot Entry: 0.008361 BTCUSDT @ $112399.4500, Cost: $940.21
+­şôë Exit: $112162.5000, P&L: $-2.73 (-0.21%), Capital: $986.47
+­şôê Spot Entry: 0.008369 BTCUSDT @ $111980.8600, Cost: $937.61
+­şôë Exit: $111909.7206, P&L: $-1.34 (-0.06%), Capital: $985.12
+­şôê Spot Entry: 0.008354 BTCUSDT @ $112031.1700, Cost: $936.33
+­şôë Exit: $111909.7206, P&L: $-1.76 (-0.11%), Capital: $983.36
+­şôê Spot Entry: 0.008349 BTCUSDT @ $111891.2600, Cost: $934.66
+­şôë Exit: $111909.7206, P&L: $-0.59 (0.02%), Capital: $982.77
+­şôê Spot Entry: 0.008330 BTCUSDT @ $112079.7700, Cost: $934.09
+­şôë Exit: $111799.2829, P&L: $-3.08 (-0.25%), Capital: $979.68
+­şôê Spot Entry: 0.008342 BTCUSDT @ $111571.5800, Cost: $931.16
+­şôë Exit: $111518.5576, P&L: $-1.19 (-0.05%), Capital: $978.50
+­şôê Spot Entry: 0.008543 BTCUSDT @ $108809.2500, Cost: $930.04
+­şôë Exit: $109643.4600, P&L: $6.38 (0.77%), Capital: $984.88
+­şôê Spot Entry: 0.008547 BTCUSDT @ $109472.1300, Cost: $936.10
+­şôë Exit: $109469.4435, P&L: $-0.77 (-0.00%), Capital: $984.11
+­şôê Spot Entry: 0.008527 BTCUSDT @ $109639.1300, Cost: $935.37
+­şôë Exit: $109469.4435, P&L: $-2.19 (-0.15%), Capital: $981.91
+­şôê Spot Entry: 0.008514 BTCUSDT @ $109560.0100, Cost: $933.28
+­şôë Exit: $109469.4435, P&L: $-1.52 (-0.08%), Capital: $980.39
+­şôê Spot Entry: 0.008494 BTCUSDT @ $109649.9900, Cost: $931.84
+­şôë Exit: $109469.4435, P&L: $-2.28 (-0.16%), Capital: $978.12
+­şôê Spot Entry: 0.008479 BTCUSDT @ $109590.4200, Cost: $929.67
+­şôë Exit: $109635.8500, P&L: $-0.36 (0.04%), Capital: $977.76
+­şôê Spot Entry: 0.008471 BTCUSDT @ $109649.2900, Cost: $929.33
+­şôë Exit: $109414.6783, P&L: $-2.73 (-0.21%), Capital: $975.03
+­şôê Spot Entry: 0.008449 BTCUSDT @ $109635.9800, Cost: $926.74
+­şôë Exit: $109413.0432, P&L: $-2.62 (-0.20%), Capital: $972.40
+­şôê Spot Entry: 0.008432 BTCUSDT @ $109553.7700, Cost: $924.25
+­şôë Exit: $109635.8500, P&L: $-0.05 (0.07%), Capital: $972.36
+­şôê Spot Entry: 0.008432 BTCUSDT @ $109550.0000, Cost: $924.20
+­şôë Exit: $109635.8500, P&L: $-0.02 (0.08%), Capital: $972.34
+­şôê Spot Entry: 0.008414 BTCUSDT @ $109787.7400, Cost: $924.19
+­şôë Exit: $109458.3768, P&L: $-3.51 (-0.30%), Capital: $968.83
+­şôê Spot Entry: 0.008392 BTCUSDT @ $109670.0100, Cost: $920.85
+­şôë Exit: $111315.0601, P&L: $13.07 (1.50%), Capital: $981.90
+­şôê Spot Entry: 0.008524 BTCUSDT @ $109437.4200, Cost: $933.27
+­şôë Exit: $111078.9813, P&L: $13.24 (1.50%), Capital: $995.14
+­şôê Spot Entry: 0.008641 BTCUSDT @ $109410.0000, Cost: $945.85
+­şôë Exit: $111051.1500, P&L: $13.42 (1.50%), Capital: $1008.56
+­şôê Spot Entry: 0.008540 BTCUSDT @ $112198.8700, Cost: $958.61
+­şôë Exit: $111973.0700, P&L: $-2.69 (-0.20%), Capital: $1005.86
+­şôê Spot Entry: 0.008528 BTCUSDT @ $112056.4800, Cost: $956.05
+­şôë Exit: $113737.3272, P&L: $13.56 (1.50%), Capital: $1019.43
+­şôê Spot Entry: 0.008627 BTCUSDT @ $112260.5700, Cost: $968.94
+­şôë Exit: $111973.0700, P&L: $-3.25 (-0.26%), Capital: $1016.18
+­şôê Spot Entry: 0.008601 BTCUSDT @ $112241.5300, Cost: $965.85
+­şôë Exit: $111973.0700, P&L: $-3.08 (-0.24%), Capital: $1013.09
+­şôê Spot Entry: 0.008604 BTCUSDT @ $111855.3000, Cost: $962.92
+­şôë Exit: $113533.1295, P&L: $13.66 (1.50%), Capital: $1026.76
+­şôê Spot Entry: 0.008527 BTCUSDT @ $114386.0000, Cost: $975.91
+­şôë Exit: $113891.6400, P&L: $-4.99 (-0.43%), Capital: $1021.76
+­şôê Spot Entry: 0.008459 BTCUSDT @ $114751.7500, Cost: $971.16
+­şôë Exit: $114447.6240, P&L: $-3.35 (-0.27%), Capital: $1018.41
+­şôê Spot Entry: 0.008440 BTCUSDT @ $114631.2000, Cost: $967.98
+­şôë Exit: $114287.3164, P&L: $-3.68 (-0.30%), Capital: $1014.74
+­şôê Spot Entry: 0.008423 BTCUSDT @ $114448.3100, Cost: $964.48
+­şôë Exit: $114239.4404, P&L: $-2.53 (-0.18%), Capital: $1012.21
+­şöı Final Calculations:
+   Initial Capital: $1000.00
+   Final Capital: $1012.21
+   Net P&L: $12.21
+   Total Trades: 51
+   Winning: 15, Losing: 36
+   Total Fees: $38.45
+   Win Rate: 29.41%
+   Total Return: 1.22%
+­şöğ BacktestService initialized with cache dir: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data
+­şôü Cache directory exists: True
+­şôé Cache directory contents: ['048dd04a8a64bc7fe2bd1077a0cfe316.csv', '048dd04a8a64bc7fe2bd1077a0cfe316_meta.json', '0b3eeac287ef911a25f08bef363d9356.csv', '0b3eeac287ef911a25f08bef363d9356_meta.json', '83935708ee9893be2af170d56f5c18c3.csv', '83935708ee9893be2af170d56f5c18c3_meta.json', '9413d3a9b7ed1583a2ce139a06b073a1.csv', '9413d3a9b7ed1583a2ce139a06b073a1_meta.json', 'b0ad422a16cb1b2976cc147d08b0d7f0.csv', 'b0ad422a16cb1b2976cc147d08b0d7f0_meta.json', 'b508e30ab43678519e6f1f332c375f9c.csv', 'b508e30ab43678519e6f1f332c375f9c_meta.json', 'f3d31df3a34feecfe826dd91bf827ea6.csv', 'f3d31df3a34feecfe826dd91bf827ea6_meta.json', 'f7fa6e899c80c8fa106ee051da562ded.csv', 'f7fa6e899c80c8fa106ee051da562ded_meta.json', 'f95cdfc6011812c84b3c1ea5803512d4.csv', 'f95cdfc6011812c84b3c1ea5803512d4_meta.json']
+­şÜÇ Starting spot backtest for BTCUSDT 15m
+ÔÜá´©Å No user or database session - Running in TEST MODE
+­şğ¬ Running in TEST MODE
+­şÆ░ Spot trading (no leverage)
+­şôà Using date range: 2025-09-20 to 2025-09-21
+­şôà Using date range: 2025-09-20 to 2025-09-21
+­şöı Checking cache for: BTCUSDT 15m 2025-09-20 to 2025-09-21 [spot]
+­şöı Cache check for: BTCUSDT 15m 2025-09-20 to 2025-09-21
+­şöæ Cache key: b0ad422a16cb1b2976cc147d08b0d7f0
+­şôü Cache path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b0ad422a16cb1b2976cc147d08b0d7f0.csv
+­şôä Metadata path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b0ad422a16cb1b2976cc147d08b0d7f0_meta.json
+­şôé Cache file exists: True
+­şôï Metadata file exists: True
+­şôè Cached metadata: {'symbol': 'BTCUSDT', 'interval': '15m', 'start_date': '2025-09-20', 'end_date': '2025-09-21', 'market_type': 'spot', 'cached_at': '2025-10-27T01:37:13.360855', 'rows': 1000, 'cache_key': 'b0ad422a16cb1b2976cc147d08b0d7f0'}
+­şòÉ Cache time: 2025-10-27 01:37:13.360855
+­şòÉ Current time: 2025-10-27 01:37:51.921842
+ÔÅ░ Cache age: 0.01 hours
+­şôà End date: 2025-09-21
+­şôà Days from now: 36
+­şôÜ Historical data - cache valid: True
+Ô£à Cache hit: BTCUSDT 15m (1000 rows)
+­şôĞ Using cached data: 1000 rows
+­şôè Preparing indicators for 1000 rows
+Ô£à Indicators prepared: 1000 clean rows from 1000 original rows
+­şôê Sample indicators - EMA_fast: 114043.5550, RSI: 32.43
+­şôè Data prepared: 1000 candles
+­şÆ░ Starting capital: $1000.00
+­şôê Spot Entry: 0.008218 BTCUSDT @ $115606.7400, Cost: $950.48
+­şôë Exit: $115685.6300, P&L: $-0.11 (0.07%), Capital: $999.89
+­şôê Spot Entry: 0.008214 BTCUSDT @ $115639.9900, Cost: $950.37
+­şôë Exit: $115685.6300, P&L: $-0.39 (0.04%), Capital: $999.50
+­şôê Spot Entry: 0.008206 BTCUSDT @ $115717.4900, Cost: $950.00
+­şôë Exit: $115685.6300, P&L: $-1.02 (-0.03%), Capital: $998.48
+­şôê Spot Entry: 0.008204 BTCUSDT @ $115625.8600, Cost: $949.03
+­şôë Exit: $115685.6300, P&L: $-0.27 (0.05%), Capital: $998.21
+­şôê Spot Entry: 0.008198 BTCUSDT @ $115677.6600, Cost: $948.78
+­şôë Exit: $115685.6300, P&L: $-0.69 (0.01%), Capital: $997.52
+­şôê Spot Entry: 0.008191 BTCUSDT @ $115690.7600, Cost: $948.12
+­şôë Exit: $115232.2900, P&L: $-4.51 (-0.40%), Capital: $993.01
+­şôê Spot Entry: 0.008152 BTCUSDT @ $115715.9900, Cost: $943.83
+­şôë Exit: $115232.2900, P&L: $-4.70 (-0.42%), Capital: $988.31
+­şôê Spot Entry: 0.008118 BTCUSDT @ $115649.5300, Cost: $939.36
+­şôë Exit: $115232.2900, P&L: $-4.14 (-0.36%), Capital: $984.17
+­şôê Spot Entry: 0.008163 BTCUSDT @ $114530.0100, Cost: $935.43
+­şôë Exit: $114186.4200, P&L: $-3.55 (-0.30%), Capital: $980.62
+­şôê Spot Entry: 0.008259 BTCUSDT @ $112792.1600, Cost: $932.06
+­şôë Exit: $113092.4617, P&L: $1.73 (0.27%), Capital: $982.36
+­şôê Spot Entry: 0.008266 BTCUSDT @ $112905.3200, Cost: $933.70
+­şôë Exit: $113092.4617, P&L: $0.80 (0.17%), Capital: $983.16
+­şôê Spot Entry: 0.008280 BTCUSDT @ $112795.3100, Cost: $934.46
+­şôë Exit: $113092.4617, P&L: $1.71 (0.26%), Capital: $984.87
+­şôê Spot Entry: 0.008301 BTCUSDT @ $112705.5700, Cost: $936.09
+­şôë Exit: $113092.4617, P&L: $2.46 (0.34%), Capital: $987.33
+­şôê Spot Entry: 0.008319 BTCUSDT @ $112747.7200, Cost: $938.43
+­şôë Exit: $112422.6372, P&L: $-3.45 (-0.29%), Capital: $983.88
+­şôê Spot Entry: 0.008325 BTCUSDT @ $112272.9200, Cost: $935.15
+­şôë Exit: $112950.6285, P&L: $4.89 (0.60%), Capital: $988.77
+­şôê Spot Entry: 0.008354 BTCUSDT @ $112442.3000, Cost: $939.80
+­şôë Exit: $112950.6285, P&L: $3.49 (0.45%), Capital: $992.26
+­şôê Spot Entry: 0.008369 BTCUSDT @ $112633.7200, Cost: $943.12
+­şôë Exit: $112950.6285, P&L: $1.90 (0.28%), Capital: $994.16
+­şôê Spot Entry: 0.008383 BTCUSDT @ $112665.4400, Cost: $944.92
+­şôë Exit: $112950.6285, P&L: $1.63 (0.25%), Capital: $995.79
+­şôê Spot Entry: 0.008424 BTCUSDT @ $112293.2300, Cost: $946.48
+­şôë Exit: $112162.5000, P&L: $-1.86 (-0.12%), Capital: $993.94
+­şôê Spot Entry: 0.008414 BTCUSDT @ $112217.2600, Cost: $944.71
+­şôë Exit: $112162.5000, P&L: $-1.22 (-0.05%), Capital: $992.72
+­şôê Spot Entry: 0.008403 BTCUSDT @ $112230.7200, Cost: $943.56
+­şôë Exit: $112162.5000, P&L: $-1.33 (-0.06%), Capital: $991.39
+­şôê Spot Entry: 0.008385 BTCUSDT @ $112319.2400, Cost: $942.29
+­şôë Exit: $112162.5000, P&L: $-2.07 (-0.14%), Capital: $989.33
+­şôê Spot Entry: 0.008358 BTCUSDT @ $112451.2600, Cost: $940.33
+­şôë Exit: $112162.5000, P&L: $-3.16 (-0.26%), Capital: $986.16
+­şôê Spot Entry: 0.008366 BTCUSDT @ $111980.8600, Cost: $937.32
+­şôë Exit: $111909.7206, P&L: $-1.34 (-0.06%), Capital: $984.82
+­şôê Spot Entry: 0.008351 BTCUSDT @ $112031.1700, Cost: $936.04
+­şôë Exit: $111909.7206, P&L: $-1.76 (-0.11%), Capital: $983.05
+­şôê Spot Entry: 0.008347 BTCUSDT @ $111891.2600, Cost: $934.37
+­şôë Exit: $111909.7206, P&L: $-0.59 (0.02%), Capital: $982.46
+­şôê Spot Entry: 0.008327 BTCUSDT @ $112079.7700, Cost: $933.80
+­şôë Exit: $111799.2829, P&L: $-3.08 (-0.25%), Capital: $979.38
+­şôê Spot Entry: 0.008336 BTCUSDT @ $111617.0100, Cost: $930.88
+­şôë Exit: $111383.8929, P&L: $-2.69 (-0.21%), Capital: $976.69
+­şôê Spot Entry: 0.008476 BTCUSDT @ $109472.1300, Cost: $928.32
+­şôë Exit: $109469.4435, P&L: $-0.77 (-0.00%), Capital: $975.93
+­şôê Spot Entry: 0.008456 BTCUSDT @ $109639.1300, Cost: $927.59
+­şôë Exit: $109469.4435, P&L: $-2.18 (-0.15%), Capital: $973.75
+­şôê Spot Entry: 0.008443 BTCUSDT @ $109560.0100, Cost: $925.53
+­şôë Exit: $109469.4435, P&L: $-1.50 (-0.08%), Capital: $972.25
+­şôê Spot Entry: 0.008423 BTCUSDT @ $109649.9900, Cost: $924.10
+­şôë Exit: $109469.4435, P&L: $-2.26 (-0.16%), Capital: $969.99
+­şôê Spot Entry: 0.008402 BTCUSDT @ $109680.4000, Cost: $921.95
+­şôë Exit: $109469.4435, P&L: $-2.51 (-0.19%), Capital: $967.48
+­şôê Spot Entry: 0.008387 BTCUSDT @ $109590.4200, Cost: $919.56
+­şôë Exit: $109635.8500, P&L: $-0.35 (0.04%), Capital: $967.12
+­şôê Spot Entry: 0.008379 BTCUSDT @ $109649.2900, Cost: $919.23
+­şôë Exit: $109414.6783, P&L: $-2.70 (-0.21%), Capital: $964.42
+­şôê Spot Entry: 0.008357 BTCUSDT @ $109635.9800, Cost: $916.66
+­şôë Exit: $109413.0432, P&L: $-2.60 (-0.20%), Capital: $961.83
+­şôê Spot Entry: 0.008341 BTCUSDT @ $109553.7700, Cost: $914.19
+­şôë Exit: $109635.8500, P&L: $-0.05 (0.07%), Capital: $961.78
+­şôê Spot Entry: 0.008340 BTCUSDT @ $109550.0000, Cost: $914.15
+­şôë Exit: $109635.8500, P&L: $-0.02 (0.08%), Capital: $961.77
+­şôê Spot Entry: 0.008322 BTCUSDT @ $109787.7400, Cost: $914.14
+­şôë Exit: $109458.3768, P&L: $-3.47 (-0.30%), Capital: $958.30
+­şôê Spot Entry: 0.008301 BTCUSDT @ $109670.0100, Cost: $910.84
+­şôë Exit: $111315.0601, P&L: $12.92 (1.50%), Capital: $971.22
+­şôê Spot Entry: 0.008431 BTCUSDT @ $109437.4200, Cost: $923.12
+­şôë Exit: $111078.9813, P&L: $13.10 (1.50%), Capital: $984.32
+­şôê Spot Entry: 0.008547 BTCUSDT @ $109410.0000, Cost: $935.57
+­şôë Exit: $111051.1500, P&L: $13.27 (1.50%), Capital: $997.59
+­şôê Spot Entry: 0.008447 BTCUSDT @ $112198.8700, Cost: $948.18
+­şôë Exit: $111973.0700, P&L: $-2.66 (-0.20%), Capital: $994.93
+­şôê Spot Entry: 0.008435 BTCUSDT @ $112056.4800, Cost: $945.65
+­şôë Exit: $113737.3272, P&L: $13.42 (1.50%), Capital: $1008.34
+­şôê Spot Entry: 0.008533 BTCUSDT @ $112260.5700, Cost: $958.40
+­şôë Exit: $111973.0700, P&L: $-3.22 (-0.26%), Capital: $1005.12
+­şôê Spot Entry: 0.008507 BTCUSDT @ $112241.5300, Cost: $955.35
+­şôë Exit: $111973.0700, P&L: $-3.05 (-0.24%), Capital: $1002.08
+­şôê Spot Entry: 0.008497 BTCUSDT @ $112042.9700, Cost: $952.45
+­şôë Exit: $113723.6145, P&L: $13.51 (1.50%), Capital: $1015.59
+­şôê Spot Entry: 0.008435 BTCUSDT @ $114386.0000, Cost: $965.29
+­şôë Exit: $113891.6400, P&L: $-4.94 (-0.43%), Capital: $1010.65
+­şôê Spot Entry: 0.008367 BTCUSDT @ $114751.7500, Cost: $960.60
+­şôë Exit: $114447.6240, P&L: $-3.31 (-0.27%), Capital: $1007.34
+­şôê Spot Entry: 0.008348 BTCUSDT @ $114631.2000, Cost: $957.45
+­şôë Exit: $114287.3164, P&L: $-3.64 (-0.30%), Capital: $1003.70
+­şôê Spot Entry: 0.008328 BTCUSDT @ $114500.3100, Cost: $953.99
+­şôë Exit: $114239.4404, P&L: $-2.93 (-0.23%), Capital: $1000.77
+­şöı Final Calculations:
+   Initial Capital: $1000.00
+   Final Capital: $1000.77
+   Net P&L: $0.77
+   Total Trades: 51
+   Winning: 13, Losing: 38
+   Total Fees: $38.26
+   Win Rate: 25.49%
+   Total Return: 0.08%
+­şöğ BacktestService initialized with cache dir: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data
+­şôü Cache directory exists: True
+­şôé Cache directory contents: ['048dd04a8a64bc7fe2bd1077a0cfe316.csv', '048dd04a8a64bc7fe2bd1077a0cfe316_meta.json', '0b3eeac287ef911a25f08bef363d9356.csv', '0b3eeac287ef911a25f08bef363d9356_meta.json', '83935708ee9893be2af170d56f5c18c3.csv', '83935708ee9893be2af170d56f5c18c3_meta.json', '9413d3a9b7ed1583a2ce139a06b073a1.csv', '9413d3a9b7ed1583a2ce139a06b073a1_meta.json', 'b0ad422a16cb1b2976cc147d08b0d7f0.csv', 'b0ad422a16cb1b2976cc147d08b0d7f0_meta.json', 'b508e30ab43678519e6f1f332c375f9c.csv', 'b508e30ab43678519e6f1f332c375f9c_meta.json', 'f3d31df3a34feecfe826dd91bf827ea6.csv', 'f3d31df3a34feecfe826dd91bf827ea6_meta.json', 'f7fa6e899c80c8fa106ee051da562ded.csv', 'f7fa6e899c80c8fa106ee051da562ded_meta.json', 'f95cdfc6011812c84b3c1ea5803512d4.csv', 'f95cdfc6011812c84b3c1ea5803512d4_meta.json']
+­şÜÇ Starting spot backtest for BTCUSDT 15m
+ÔÜá´©Å No user or database session - Running in TEST MODE
+­şğ¬ Running in TEST MODE
+­şÆ░ Spot trading (no leverage)
+­şôà Using date range: 2025-09-20 to 2025-09-21
+­şôà Using date range: 2025-09-20 to 2025-09-21
+­şöı Checking cache for: BTCUSDT 15m 2025-09-20 to 2025-09-21 [spot]
+­şöı Cache check for: BTCUSDT 15m 2025-09-20 to 2025-09-21
+­şöæ Cache key: b0ad422a16cb1b2976cc147d08b0d7f0
+­şôü Cache path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b0ad422a16cb1b2976cc147d08b0d7f0.csv
+­şôä Metadata path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b0ad422a16cb1b2976cc147d08b0d7f0_meta.json
+­şôé Cache file exists: True
+­şôï Metadata file exists: True
+­şôè Cached metadata: {'symbol': 'BTCUSDT', 'interval': '15m', 'start_date': '2025-09-20', 'end_date': '2025-09-21', 'market_type': 'spot', 'cached_at': '2025-10-27T01:37:13.360855', 'rows': 1000, 'cache_key': 'b0ad422a16cb1b2976cc147d08b0d7f0'}
+­şòÉ Cache time: 2025-10-27 01:37:13.360855
+­şòÉ Current time: 2025-10-27 01:37:52.130999
+ÔÅ░ Cache age: 0.01 hours
+­şôà End date: 2025-09-21
+­şôà Days from now: 36
+­şôÜ Historical data - cache valid: True
+Ô£à Cache hit: BTCUSDT 15m (1000 rows)
+­şôĞ Using cached data: 1000 rows
+­şôè Preparing indicators for 1000 rows
+Ô£à Indicators prepared: 1000 clean rows from 1000 original rows
+­şôê Sample indicators - EMA_fast: 114043.5550, RSI: 38.09
+­şôè Data prepared: 1000 candles
+­şÆ░ Starting capital: $1000.00
+­şôê Spot Entry: 0.008218 BTCUSDT @ $115606.7400, Cost: $950.48
+­şôë Exit: $115685.6300, P&L: $-0.11 (0.07%), Capital: $999.89
+­şôê Spot Entry: 0.008214 BTCUSDT @ $115639.9900, Cost: $950.37
+­şôë Exit: $115685.6300, P&L: $-0.39 (0.04%), Capital: $999.50
+­şôê Spot Entry: 0.008206 BTCUSDT @ $115717.4900, Cost: $950.00
+­şôë Exit: $115685.6300, P&L: $-1.02 (-0.03%), Capital: $998.48
+­şôê Spot Entry: 0.008204 BTCUSDT @ $115625.8600, Cost: $949.03
+­şôë Exit: $115685.6300, P&L: $-0.27 (0.05%), Capital: $998.21
+­şôê Spot Entry: 0.008198 BTCUSDT @ $115677.6600, Cost: $948.78
+­şôë Exit: $115685.6300, P&L: $-0.69 (0.01%), Capital: $997.52
+­şôê Spot Entry: 0.008191 BTCUSDT @ $115690.7600, Cost: $948.12
+­şôë Exit: $115232.2900, P&L: $-4.51 (-0.40%), Capital: $993.01
+­şôê Spot Entry: 0.008152 BTCUSDT @ $115715.9900, Cost: $943.83
+­şôë Exit: $115232.2900, P&L: $-4.70 (-0.42%), Capital: $988.31
+­şôê Spot Entry: 0.008118 BTCUSDT @ $115649.5300, Cost: $939.36
+­şôë Exit: $115232.2900, P&L: $-4.14 (-0.36%), Capital: $984.17
+­şôê Spot Entry: 0.008163 BTCUSDT @ $114530.0100, Cost: $935.43
+­şôë Exit: $114186.4200, P&L: $-3.55 (-0.30%), Capital: $980.62
+­şôê Spot Entry: 0.008259 BTCUSDT @ $112792.1600, Cost: $932.06
+­şôë Exit: $113092.4617, P&L: $1.73 (0.27%), Capital: $982.36
+­şôê Spot Entry: 0.008266 BTCUSDT @ $112905.3200, Cost: $933.70
+­şôë Exit: $113092.4617, P&L: $0.80 (0.17%), Capital: $983.16
+­şôê Spot Entry: 0.008280 BTCUSDT @ $112795.3100, Cost: $934.46
+­şôë Exit: $113092.4617, P&L: $1.71 (0.26%), Capital: $984.87
+­şôê Spot Entry: 0.008301 BTCUSDT @ $112705.5700, Cost: $936.09
+­şôë Exit: $113092.4617, P&L: $2.46 (0.34%), Capital: $987.33
+­şôê Spot Entry: 0.008319 BTCUSDT @ $112747.7200, Cost: $938.43
+­şôë Exit: $112422.6372, P&L: $-3.45 (-0.29%), Capital: $983.88
+­şôê Spot Entry: 0.008325 BTCUSDT @ $112272.9200, Cost: $935.15
+­şôë Exit: $112950.6285, P&L: $4.89 (0.60%), Capital: $988.77
+­şôê Spot Entry: 0.008354 BTCUSDT @ $112442.3000, Cost: $939.80
+­şôë Exit: $112950.6285, P&L: $3.49 (0.45%), Capital: $992.26
+­şôê Spot Entry: 0.008369 BTCUSDT @ $112633.7200, Cost: $943.12
+­şôë Exit: $112950.6285, P&L: $1.90 (0.28%), Capital: $994.16
+­şôê Spot Entry: 0.008374 BTCUSDT @ $112777.7500, Cost: $944.92
+­şôë Exit: $112950.6285, P&L: $0.69 (0.15%), Capital: $994.85
+­şôê Spot Entry: 0.008416 BTCUSDT @ $112293.2300, Cost: $945.58
+­şôë Exit: $112162.5000, P&L: $-1.86 (-0.12%), Capital: $993.00
+­şôê Spot Entry: 0.008406 BTCUSDT @ $112217.2600, Cost: $943.82
+­şôë Exit: $112162.5000, P&L: $-1.21 (-0.05%), Capital: $991.78
+­şôê Spot Entry: 0.008395 BTCUSDT @ $112230.7200, Cost: $942.66
+­şôë Exit: $112162.5000, P&L: $-1.33 (-0.06%), Capital: $990.45
+­şôê Spot Entry: 0.008377 BTCUSDT @ $112319.2400, Cost: $941.40
+­şôë Exit: $112162.5000, P&L: $-2.07 (-0.14%), Capital: $988.39
+­şôê Spot Entry: 0.008354 BTCUSDT @ $112399.4500, Cost: $939.44
+­şôë Exit: $112162.5000, P&L: $-2.73 (-0.21%), Capital: $985.66
+­şôê Spot Entry: 0.008362 BTCUSDT @ $111980.8600, Cost: $936.84
+­şôë Exit: $111909.7206, P&L: $-1.34 (-0.06%), Capital: $984.32
+­şôê Spot Entry: 0.008347 BTCUSDT @ $112031.1700, Cost: $935.57
+­şôë Exit: $111909.7206, P&L: $-1.76 (-0.11%), Capital: $982.55
+­şôê Spot Entry: 0.008342 BTCUSDT @ $111891.2600, Cost: $933.89
+­şôë Exit: $111909.7206, P&L: $-0.59 (0.02%), Capital: $981.96
+­şôê Spot Entry: 0.008323 BTCUSDT @ $112079.7700, Cost: $933.33
+­şôë Exit: $111799.2829, P&L: $-3.08 (-0.25%), Capital: $978.88
+­şôê Spot Entry: 0.008331 BTCUSDT @ $111617.0100, Cost: $930.40
+­şôë Exit: $111383.8929, P&L: $-2.69 (-0.21%), Capital: $976.20
+­şôê Spot Entry: 0.008471 BTCUSDT @ $109472.1300, Cost: $927.85
+­şôë Exit: $109469.4435, P&L: $-0.76 (-0.00%), Capital: $975.43
+­şôê Spot Entry: 0.008452 BTCUSDT @ $109639.1300, Cost: $927.12
+­şôë Exit: $109469.4435, P&L: $-2.18 (-0.15%), Capital: $973.26
+­şôê Spot Entry: 0.008439 BTCUSDT @ $109560.0100, Cost: $925.06
+­şôë Exit: $109469.4435, P&L: $-1.50 (-0.08%), Capital: $971.75
+­şôê Spot Entry: 0.008419 BTCUSDT @ $109649.9900, Cost: $923.63
+­şôë Exit: $109469.4435, P&L: $-2.26 (-0.16%), Capital: $969.49
+­şôê Spot Entry: 0.008397 BTCUSDT @ $109680.4000, Cost: $921.48
+­şôë Exit: $109469.4435, P&L: $-2.51 (-0.19%), Capital: $966.99
+­şôê Spot Entry: 0.008382 BTCUSDT @ $109590.4200, Cost: $919.10
+­şôë Exit: $109635.8500, P&L: $-0.35 (0.04%), Capital: $966.63
+­şôê Spot Entry: 0.008375 BTCUSDT @ $109649.2900, Cost: $918.76
+­şôë Exit: $109414.6783, P&L: $-2.70 (-0.21%), Capital: $963.93
+­şôê Spot Entry: 0.008353 BTCUSDT @ $109635.9800, Cost: $916.19
+­şôë Exit: $109413.0432, P&L: $-2.59 (-0.20%), Capital: $961.34
+­şôê Spot Entry: 0.008336 BTCUSDT @ $109553.7700, Cost: $913.73
+­şôë Exit: $109635.8500, P&L: $-0.05 (0.07%), Capital: $961.29
+­şôê Spot Entry: 0.008336 BTCUSDT @ $109550.0000, Cost: $913.68
+­şôë Exit: $109635.8500, P&L: $-0.02 (0.08%), Capital: $961.28
+­şôê Spot Entry: 0.008318 BTCUSDT @ $109787.7400, Cost: $913.67
+­şôë Exit: $109458.3768, P&L: $-3.47 (-0.30%), Capital: $957.81
+­şôê Spot Entry: 0.008297 BTCUSDT @ $109670.0100, Cost: $910.37
+­şôë Exit: $111315.0601, P&L: $12.92 (1.50%), Capital: $970.72
+­şôê Spot Entry: 0.008427 BTCUSDT @ $109437.4200, Cost: $922.65
+­şôë Exit: $111078.9813, P&L: $13.09 (1.50%), Capital: $983.82
+­şôê Spot Entry: 0.008542 BTCUSDT @ $109410.0000, Cost: $935.09
+­şôë Exit: $111051.1500, P&L: $13.27 (1.50%), Capital: $997.08
+­şôê Spot Entry: 0.008442 BTCUSDT @ $112198.8700, Cost: $947.70
+­şôë Exit: $111973.0700, P&L: $-2.66 (-0.20%), Capital: $994.42
+­şôê Spot Entry: 0.008431 BTCUSDT @ $112056.4800, Cost: $945.17
+­şôë Exit: $113737.3272, P&L: $13.41 (1.50%), Capital: $1007.83
+­şôê Spot Entry: 0.008529 BTCUSDT @ $112260.5700, Cost: $957.92
+­şôë Exit: $111973.0700, P&L: $-3.22 (-0.26%), Capital: $1004.61
+­şôê Spot Entry: 0.008503 BTCUSDT @ $112241.5300, Cost: $954.86
+­şôë Exit: $111973.0700, P&L: $-3.05 (-0.24%), Capital: $1001.57
+­şôê Spot Entry: 0.008506 BTCUSDT @ $111855.3000, Cost: $951.96
+­şôë Exit: $113533.1295, P&L: $13.51 (1.50%), Capital: $1015.07
+­şôê Spot Entry: 0.008430 BTCUSDT @ $114386.0000, Cost: $964.80
+­şôë Exit: $113891.6400, P&L: $-4.94 (-0.43%), Capital: $1010.14
+­şôê Spot Entry: 0.008363 BTCUSDT @ $114751.7500, Cost: $960.11
+­şôë Exit: $114447.6240, P&L: $-3.31 (-0.27%), Capital: $1006.83
+­şôê Spot Entry: 0.008344 BTCUSDT @ $114631.2000, Cost: $956.96
+­şôë Exit: $114287.3164, P&L: $-3.63 (-0.30%), Capital: $1003.19
+­şôê Spot Entry: 0.008323 BTCUSDT @ $114500.3100, Cost: $953.51
+­şôë Exit: $114239.4404, P&L: $-2.93 (-0.23%), Capital: $1000.26
+­şöı Final Calculations:
+   Initial Capital: $1000.00
+   Final Capital: $1000.26
+   Net P&L: $0.26
+   Total Trades: 51
+   Winning: 13, Losing: 38
+   Total Fees: $38.25
+   Win Rate: 25.49%
+   Total Return: 0.03%
+­şöğ BacktestService initialized with cache dir: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data
+­şôü Cache directory exists: True
+­şôé Cache directory contents: ['048dd04a8a64bc7fe2bd1077a0cfe316.csv', '048dd04a8a64bc7fe2bd1077a0cfe316_meta.json', '0b3eeac287ef911a25f08bef363d9356.csv', '0b3eeac287ef911a25f08bef363d9356_meta.json', '83935708ee9893be2af170d56f5c18c3.csv', '83935708ee9893be2af170d56f5c18c3_meta.json', '9413d3a9b7ed1583a2ce139a06b073a1.csv', '9413d3a9b7ed1583a2ce139a06b073a1_meta.json', 'b0ad422a16cb1b2976cc147d08b0d7f0.csv', 'b0ad422a16cb1b2976cc147d08b0d7f0_meta.json', 'b508e30ab43678519e6f1f332c375f9c.csv', 'b508e30ab43678519e6f1f332c375f9c_meta.json', 'f3d31df3a34feecfe826dd91bf827ea6.csv', 'f3d31df3a34feecfe826dd91bf827ea6_meta.json', 'f7fa6e899c80c8fa106ee051da562ded.csv', 'f7fa6e899c80c8fa106ee051da562ded_meta.json', 'f95cdfc6011812c84b3c1ea5803512d4.csv', 'f95cdfc6011812c84b3c1ea5803512d4_meta.json']
+­şÜÇ Starting spot backtest for BTCUSDT 15m
+ÔÜá´©Å No user or database session - Running in TEST MODE
+­şğ¬ Running in TEST MODE
+­şÆ░ Spot trading (no leverage)
+­şôà Using date range: 2025-09-20 to 2025-09-21
+­şôà Using date range: 2025-09-20 to 2025-09-21
+­şöı Checking cache for: BTCUSDT 15m 2025-09-20 to 2025-09-21 [spot]
+­şöı Cache check for: BTCUSDT 15m 2025-09-20 to 2025-09-21
+­şöæ Cache key: b0ad422a16cb1b2976cc147d08b0d7f0
+­şôü Cache path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b0ad422a16cb1b2976cc147d08b0d7f0.csv
+­şôä Metadata path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b0ad422a16cb1b2976cc147d08b0d7f0_meta.json
+­şôé Cache file exists: True
+­şôï Metadata file exists: True
+­şôè Cached metadata: {'symbol': 'BTCUSDT', 'interval': '15m', 'start_date': '2025-09-20', 'end_date': '2025-09-21', 'market_type': 'spot', 'cached_at': '2025-10-27T01:37:13.360855', 'rows': 1000, 'cache_key': 'b0ad422a16cb1b2976cc147d08b0d7f0'}
+­şòÉ Cache time: 2025-10-27 01:37:13.360855
+­şòÉ Current time: 2025-10-27 01:37:52.333630
+ÔÅ░ Cache age: 0.01 hours
+­şôà End date: 2025-09-21
+­şôà Days from now: 36
+­şôÜ Historical data - cache valid: True
+Ô£à Cache hit: BTCUSDT 15m (1000 rows)
+­şôĞ Using cached data: 1000 rows
+­şôè Preparing indicators for 1000 rows
+Ô£à Indicators prepared: 1000 clean rows from 1000 original rows
+­şôê Sample indicators - EMA_fast: 114043.5550, RSI: 32.43
+­şôè Data prepared: 1000 candles
+­şÆ░ Starting capital: $1000.00
+­şôê Spot Entry: 0.008220 BTCUSDT @ $115578.0900, Cost: $950.48
+­şôë Exit: $115685.6300, P&L: $0.12 (0.09%), Capital: $1000.12
+­şôê Spot Entry: 0.008219 BTCUSDT @ $115606.7400, Cost: $950.59
+­şôë Exit: $115685.6300, P&L: $-0.11 (0.07%), Capital: $1000.01
+­şôê Spot Entry: 0.008215 BTCUSDT @ $115639.9900, Cost: $950.49
+­şôë Exit: $115685.6300, P&L: $-0.39 (0.04%), Capital: $999.63
+­şôê Spot Entry: 0.008207 BTCUSDT @ $115717.4900, Cost: $950.12
+­şôë Exit: $115685.6300, P&L: $-1.02 (-0.03%), Capital: $998.61
+­şôê Spot Entry: 0.008205 BTCUSDT @ $115625.8600, Cost: $949.15
+­şôë Exit: $115685.6300, P&L: $-0.27 (0.05%), Capital: $998.34
+­şôê Spot Entry: 0.008198 BTCUSDT @ $115690.7600, Cost: $948.89
+­şôë Exit: $115232.2900, P&L: $-4.52 (-0.40%), Capital: $993.82
+­şôê Spot Entry: 0.008159 BTCUSDT @ $115715.9900, Cost: $944.60
+­şôë Exit: $115232.2900, P&L: $-4.70 (-0.42%), Capital: $989.12
+­şôê Spot Entry: 0.008125 BTCUSDT @ $115649.5300, Cost: $940.13
+­şôë Exit: $115232.2900, P&L: $-4.14 (-0.36%), Capital: $984.98
+­şôê Spot Entry: 0.008170 BTCUSDT @ $114530.0100, Cost: $936.20
+­şôë Exit: $114186.4200, P&L: $-3.55 (-0.30%), Capital: $981.42
+­şôê Spot Entry: 0.008266 BTCUSDT @ $112792.1600, Cost: $932.82
+­şôë Exit: $113092.4617, P&L: $1.74 (0.27%), Capital: $983.16
+­şôê Spot Entry: 0.008272 BTCUSDT @ $112905.3200, Cost: $934.47
+­şôë Exit: $113092.4617, P&L: $0.80 (0.17%), Capital: $983.96
+­şôê Spot Entry: 0.008287 BTCUSDT @ $112795.3100, Cost: $935.23
+­şôë Exit: $113092.4617, P&L: $1.71 (0.26%), Capital: $985.67
+­şôê Spot Entry: 0.008308 BTCUSDT @ $112705.5700, Cost: $936.86
+­şôë Exit: $113092.4617, P&L: $2.46 (0.34%), Capital: $988.14
+­şôê Spot Entry: 0.008326 BTCUSDT @ $112747.7200, Cost: $939.20
+­şôë Exit: $112422.6372, P&L: $-3.46 (-0.29%), Capital: $984.68
+­şôê Spot Entry: 0.008332 BTCUSDT @ $112272.9200, Cost: $935.92
+­şôë Exit: $112950.6285, P&L: $4.90 (0.60%), Capital: $989.58
+­şôê Spot Entry: 0.008361 BTCUSDT @ $112442.3000, Cost: $940.57
+­şôë Exit: $112950.6285, P&L: $3.50 (0.45%), Capital: $993.08
+­şôê Spot Entry: 0.008376 BTCUSDT @ $112633.7200, Cost: $943.89
+­şôë Exit: $112950.6285, P&L: $1.90 (0.28%), Capital: $994.97
+­şôê Spot Entry: 0.008390 BTCUSDT @ $112665.4400, Cost: $945.70
+­şôë Exit: $112950.6285, P&L: $1.64 (0.25%), Capital: $996.61
+­şôê Spot Entry: 0.008431 BTCUSDT @ $112293.2300, Cost: $947.25
+­şôë Exit: $112162.5000, P&L: $-1.86 (-0.12%), Capital: $994.75
+­şôê Spot Entry: 0.008421 BTCUSDT @ $112217.2600, Cost: $945.49
+­şôë Exit: $112162.5000, P&L: $-1.22 (-0.05%), Capital: $993.53
+­şôê Spot Entry: 0.008410 BTCUSDT @ $112230.7200, Cost: $944.33
+­şôë Exit: $112162.5000, P&L: $-1.33 (-0.06%), Capital: $992.20
+­şôê Spot Entry: 0.008392 BTCUSDT @ $112319.2400, Cost: $943.07
+­şôë Exit: $112162.5000, P&L: $-2.07 (-0.14%), Capital: $990.14
+­şôê Spot Entry: 0.008365 BTCUSDT @ $112451.2600, Cost: $941.10
+­şôë Exit: $112162.5000, P&L: $-3.17 (-0.26%), Capital: $986.97
+­şôê Spot Entry: 0.008373 BTCUSDT @ $111980.8600, Cost: $938.09
+­şôë Exit: $111909.7206, P&L: $-1.35 (-0.06%), Capital: $985.62
+­şôê Spot Entry: 0.008358 BTCUSDT @ $112031.1700, Cost: $936.81
+­şôë Exit: $111909.7206, P&L: $-1.76 (-0.11%), Capital: $983.86
+­şôê Spot Entry: 0.008353 BTCUSDT @ $111891.2600, Cost: $935.13
+­şôë Exit: $111909.7206, P&L: $-0.59 (0.02%), Capital: $983.27
+­şôê Spot Entry: 0.008334 BTCUSDT @ $112079.7700, Cost: $934.57
+­şôë Exit: $111799.2829, P&L: $-3.08 (-0.25%), Capital: $980.18
+­şôê Spot Entry: 0.008343 BTCUSDT @ $111617.0100, Cost: $931.64
+­şôë Exit: $111383.8929, P&L: $-2.69 (-0.21%), Capital: $977.49
+­şôê Spot Entry: 0.008483 BTCUSDT @ $109472.1300, Cost: $929.08
+­şôë Exit: $109469.4435, P&L: $-0.77 (-0.00%), Capital: $976.73
+­şôê Spot Entry: 0.008463 BTCUSDT @ $109639.1300, Cost: $928.35
+­şôë Exit: $109469.4435, P&L: $-2.18 (-0.15%), Capital: $974.55
+­şôê Spot Entry: 0.008450 BTCUSDT @ $109560.0100, Cost: $926.28
+­şôë Exit: $109469.4435, P&L: $-1.51 (-0.08%), Capital: $973.04
+­şôê Spot Entry: 0.008430 BTCUSDT @ $109649.9900, Cost: $924.85
+­şôë Exit: $109469.4435, P&L: $-2.26 (-0.16%), Capital: $970.78
+­şôê Spot Entry: 0.008408 BTCUSDT @ $109680.4000, Cost: $922.70
+­şôë Exit: $109469.4435, P&L: $-2.51 (-0.19%), Capital: $968.27
+­şôê Spot Entry: 0.008394 BTCUSDT @ $109590.4200, Cost: $920.32
+­şôë Exit: $109635.8500, P&L: $-0.35 (0.04%), Capital: $967.92
+­şôê Spot Entry: 0.008386 BTCUSDT @ $109649.2900, Cost: $919.98
+­şôë Exit: $109414.6783, P&L: $-2.70 (-0.21%), Capital: $965.21
+­şôê Spot Entry: 0.008364 BTCUSDT @ $109635.9800, Cost: $917.41
+­şôë Exit: $109413.0432, P&L: $-2.60 (-0.20%), Capital: $962.62
+­şôê Spot Entry: 0.008347 BTCUSDT @ $109553.7700, Cost: $914.94
+­şôë Exit: $109635.8500, P&L: $-0.05 (0.07%), Capital: $962.57
+­şôê Spot Entry: 0.008347 BTCUSDT @ $109550.0000, Cost: $914.90
+­şôë Exit: $109635.8500, P&L: $-0.02 (0.08%), Capital: $962.55
+­şôê Spot Entry: 0.008329 BTCUSDT @ $109787.7400, Cost: $914.88
+­şôë Exit: $109458.3768, P&L: $-3.47 (-0.30%), Capital: $959.08
+­şôê Spot Entry: 0.008308 BTCUSDT @ $109670.0100, Cost: $911.58
+­şôë Exit: $111315.0601, P&L: $12.93 (1.50%), Capital: $972.01
+­şôê Spot Entry: 0.008438 BTCUSDT @ $109437.4200, Cost: $923.88
+­şôë Exit: $111078.9813, P&L: $13.11 (1.50%), Capital: $985.12
+­şôê Spot Entry: 0.008554 BTCUSDT @ $109410.0000, Cost: $936.33
+­şôë Exit: $111051.1500, P&L: $13.29 (1.50%), Capital: $998.41
+­şôê Spot Entry: 0.008454 BTCUSDT @ $112198.8700, Cost: $948.96
+­şôë Exit: $111973.0700, P&L: $-2.67 (-0.20%), Capital: $995.74
+­şôê Spot Entry: 0.008442 BTCUSDT @ $112056.4800, Cost: $946.43
+­şôë Exit: $113737.3272, P&L: $13.43 (1.50%), Capital: $1009.17
+­şôê Spot Entry: 0.008540 BTCUSDT @ $112260.5700, Cost: $959.19
+­şôë Exit: $111973.0700, P&L: $-3.22 (-0.26%), Capital: $1005.95
+­şôê Spot Entry: 0.008514 BTCUSDT @ $112241.5300, Cost: $956.13
+­şôë Exit: $111973.0700, P&L: $-3.05 (-0.24%), Capital: $1002.90
+­şôê Spot Entry: 0.008503 BTCUSDT @ $112042.9700, Cost: $953.23
+­şôë Exit: $113723.6145, P&L: $13.52 (1.50%), Capital: $1016.42
+­şôê Spot Entry: 0.008442 BTCUSDT @ $114386.0000, Cost: $966.08
+­şôë Exit: $113891.6400, P&L: $-4.94 (-0.43%), Capital: $1011.48
+­şôê Spot Entry: 0.008374 BTCUSDT @ $114751.7500, Cost: $961.38
+­şôë Exit: $114447.6240, P&L: $-3.31 (-0.27%), Capital: $1008.16
+­şôê Spot Entry: 0.008355 BTCUSDT @ $114631.2000, Cost: $958.23
+­şôë Exit: $114287.3164, P&L: $-3.64 (-0.30%), Capital: $1004.52
+­şôê Spot Entry: 0.008334 BTCUSDT @ $114500.3100, Cost: $954.78
+­şôë Exit: $114239.4404, P&L: $-2.94 (-0.23%), Capital: $1001.59
+­şöı Final Calculations:
+   Initial Capital: $1000.00
+   Final Capital: $1001.59
+   Net P&L: $1.59
+   Total Trades: 51
+   Winning: 14, Losing: 37
+   Total Fees: $38.29
+   Win Rate: 27.45%
+   Total Return: 0.16%
+­şöğ BacktestService initialized with cache dir: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data
+­şôü Cache directory exists: True
+­şôé Cache directory contents: ['048dd04a8a64bc7fe2bd1077a0cfe316.csv', '048dd04a8a64bc7fe2bd1077a0cfe316_meta.json', '0b3eeac287ef911a25f08bef363d9356.csv', '0b3eeac287ef911a25f08bef363d9356_meta.json', '83935708ee9893be2af170d56f5c18c3.csv', '83935708ee9893be2af170d56f5c18c3_meta.json', '9413d3a9b7ed1583a2ce139a06b073a1.csv', '9413d3a9b7ed1583a2ce139a06b073a1_meta.json', 'b0ad422a16cb1b2976cc147d08b0d7f0.csv', 'b0ad422a16cb1b2976cc147d08b0d7f0_meta.json', 'b508e30ab43678519e6f1f332c375f9c.csv', 'b508e30ab43678519e6f1f332c375f9c_meta.json', 'f3d31df3a34feecfe826dd91bf827ea6.csv', 'f3d31df3a34feecfe826dd91bf827ea6_meta.json', 'f7fa6e899c80c8fa106ee051da562ded.csv', 'f7fa6e899c80c8fa106ee051da562ded_meta.json', 'f95cdfc6011812c84b3c1ea5803512d4.csv', 'f95cdfc6011812c84b3c1ea5803512d4_meta.json']
+­şÜÇ Starting spot backtest for BTCUSDT 15m
+ÔÜá´©Å No user or database session - Running in TEST MODE
+­şğ¬ Running in TEST MODE
+­şÆ░ Spot trading (no leverage)
+­şôà Using date range: 2025-09-20 to 2025-09-21
+­şôà Using date range: 2025-09-20 to 2025-09-21
+­şöı Checking cache for: BTCUSDT 15m 2025-09-20 to 2025-09-21 [spot]
+­şöı Cache check for: BTCUSDT 15m 2025-09-20 to 2025-09-21
+­şöæ Cache key: b0ad422a16cb1b2976cc147d08b0d7f0
+­şôü Cache path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b0ad422a16cb1b2976cc147d08b0d7f0.csv
+­şôä Metadata path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b0ad422a16cb1b2976cc147d08b0d7f0_meta.json
+­şôé Cache file exists: True
+­şôï Metadata file exists: True
+­şôè Cached metadata: {'symbol': 'BTCUSDT', 'interval': '15m', 'start_date': '2025-09-20', 'end_date': '2025-09-21', 'market_type': 'spot', 'cached_at': '2025-10-27T01:37:13.360855', 'rows': 1000, 'cache_key': 'b0ad422a16cb1b2976cc147d08b0d7f0'}
+­şòÉ Cache time: 2025-10-27 01:37:13.360855
+­şòÉ Current time: 2025-10-27 01:37:52.538370
+ÔÅ░ Cache age: 0.01 hours
+­şôà End date: 2025-09-21
+­şôà Days from now: 36
+­şôÜ Historical data - cache valid: True
+Ô£à Cache hit: BTCUSDT 15m (1000 rows)
+­şôĞ Using cached data: 1000 rows
+­şôè Preparing indicators for 1000 rows
+Ô£à Indicators prepared: 1000 clean rows from 1000 original rows
+­şôê Sample indicators - EMA_fast: 114043.5550, RSI: 38.09
+­şôè Data prepared: 1000 candles
+­şÆ░ Starting capital: $1000.00
+­şôê Spot Entry: 0.008220 BTCUSDT @ $115578.0900, Cost: $950.48
+­şôë Exit: $115685.6300, P&L: $0.12 (0.09%), Capital: $1000.12
+­şôê Spot Entry: 0.008219 BTCUSDT @ $115606.7400, Cost: $950.59
+­şôë Exit: $115685.6300, P&L: $-0.11 (0.07%), Capital: $1000.01
+­şôê Spot Entry: 0.008215 BTCUSDT @ $115639.9900, Cost: $950.49
+­şôë Exit: $115685.6300, P&L: $-0.39 (0.04%), Capital: $999.63
+­şôê Spot Entry: 0.008207 BTCUSDT @ $115717.4900, Cost: $950.12
+­şôë Exit: $115685.6300, P&L: $-1.02 (-0.03%), Capital: $998.61
+­şôê Spot Entry: 0.008205 BTCUSDT @ $115625.8600, Cost: $949.15
+­şôë Exit: $115685.6300, P&L: $-0.27 (0.05%), Capital: $998.34
+­şôê Spot Entry: 0.008198 BTCUSDT @ $115690.7600, Cost: $948.89
+­şôë Exit: $115232.2900, P&L: $-4.52 (-0.40%), Capital: $993.82
+­şôê Spot Entry: 0.008159 BTCUSDT @ $115715.9900, Cost: $944.60
+­şôë Exit: $115232.2900, P&L: $-4.70 (-0.42%), Capital: $989.12
+­şôê Spot Entry: 0.008125 BTCUSDT @ $115649.5300, Cost: $940.13
+­şôë Exit: $115232.2900, P&L: $-4.14 (-0.36%), Capital: $984.98
+­şôê Spot Entry: 0.008170 BTCUSDT @ $114530.0100, Cost: $936.20
+­şôë Exit: $114186.4200, P&L: $-3.55 (-0.30%), Capital: $981.42
+­şôê Spot Entry: 0.008266 BTCUSDT @ $112792.1600, Cost: $932.82
+­şôë Exit: $113092.4617, P&L: $1.74 (0.27%), Capital: $983.16
+­şôê Spot Entry: 0.008272 BTCUSDT @ $112905.3200, Cost: $934.47
+­şôë Exit: $113092.4617, P&L: $0.80 (0.17%), Capital: $983.96
+­şôê Spot Entry: 0.008287 BTCUSDT @ $112795.3100, Cost: $935.23
+­şôë Exit: $113092.4617, P&L: $1.71 (0.26%), Capital: $985.67
+­şôê Spot Entry: 0.008308 BTCUSDT @ $112705.5700, Cost: $936.86
+­şôë Exit: $113092.4617, P&L: $2.46 (0.34%), Capital: $988.14
+­şôê Spot Entry: 0.008326 BTCUSDT @ $112747.7200, Cost: $939.20
+­şôë Exit: $112422.6372, P&L: $-3.46 (-0.29%), Capital: $984.68
+­şôê Spot Entry: 0.008332 BTCUSDT @ $112272.9200, Cost: $935.92
+­şôë Exit: $112950.6285, P&L: $4.90 (0.60%), Capital: $989.58
+­şôê Spot Entry: 0.008361 BTCUSDT @ $112442.3000, Cost: $940.57
+­şôë Exit: $112950.6285, P&L: $3.50 (0.45%), Capital: $993.08
+­şôê Spot Entry: 0.008376 BTCUSDT @ $112633.7200, Cost: $943.89
+­şôë Exit: $112950.6285, P&L: $1.90 (0.28%), Capital: $994.97
+­şôê Spot Entry: 0.008377 BTCUSDT @ $112838.3700, Cost: $945.70
+­şôë Exit: $112950.6285, P&L: $0.18 (0.10%), Capital: $995.16
+­şôê Spot Entry: 0.008419 BTCUSDT @ $112293.2300, Cost: $945.87
+­şôë Exit: $112162.5000, P&L: $-1.86 (-0.12%), Capital: $993.30
+­şôê Spot Entry: 0.008409 BTCUSDT @ $112217.2600, Cost: $944.11
+­şôë Exit: $112162.5000, P&L: $-1.22 (-0.05%), Capital: $992.09
+­şôê Spot Entry: 0.008398 BTCUSDT @ $112230.7200, Cost: $942.95
+­şôë Exit: $112162.5000, P&L: $-1.33 (-0.06%), Capital: $990.76
+­şôê Spot Entry: 0.008380 BTCUSDT @ $112319.2400, Cost: $941.69
+­şôë Exit: $112162.5000, P&L: $-2.07 (-0.14%), Capital: $988.69
+­şôê Spot Entry: 0.008356 BTCUSDT @ $112399.4500, Cost: $939.73
+­şôë Exit: $112162.5000, P&L: $-2.73 (-0.21%), Capital: $985.96
+­şôê Spot Entry: 0.008365 BTCUSDT @ $111980.8600, Cost: $937.13
+­şôë Exit: $111909.7206, P&L: $-1.34 (-0.06%), Capital: $984.62
+­şôê Spot Entry: 0.008349 BTCUSDT @ $112031.1700, Cost: $935.86
+­şôë Exit: $111909.7206, P&L: $-1.76 (-0.11%), Capital: $982.86
+­şôê Spot Entry: 0.008345 BTCUSDT @ $111891.2600, Cost: $934.18
+­şôë Exit: $111909.7206, P&L: $-0.59 (0.02%), Capital: $982.26
+­şôê Spot Entry: 0.008326 BTCUSDT @ $112079.7700, Cost: $933.62
+­şôë Exit: $111799.2829, P&L: $-3.08 (-0.25%), Capital: $979.18
+­şôê Spot Entry: 0.008334 BTCUSDT @ $111617.0100, Cost: $930.69
+­şôë Exit: $111383.8929, P&L: $-2.69 (-0.21%), Capital: $976.50
+­şôê Spot Entry: 0.008526 BTCUSDT @ $108809.2500, Cost: $928.13
+­şôë Exit: $109643.4600, P&L: $6.37 (0.77%), Capital: $982.86
+­şôê Spot Entry: 0.008529 BTCUSDT @ $109472.1300, Cost: $934.19
+­şôë Exit: $109469.4435, P&L: $-0.77 (-0.00%), Capital: $982.09
+­şôê Spot Entry: 0.008510 BTCUSDT @ $109639.1300, Cost: $933.46
+­şôë Exit: $109469.4435, P&L: $-2.19 (-0.15%), Capital: $979.90
+­şôê Spot Entry: 0.008497 BTCUSDT @ $109560.0100, Cost: $931.37
+­şôë Exit: $109469.4435, P&L: $-1.51 (-0.08%), Capital: $978.39
+­şôê Spot Entry: 0.008477 BTCUSDT @ $109649.9900, Cost: $929.94
+­şôë Exit: $109469.4435, P&L: $-2.27 (-0.16%), Capital: $976.12
+­şôê Spot Entry: 0.008462 BTCUSDT @ $109590.4200, Cost: $927.77
+­şôë Exit: $109635.8500, P&L: $-0.36 (0.04%), Capital: $975.76
+­şôê Spot Entry: 0.008454 BTCUSDT @ $109649.2900, Cost: $927.43
+­şôë Exit: $109414.6783, P&L: $-2.72 (-0.21%), Capital: $973.03
+­şôê Spot Entry: 0.008431 BTCUSDT @ $109635.9800, Cost: $924.84
+­şôë Exit: $109413.0432, P&L: $-2.62 (-0.20%), Capital: $970.42
+­şôê Spot Entry: 0.008415 BTCUSDT @ $109553.7700, Cost: $922.36
+­şôë Exit: $109635.8500, P&L: $-0.05 (0.07%), Capital: $970.37
+­şôê Spot Entry: 0.008415 BTCUSDT @ $109550.0000, Cost: $922.31
+­şôë Exit: $109635.8500, P&L: $-0.02 (0.08%), Capital: $970.35
+­şôê Spot Entry: 0.008397 BTCUSDT @ $109787.7400, Cost: $922.30
+­şôë Exit: $109458.3768, P&L: $-3.50 (-0.30%), Capital: $966.85
+­şôê Spot Entry: 0.008375 BTCUSDT @ $109670.0100, Cost: $918.97
+­şôë Exit: $111315.0601, P&L: $13.04 (1.50%), Capital: $979.89
+­şôê Spot Entry: 0.008506 BTCUSDT @ $109437.4200, Cost: $931.36
+­şôë Exit: $111078.9813, P&L: $13.21 (1.50%), Capital: $993.10
+­şôê Spot Entry: 0.008623 BTCUSDT @ $109410.0000, Cost: $943.92
+­şôë Exit: $111051.1500, P&L: $13.39 (1.50%), Capital: $1006.50
+­şôê Spot Entry: 0.008522 BTCUSDT @ $112198.8700, Cost: $956.65
+­şôë Exit: $111973.0700, P&L: $-2.69 (-0.20%), Capital: $1003.81
+­şôê Spot Entry: 0.008510 BTCUSDT @ $112056.4800, Cost: $954.10
+­şôë Exit: $113737.3272, P&L: $13.54 (1.50%), Capital: $1017.35
+­şôê Spot Entry: 0.008609 BTCUSDT @ $112260.5700, Cost: $966.96
+­şôë Exit: $111973.0700, P&L: $-3.25 (-0.26%), Capital: $1014.10
+­şôê Spot Entry: 0.008583 BTCUSDT @ $112241.5300, Cost: $963.87
+­şôë Exit: $111973.0700, P&L: $-3.07 (-0.24%), Capital: $1011.02
+­şôê Spot Entry: 0.008587 BTCUSDT @ $111855.3000, Cost: $960.95
+­şôë Exit: $113533.1295, P&L: $13.63 (1.50%), Capital: $1024.66
+­şôê Spot Entry: 0.008510 BTCUSDT @ $114386.0000, Cost: $973.91
+­şôë Exit: $113891.6400, P&L: $-4.98 (-0.43%), Capital: $1019.67
+­şôê Spot Entry: 0.008442 BTCUSDT @ $114751.7500, Cost: $969.17
+­şôë Exit: $114447.6240, P&L: $-3.34 (-0.27%), Capital: $1016.33
+­şôê Spot Entry: 0.008423 BTCUSDT @ $114631.2000, Cost: $966.00
+­şôë Exit: $114287.3164, P&L: $-3.67 (-0.30%), Capital: $1012.66
+­şôê Spot Entry: 0.008402 BTCUSDT @ $114500.3100, Cost: $962.51
+­şôë Exit: $114239.4404, P&L: $-2.96 (-0.23%), Capital: $1009.70
+­şöı Final Calculations:
+   Initial Capital: $1000.00
+   Final Capital: $1009.70
+   Net P&L: $9.70
+   Total Trades: 51
+   Winning: 15, Losing: 36
+   Total Fees: $38.41
+   Win Rate: 29.41%
+   Total Return: 0.97%
+­şöğ BacktestService initialized with cache dir: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data
+­şôü Cache directory exists: True
+­şôé Cache directory contents: ['048dd04a8a64bc7fe2bd1077a0cfe316.csv', '048dd04a8a64bc7fe2bd1077a0cfe316_meta.json', '0b3eeac287ef911a25f08bef363d9356.csv', '0b3eeac287ef911a25f08bef363d9356_meta.json', '83935708ee9893be2af170d56f5c18c3.csv', '83935708ee9893be2af170d56f5c18c3_meta.json', '9413d3a9b7ed1583a2ce139a06b073a1.csv', '9413d3a9b7ed1583a2ce139a06b073a1_meta.json', 'b0ad422a16cb1b2976cc147d08b0d7f0.csv', 'b0ad422a16cb1b2976cc147d08b0d7f0_meta.json', 'b508e30ab43678519e6f1f332c375f9c.csv', 'b508e30ab43678519e6f1f332c375f9c_meta.json', 'f3d31df3a34feecfe826dd91bf827ea6.csv', 'f3d31df3a34feecfe826dd91bf827ea6_meta.json', 'f7fa6e899c80c8fa106ee051da562ded.csv', 'f7fa6e899c80c8fa106ee051da562ded_meta.json', 'f95cdfc6011812c84b3c1ea5803512d4.csv', 'f95cdfc6011812c84b3c1ea5803512d4_meta.json']
+­şÜÇ Starting spot backtest for BTCUSDT 15m
+ÔÜá´©Å No user or database session - Running in TEST MODE
+­şğ¬ Running in TEST MODE
+­şÆ░ Spot trading (no leverage)
+­şôà Using date range: 2025-09-20 to 2025-09-21
+­şôà Using date range: 2025-09-20 to 2025-09-21
+­şöı Checking cache for: BTCUSDT 15m 2025-09-20 to 2025-09-21 [spot]
+­şöı Cache check for: BTCUSDT 15m 2025-09-20 to 2025-09-21
+­şöæ Cache key: b0ad422a16cb1b2976cc147d08b0d7f0
+­şôü Cache path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b0ad422a16cb1b2976cc147d08b0d7f0.csv
+­şôä Metadata path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b0ad422a16cb1b2976cc147d08b0d7f0_meta.json
+­şôé Cache file exists: True
+­şôï Metadata file exists: True
+­şôè Cached metadata: {'symbol': 'BTCUSDT', 'interval': '15m', 'start_date': '2025-09-20', 'end_date': '2025-09-21', 'market_type': 'spot', 'cached_at': '2025-10-27T01:37:13.360855', 'rows': 1000, 'cache_key': 'b0ad422a16cb1b2976cc147d08b0d7f0'}
+­şòÉ Cache time: 2025-10-27 01:37:13.360855
+­şòÉ Current time: 2025-10-27 01:37:52.749249
+ÔÅ░ Cache age: 0.01 hours
+­şôà End date: 2025-09-21
+­şôà Days from now: 36
+­şôÜ Historical data - cache valid: True
+Ô£à Cache hit: BTCUSDT 15m (1000 rows)
+­şôĞ Using cached data: 1000 rows
+­şôè Preparing indicators for 1000 rows
+Ô£à Indicators prepared: 1000 clean rows from 1000 original rows
+­şôê Sample indicators - EMA_fast: 114043.5550, RSI: 32.43
+­şôè Data prepared: 1000 candles
+­şÆ░ Starting capital: $1000.00
+­şôê Spot Entry: 0.008220 BTCUSDT @ $115578.0900, Cost: $950.48
+­şôë Exit: $115685.6300, P&L: $0.12 (0.09%), Capital: $1000.12
+­şôê Spot Entry: 0.008219 BTCUSDT @ $115606.7400, Cost: $950.59
+­şôë Exit: $115685.6300, P&L: $-0.11 (0.07%), Capital: $1000.01
+­şôê Spot Entry: 0.008215 BTCUSDT @ $115639.9900, Cost: $950.49
+­şôë Exit: $115685.6300, P&L: $-0.39 (0.04%), Capital: $999.63
+­şôê Spot Entry: 0.008207 BTCUSDT @ $115717.4900, Cost: $950.12
+­şôë Exit: $115685.6300, P&L: $-1.02 (-0.03%), Capital: $998.61
+­şôê Spot Entry: 0.008205 BTCUSDT @ $115625.8600, Cost: $949.15
+­şôë Exit: $115685.6300, P&L: $-0.27 (0.05%), Capital: $998.34
+­şôê Spot Entry: 0.008198 BTCUSDT @ $115690.7600, Cost: $948.89
+­şôë Exit: $115232.2900, P&L: $-4.52 (-0.40%), Capital: $993.82
+­şôê Spot Entry: 0.008159 BTCUSDT @ $115715.9900, Cost: $944.60
+­şôë Exit: $115232.2900, P&L: $-4.70 (-0.42%), Capital: $989.12
+­şôê Spot Entry: 0.008125 BTCUSDT @ $115649.5300, Cost: $940.13
+­şôë Exit: $115232.2900, P&L: $-4.14 (-0.36%), Capital: $984.98
+­şôê Spot Entry: 0.008170 BTCUSDT @ $114530.0100, Cost: $936.20
+­şôë Exit: $114186.4200, P&L: $-3.55 (-0.30%), Capital: $981.42
+­şôê Spot Entry: 0.008266 BTCUSDT @ $112792.1600, Cost: $932.82
+­şôë Exit: $113092.4617, P&L: $1.74 (0.27%), Capital: $983.16
+­şôê Spot Entry: 0.008272 BTCUSDT @ $112905.3200, Cost: $934.47
+­şôë Exit: $113092.4617, P&L: $0.80 (0.17%), Capital: $983.96
+­şôê Spot Entry: 0.008287 BTCUSDT @ $112795.3100, Cost: $935.23
+­şôë Exit: $113092.4617, P&L: $1.71 (0.26%), Capital: $985.67
+­şôê Spot Entry: 0.008308 BTCUSDT @ $112705.5700, Cost: $936.86
+­şôë Exit: $113092.4617, P&L: $2.46 (0.34%), Capital: $988.14
+­şôê Spot Entry: 0.008326 BTCUSDT @ $112747.7200, Cost: $939.20
+­şôë Exit: $112422.6372, P&L: $-3.46 (-0.29%), Capital: $984.68
+­şôê Spot Entry: 0.008332 BTCUSDT @ $112272.9200, Cost: $935.92
+­şôë Exit: $112950.6285, P&L: $4.90 (0.60%), Capital: $989.58
+­şôê Spot Entry: 0.008361 BTCUSDT @ $112442.3000, Cost: $940.57
+­şôë Exit: $112950.6285, P&L: $3.50 (0.45%), Capital: $993.08
+­şôê Spot Entry: 0.008376 BTCUSDT @ $112633.7200, Cost: $943.89
+­şôë Exit: $112950.6285, P&L: $1.90 (0.28%), Capital: $994.97
+­şôê Spot Entry: 0.008390 BTCUSDT @ $112665.4400, Cost: $945.70
+­şôë Exit: $112950.6285, P&L: $1.64 (0.25%), Capital: $996.61
+­şôê Spot Entry: 0.008431 BTCUSDT @ $112293.2300, Cost: $947.25
+­şôë Exit: $112162.5000, P&L: $-1.86 (-0.12%), Capital: $994.75
+­şôê Spot Entry: 0.008421 BTCUSDT @ $112217.2600, Cost: $945.49
+­şôë Exit: $112162.5000, P&L: $-1.22 (-0.05%), Capital: $993.53
+­şôê Spot Entry: 0.008410 BTCUSDT @ $112230.7200, Cost: $944.33
+­şôë Exit: $112162.5000, P&L: $-1.33 (-0.06%), Capital: $992.20
+­şôê Spot Entry: 0.008392 BTCUSDT @ $112319.2400, Cost: $943.07
+­şôë Exit: $112162.5000, P&L: $-2.07 (-0.14%), Capital: $990.14
+­şôê Spot Entry: 0.008365 BTCUSDT @ $112451.2600, Cost: $941.10
+­şôë Exit: $112162.5000, P&L: $-3.17 (-0.26%), Capital: $986.97
+­şôê Spot Entry: 0.008373 BTCUSDT @ $111980.8600, Cost: $938.09
+­şôë Exit: $111909.7206, P&L: $-1.35 (-0.06%), Capital: $985.62
+­şôê Spot Entry: 0.008358 BTCUSDT @ $112031.1700, Cost: $936.81
+­şôë Exit: $111909.7206, P&L: $-1.76 (-0.11%), Capital: $983.86
+­şôê Spot Entry: 0.008353 BTCUSDT @ $111891.2600, Cost: $935.13
+­şôë Exit: $111909.7206, P&L: $-0.59 (0.02%), Capital: $983.27
+­şôê Spot Entry: 0.008334 BTCUSDT @ $112079.7700, Cost: $934.57
+­şôë Exit: $111799.2829, P&L: $-3.08 (-0.25%), Capital: $980.18
+­şôê Spot Entry: 0.008346 BTCUSDT @ $111571.5800, Cost: $931.64
+­şôë Exit: $111518.5576, P&L: $-1.19 (-0.05%), Capital: $978.99
+­şôê Spot Entry: 0.008496 BTCUSDT @ $109472.1300, Cost: $930.51
+­şôë Exit: $109469.4435, P&L: $-0.77 (-0.00%), Capital: $978.23
+­şôê Spot Entry: 0.008476 BTCUSDT @ $109639.1300, Cost: $929.78
+­şôë Exit: $109469.4435, P&L: $-2.18 (-0.15%), Capital: $976.05
+­şôê Spot Entry: 0.008463 BTCUSDT @ $109560.0100, Cost: $927.71
+­şôë Exit: $109469.4435, P&L: $-1.51 (-0.08%), Capital: $974.54
+­şôê Spot Entry: 0.008443 BTCUSDT @ $109649.9900, Cost: $926.27
+­şôë Exit: $109469.4435, P&L: $-2.26 (-0.16%), Capital: $972.27
+­şôê Spot Entry: 0.008421 BTCUSDT @ $109680.4000, Cost: $924.12
+­şôë Exit: $109469.4435, P&L: $-2.51 (-0.19%), Capital: $969.76
+­şôê Spot Entry: 0.008406 BTCUSDT @ $109590.4200, Cost: $921.73
+­şôë Exit: $109635.8500, P&L: $-0.36 (0.04%), Capital: $969.40
+­şôê Spot Entry: 0.008399 BTCUSDT @ $109649.2900, Cost: $921.39
+­şôë Exit: $109414.6783, P&L: $-2.71 (-0.21%), Capital: $966.70
+­şôê Spot Entry: 0.008376 BTCUSDT @ $109635.9800, Cost: $918.82
+­şôë Exit: $109413.0432, P&L: $-2.60 (-0.20%), Capital: $964.09
+­şôê Spot Entry: 0.008360 BTCUSDT @ $109553.7700, Cost: $916.35
+­şôë Exit: $109635.8500, P&L: $-0.05 (0.07%), Capital: $964.05
+­şôê Spot Entry: 0.008360 BTCUSDT @ $109550.0000, Cost: $916.30
+­şôë Exit: $109635.8500, P&L: $-0.02 (0.08%), Capital: $964.03
+­şôê Spot Entry: 0.008342 BTCUSDT @ $109787.7400, Cost: $916.29
+­şôë Exit: $109458.3768, P&L: $-3.48 (-0.30%), Capital: $960.55
+­şôê Spot Entry: 0.008321 BTCUSDT @ $109670.0100, Cost: $912.98
+­şôë Exit: $111315.0601, P&L: $12.95 (1.50%), Capital: $973.51
+­şôê Spot Entry: 0.008451 BTCUSDT @ $109437.4200, Cost: $925.29
+­şôë Exit: $111078.9813, P&L: $13.13 (1.50%), Capital: $986.64
+­şôê Spot Entry: 0.008567 BTCUSDT @ $109410.0000, Cost: $937.77
+­şôë Exit: $111051.1500, P&L: $13.31 (1.50%), Capital: $999.94
+­şôê Spot Entry: 0.008467 BTCUSDT @ $112198.8700, Cost: $950.42
+­şôë Exit: $111973.0700, P&L: $-2.67 (-0.20%), Capital: $997.27
+­şôê Spot Entry: 0.008455 BTCUSDT @ $112056.4800, Cost: $947.88
+­şôë Exit: $113737.3272, P&L: $13.45 (1.50%), Capital: $1010.72
+­şôê Spot Entry: 0.008553 BTCUSDT @ $112260.5700, Cost: $960.66
+­şôë Exit: $111973.0700, P&L: $-3.23 (-0.26%), Capital: $1007.49
+­şôê Spot Entry: 0.008527 BTCUSDT @ $112241.5300, Cost: $957.60
+­şôë Exit: $111973.0700, P&L: $-3.05 (-0.24%), Capital: $1004.44
+­şôê Spot Entry: 0.008517 BTCUSDT @ $112042.9700, Cost: $954.69
+­şôë Exit: $113723.6145, P&L: $13.55 (1.50%), Capital: $1017.98
+­şôê Spot Entry: 0.008455 BTCUSDT @ $114386.0000, Cost: $967.57
+­şôë Exit: $113891.6400, P&L: $-4.95 (-0.43%), Capital: $1013.03
+­şôê Spot Entry: 0.008387 BTCUSDT @ $114751.7500, Cost: $962.86
+­şôë Exit: $114447.6240, P&L: $-3.32 (-0.27%), Capital: $1009.71
+­şôê Spot Entry: 0.008368 BTCUSDT @ $114631.2000, Cost: $959.71
+­şôë Exit: $114287.3164, P&L: $-3.64 (-0.30%), Capital: $1006.07
+­şôê Spot Entry: 0.008347 BTCUSDT @ $114500.3100, Cost: $956.24
+­şôë Exit: $114239.4404, P&L: $-2.94 (-0.23%), Capital: $1003.13
+­şöı Final Calculations:
+   Initial Capital: $1000.00
+   Final Capital: $1003.13
+   Net P&L: $3.13
+   Total Trades: 51
+   Winning: 14, Losing: 37
+   Total Fees: $38.32
+   Win Rate: 27.45%
+   Total Return: 0.31%
+­şöğ BacktestService initialized with cache dir: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data
+­şôü Cache directory exists: True
+­şôé Cache directory contents: ['048dd04a8a64bc7fe2bd1077a0cfe316.csv', '048dd04a8a64bc7fe2bd1077a0cfe316_meta.json', '0b3eeac287ef911a25f08bef363d9356.csv', '0b3eeac287ef911a25f08bef363d9356_meta.json', '83935708ee9893be2af170d56f5c18c3.csv', '83935708ee9893be2af170d56f5c18c3_meta.json', '9413d3a9b7ed1583a2ce139a06b073a1.csv', '9413d3a9b7ed1583a2ce139a06b073a1_meta.json', 'b0ad422a16cb1b2976cc147d08b0d7f0.csv', 'b0ad422a16cb1b2976cc147d08b0d7f0_meta.json', 'b508e30ab43678519e6f1f332c375f9c.csv', 'b508e30ab43678519e6f1f332c375f9c_meta.json', 'f3d31df3a34feecfe826dd91bf827ea6.csv', 'f3d31df3a34feecfe826dd91bf827ea6_meta.json', 'f7fa6e899c80c8fa106ee051da562ded.csv', 'f7fa6e899c80c8fa106ee051da562ded_meta.json', 'f95cdfc6011812c84b3c1ea5803512d4.csv', 'f95cdfc6011812c84b3c1ea5803512d4_meta.json']
+­şÜÇ Starting spot backtest for BTCUSDT 15m
+ÔÜá´©Å No user or database session - Running in TEST MODE
+­şğ¬ Running in TEST MODE
+­şÆ░ Spot trading (no leverage)
+­şôà Using date range: 2025-09-20 to 2025-09-21
+­şôà Using date range: 2025-09-20 to 2025-09-21
+­şöı Checking cache for: BTCUSDT 15m 2025-09-20 to 2025-09-21 [spot]
+­şöı Cache check for: BTCUSDT 15m 2025-09-20 to 2025-09-21
+­şöæ Cache key: b0ad422a16cb1b2976cc147d08b0d7f0
+­şôü Cache path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b0ad422a16cb1b2976cc147d08b0d7f0.csv
+­şôä Metadata path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\b0ad422a16cb1b2976cc147d08b0d7f0_meta.json
+­şôé Cache file exists: True
+­şôï Metadata file exists: True
+­şôè Cached metadata: {'symbol': 'BTCUSDT', 'interval': '15m', 'start_date': '2025-09-20', 'end_date': '2025-09-21', 'market_type': 'spot', 'cached_at': '2025-10-27T01:37:13.360855', 'rows': 1000, 'cache_key': 'b0ad422a16cb1b2976cc147d08b0d7f0'}
+­şòÉ Cache time: 2025-10-27 01:37:13.360855
+­şòÉ Current time: 2025-10-27 01:37:52.964258
+ÔÅ░ Cache age: 0.01 hours
+­şôà End date: 2025-09-21
+­şôà Days from now: 36
+­şôÜ Historical data - cache valid: True
+Ô£à Cache hit: BTCUSDT 15m (1000 rows)
+­şôĞ Using cached data: 1000 rows
+­şôè Preparing indicators for 1000 rows
+Ô£à Indicators prepared: 1000 clean rows from 1000 original rows
+­şôê Sample indicators - EMA_fast: 114043.5550, RSI: 38.09
+­şôè Data prepared: 1000 candles
+­şÆ░ Starting capital: $1000.00
+­şôê Spot Entry: 0.008220 BTCUSDT @ $115578.0900, Cost: $950.48
+­şôë Exit: $115685.6300, P&L: $0.12 (0.09%), Capital: $1000.12
+­şôê Spot Entry: 0.008219 BTCUSDT @ $115606.7400, Cost: $950.59
+­şôë Exit: $115685.6300, P&L: $-0.11 (0.07%), Capital: $1000.01
+­şôê Spot Entry: 0.008215 BTCUSDT @ $115639.9900, Cost: $950.49
+­şôë Exit: $115685.6300, P&L: $-0.39 (0.04%), Capital: $999.63
+­şôê Spot Entry: 0.008207 BTCUSDT @ $115717.4900, Cost: $950.12
+­şôë Exit: $115685.6300, P&L: $-1.02 (-0.03%), Capital: $998.61
+­şôê Spot Entry: 0.008205 BTCUSDT @ $115625.8600, Cost: $949.15
+­şôë Exit: $115685.6300, P&L: $-0.27 (0.05%), Capital: $998.34
+­şôê Spot Entry: 0.008198 BTCUSDT @ $115690.7600, Cost: $948.89
+­şôë Exit: $115232.2900, P&L: $-4.52 (-0.40%), Capital: $993.82
+­şôê Spot Entry: 0.008159 BTCUSDT @ $115715.9900, Cost: $944.60
+­şôë Exit: $115232.2900, P&L: $-4.70 (-0.42%), Capital: $989.12
+­şôê Spot Entry: 0.008125 BTCUSDT @ $115649.5300, Cost: $940.13
+­şôë Exit: $115232.2900, P&L: $-4.14 (-0.36%), Capital: $984.98
+­şôê Spot Entry: 0.008170 BTCUSDT @ $114530.0100, Cost: $936.20
+­şôë Exit: $114186.4200, P&L: $-3.55 (-0.30%), Capital: $981.42
+­şôê Spot Entry: 0.008266 BTCUSDT @ $112792.1600, Cost: $932.82
+­şôë Exit: $113092.4617, P&L: $1.74 (0.27%), Capital: $983.16
+­şôê Spot Entry: 0.008272 BTCUSDT @ $112905.3200, Cost: $934.47
+­şôë Exit: $113092.4617, P&L: $0.80 (0.17%), Capital: $983.96
+­şôê Spot Entry: 0.008287 BTCUSDT @ $112795.3100, Cost: $935.23
+­şôë Exit: $113092.4617, P&L: $1.71 (0.26%), Capital: $985.67
+­şôê Spot Entry: 0.008308 BTCUSDT @ $112705.5700, Cost: $936.86
+­şôë Exit: $113092.4617, P&L: $2.46 (0.34%), Capital: $988.14
+­şôê Spot Entry: 0.008326 BTCUSDT @ $112747.7200, Cost: $939.20
+­şôë Exit: $112422.6372, P&L: $-3.46 (-0.29%), Capital: $984.68
+­şôê Spot Entry: 0.008332 BTCUSDT @ $112272.9200, Cost: $935.92
+­şôë Exit: $112950.6285, P&L: $4.90 (0.60%), Capital: $989.58
+­şôê Spot Entry: 0.008361 BTCUSDT @ $112442.3000, Cost: $940.57
+­şôë Exit: $112950.6285, P&L: $3.50 (0.45%), Capital: $993.08
+­şôê Spot Entry: 0.008376 BTCUSDT @ $112633.7200, Cost: $943.89
+­şôë Exit: $112950.6285, P&L: $1.90 (0.28%), Capital: $994.97
+­şôê Spot Entry: 0.008377 BTCUSDT @ $112838.3700, Cost: $945.70
+­şôë Exit: $112950.6285, P&L: $0.18 (0.10%), Capital: $995.16
+­şôê Spot Entry: 0.008419 BTCUSDT @ $112293.2300, Cost: $945.87
+­şôë Exit: $112162.5000, P&L: $-1.86 (-0.12%), Capital: $993.30
+­şôê Spot Entry: 0.008409 BTCUSDT @ $112217.2600, Cost: $944.11
+­şôë Exit: $112162.5000, P&L: $-1.22 (-0.05%), Capital: $992.09
+­şôê Spot Entry: 0.008398 BTCUSDT @ $112230.7200, Cost: $942.95
+­şôë Exit: $112162.5000, P&L: $-1.33 (-0.06%), Capital: $990.76
+­şôê Spot Entry: 0.008380 BTCUSDT @ $112319.2400, Cost: $941.69
+­şôë Exit: $112162.5000, P&L: $-2.07 (-0.14%), Capital: $988.69
+­şôê Spot Entry: 0.008356 BTCUSDT @ $112399.4500, Cost: $939.73
+­şôë Exit: $112162.5000, P&L: $-2.73 (-0.21%), Capital: $985.96
+­şôê Spot Entry: 0.008365 BTCUSDT @ $111980.8600, Cost: $937.13
+­şôë Exit: $111909.7206, P&L: $-1.34 (-0.06%), Capital: $984.62
+­şôê Spot Entry: 0.008349 BTCUSDT @ $112031.1700, Cost: $935.86
+­şôë Exit: $111909.7206, P&L: $-1.76 (-0.11%), Capital: $982.86
+­şôê Spot Entry: 0.008345 BTCUSDT @ $111891.2600, Cost: $934.18
+­şôë Exit: $111909.7206, P&L: $-0.59 (0.02%), Capital: $982.26
+­şôê Spot Entry: 0.008326 BTCUSDT @ $112079.7700, Cost: $933.62
+­şôë Exit: $111799.2829, P&L: $-3.08 (-0.25%), Capital: $979.18
+­şôê Spot Entry: 0.008337 BTCUSDT @ $111571.5800, Cost: $930.69
+­şôë Exit: $111518.5576, P&L: $-1.19 (-0.05%), Capital: $978.00
+­şôê Spot Entry: 0.008539 BTCUSDT @ $108809.2500, Cost: $929.56
+­şôë Exit: $109643.4600, P&L: $6.38 (0.77%), Capital: $984.37
+­şôê Spot Entry: 0.008542 BTCUSDT @ $109472.1300, Cost: $935.62
+­şôë Exit: $109469.4435, P&L: $-0.77 (-0.00%), Capital: $983.60
+­şôê Spot Entry: 0.008523 BTCUSDT @ $109639.1300, Cost: $934.89
+­şôë Exit: $109469.4435, P&L: $-2.19 (-0.15%), Capital: $981.41
+­şôê Spot Entry: 0.008510 BTCUSDT @ $109560.0100, Cost: $932.81
+­şôë Exit: $109469.4435, P&L: $-1.52 (-0.08%), Capital: $979.89
+­şôê Spot Entry: 0.008490 BTCUSDT @ $109649.9900, Cost: $931.36
+­şôë Exit: $109469.4435, P&L: $-2.28 (-0.16%), Capital: $977.62
+­şôê Spot Entry: 0.008475 BTCUSDT @ $109590.4200, Cost: $929.20
+­şôë Exit: $109635.8500, P&L: $-0.36 (0.04%), Capital: $977.26
+­şôê Spot Entry: 0.008467 BTCUSDT @ $109649.2900, Cost: $928.86
+­şôë Exit: $109414.6783, P&L: $-2.73 (-0.21%), Capital: $974.53
+­şôê Spot Entry: 0.008444 BTCUSDT @ $109635.9800, Cost: $926.27
+­şôë Exit: $109413.0432, P&L: $-2.62 (-0.20%), Capital: $971.91
+­şôê Spot Entry: 0.008428 BTCUSDT @ $109553.7700, Cost: $923.77
+­şôë Exit: $109635.8500, P&L: $-0.05 (0.07%), Capital: $971.86
+­şôê Spot Entry: 0.008428 BTCUSDT @ $109550.0000, Cost: $923.73
+­şôë Exit: $109635.8500, P&L: $-0.02 (0.08%), Capital: $971.84
+­şôê Spot Entry: 0.008409 BTCUSDT @ $109787.7400, Cost: $923.71
+­şôë Exit: $109458.3768, P&L: $-3.51 (-0.30%), Capital: $968.34
+­şôê Spot Entry: 0.008388 BTCUSDT @ $109670.0100, Cost: $920.38
+­şôë Exit: $111315.0601, P&L: $13.06 (1.50%), Capital: $981.40
+­şôê Spot Entry: 0.008519 BTCUSDT @ $109437.4200, Cost: $932.79
+­şôë Exit: $111078.9813, P&L: $13.23 (1.50%), Capital: $994.63
+­şôê Spot Entry: 0.008636 BTCUSDT @ $109410.0000, Cost: $945.37
+­şôë Exit: $111051.1500, P&L: $13.41 (1.50%), Capital: $1008.04
+­şôê Spot Entry: 0.008535 BTCUSDT @ $112198.8700, Cost: $958.12
+­şôë Exit: $111973.0700, P&L: $-2.69 (-0.20%), Capital: $1005.35
+­şôê Spot Entry: 0.008523 BTCUSDT @ $112056.4800, Cost: $955.56
+­şôë Exit: $113737.3272, P&L: $13.56 (1.50%), Capital: $1018.91
+­şôê Spot Entry: 0.008622 BTCUSDT @ $112260.5700, Cost: $968.45
+­şôë Exit: $111973.0700, P&L: $-3.25 (-0.26%), Capital: $1015.66
+­şôê Spot Entry: 0.008596 BTCUSDT @ $112241.5300, Cost: $965.36
+­şôë Exit: $111973.0700, P&L: $-3.08 (-0.24%), Capital: $1012.58
+­şôê Spot Entry: 0.008600 BTCUSDT @ $111855.3000, Cost: $962.43
+­şôë Exit: $113533.1295, P&L: $13.66 (1.50%), Capital: $1026.23
+­şôê Spot Entry: 0.008523 BTCUSDT @ $114386.0000, Cost: $975.41
+­şôë Exit: $113891.6400, P&L: $-4.99 (-0.43%), Capital: $1021.24
+­şôê Spot Entry: 0.008455 BTCUSDT @ $114751.7500, Cost: $970.66
+­şôë Exit: $114447.6240, P&L: $-3.35 (-0.27%), Capital: $1017.89
+­şôê Spot Entry: 0.008436 BTCUSDT @ $114631.2000, Cost: $967.48
+­şôë Exit: $114287.3164, P&L: $-3.67 (-0.30%), Capital: $1014.22
+­şôê Spot Entry: 0.008415 BTCUSDT @ $114500.3100, Cost: $963.99
+­şôë Exit: $114239.4404, P&L: $-2.97 (-0.23%), Capital: $1011.25
+­şöı Final Calculations:
+   Initial Capital: $1000.00
+   Final Capital: $1011.25
+   Net P&L: $11.25
+   Total Trades: 51
+   Winning: 15, Losing: 36
+   Total Fees: $38.44
+   Win Rate: 29.41%
+   Total Return: 1.13%
+­şöğ BacktestService initialized with cache dir: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data
+­şôü Cache directory exists: True
+­şôé Cache directory contents: ['048dd04a8a64bc7fe2bd1077a0cfe316.csv', '048dd04a8a64bc7fe2bd1077a0cfe316_meta.json', '0b3eeac287ef911a25f08bef363d9356.csv', '0b3eeac287ef911a25f08bef363d9356_meta.json', '83935708ee9893be2af170d56f5c18c3.csv', '83935708ee9893be2af170d56f5c18c3_meta.json', '9413d3a9b7ed1583a2ce139a06b073a1.csv', '9413d3a9b7ed1583a2ce139a06b073a1_meta.json', 'b0ad422a16cb1b2976cc147d08b0d7f0.csv', 'b0ad422a16cb1b2976cc147d08b0d7f0_meta.json', 'b508e30ab43678519e6f1f332c375f9c.csv', 'b508e30ab43678519e6f1f332c375f9c_meta.json', 'f3d31df3a34feecfe826dd91bf827ea6.csv', 'f3d31df3a34feecfe826dd91bf827ea6_meta.json', 'f7fa6e899c80c8fa106ee051da562ded.csv', 'f7fa6e899c80c8fa106ee051da562ded_meta.json', 'f95cdfc6011812c84b3c1ea5803512d4.csv', 'f95cdfc6011812c84b3c1ea5803512d4_meta.json']
+­şÜÇ Starting spot backtest for BTCUSDT 15m
+ÔÜá´©Å No user or database session - Running in TEST MODE
+­şğ¬ Running in TEST MODE
+­şÆ░ Spot trading (no leverage)
+­şôà Using date range: 2025-09-21 to 2025-09-22
+­şôà Using date range: 2025-09-21 to 2025-09-22
+­şöı Checking cache for: BTCUSDT 15m 2025-09-21 to 2025-09-22 [spot]
+­şöı Cache check for: BTCUSDT 15m 2025-09-21 to 2025-09-22
+­şöæ Cache key: 83935708ee9893be2af170d56f5c18c3
+­şôü Cache path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\83935708ee9893be2af170d56f5c18c3.csv
+­şôä Metadata path: C:\Users\Suley\OneDrive\Documents\tradebot\cache\data\83935708ee9893be2af170d56f5c18c3_meta.json
+­şôé Cache file exists: True
+­şôï Metadata file exists: True
+­şôè Cached metadata: {'symbol': 'BTCUSDT', 'interval': '15m', 'start_date': '2025-09-21', 'end_date': '2025-09-22', 'market_type': 'spot', 'cached_at': '2025-10-27T01:37:18.708524', 'rows': 1000, 'cache_key': '83935708ee9893be2af170d56f5c18c3'}
+­şòÉ Cache time: 2025-10-27 01:37:18.708524
+­şòÉ Current time: 2025-10-27 01:37:53.176106
+ÔÅ░ Cache age: 0.01 hours
+­şôà End date: 2025-09-22
+­şôà Days from now: 35
+­şôÜ Historical data - cache valid: True
+Ô£à Cache hit: BTCUSDT 15m (1000 rows)
+­şôĞ Using cached data: 1000 rows
+­şôè Preparing indicators for 1000 rows
+Ô£à Indicators prepared: 1000 clean rows from 1000 original rows
+­şôê Sample indicators - EMA_fast: 114444.6862, RSI: 46.57
+­şôè Data prepared: 1000 candles
+­şÆ░ Starting capital: $1000.00
+­şôê Spot Entry: 0.008212 BTCUSDT @ $115690.7600, Cost: $950.48
+­şôë Exit: $115232.2900, P&L: $-4.52 (-0.40%), Capital: $995.48
+­şôê Spot Entry: 0.008176 BTCUSDT @ $115663.4800, Cost: $946.18
+­şôë Exit: $115232.2900, P&L: $-4.28 (-0.37%), Capital: $991.20
+­şôê Spot Entry: 0.008133 BTCUSDT @ $115785.5700, Cost: $942.11
+­şôë Exit: $115471.6028, P&L: $-3.31 (-0.27%), Capital: $987.89
+­şôê Spot Entry: 0.008194 BTCUSDT @ $114530.0100, Cost: $938.96
+­şôë Exit: $114186.4200, P&L: $-3.57 (-0.30%), Capital: $984.32
+­şôê Spot Entry: 0.008291 BTCUSDT @ $112792.1600, Cost: $935.58
+­şôë Exit: $113092.4617, P&L: $1.74 (0.27%), Capital: $986.06
+­şôê Spot Entry: 0.008297 BTCUSDT @ $112905.3200, Cost: $937.23
+­şôë Exit: $113092.4617, P&L: $0.80 (0.17%), Capital: $986.87
+­şôê Spot Entry: 0.008312 BTCUSDT @ $112795.3100, Cost: $937.99
+­şôë Exit: $113092.4617, P&L: $1.72 (0.26%), Capital: $988.59
+­şôê Spot Entry: 0.008333 BTCUSDT @ $112705.5700, Cost: $939.63
+­şôë Exit: $113092.4617, P&L: $2.47 (0.34%), Capital: $991.06
+­şôê Spot Entry: 0.008351 BTCUSDT @ $112747.7200, Cost: $941.98
+­şôë Exit: $112422.6372, P&L: $-3.47 (-0.29%), Capital: $987.59
+­şôê Spot Entry: 0.008357 BTCUSDT @ $112272.9200, Cost: $938.68
+­şôë Exit: $112950.6285, P&L: $4.91 (0.60%), Capital: $992.50
+­şôê Spot Entry: 0.008385 BTCUSDT @ $112442.3000, Cost: $943.35
+­şôë Exit: $112950.6285, P&L: $3.51 (0.45%), Capital: $996.01
+­şôê Spot Entry: 0.008401 BTCUSDT @ $112633.7200, Cost: $946.68
+­şôë Exit: $112950.6285, P&L: $1.90 (0.28%), Capital: $997.91
+­şôê Spot Entry: 0.008406 BTCUSDT @ $112777.7500, Cost: $948.49
+­şôë Exit: $112950.6285, P&L: $0.69 (0.15%), Capital: $998.61
+­şôê Spot Entry: 0.008448 BTCUSDT @ $112293.2300, Cost: $949.15
+­şôë Exit: $112162.5000, P&L: $-1.86 (-0.12%), Capital: $996.75
+­şôê Spot Entry: 0.008438 BTCUSDT @ $112217.2600, Cost: $947.38
+­şôë Exit: $112162.5000, P&L: $-1.22 (-0.05%), Capital: $995.53
+­şôê Spot Entry: 0.008427 BTCUSDT @ $112230.7200, Cost: $946.22
+­şôë Exit: $112162.5000, P&L: $-1.33 (-0.06%), Capital: $994.19
+­şôê Spot Entry: 0.008409 BTCUSDT @ $112319.2400, Cost: $944.96
+­şôë Exit: $112162.5000, P&L: $-2.07 (-0.14%), Capital: $992.12
+­şôê Spot Entry: 0.008385 BTCUSDT @ $112399.4500, Cost: $942.99
+­şôë Exit: $112162.5000, P&L: $-2.74 (-0.21%), Capital: $989.38
+­şôê Spot Entry: 0.008394 BTCUSDT @ $111980.8600, Cost: $940.38
+­şôë Exit: $111909.7206, P&L: $-1.35 (-0.06%), Capital: $988.03
+­şôê Spot Entry: 0.008378 BTCUSDT @ $112031.1700, Cost: $939.10
+­şôë Exit: $111909.7206, P&L: $-1.77 (-0.11%), Capital: $986.26
+­şôê Spot Entry: 0.008374 BTCUSDT @ $111891.2600, Cost: $937.42
+­şôë Exit: $111909.7206, P&L: $-0.60 (0.02%), Capital: $985.67
+­şôê Spot Entry: 0.008355 BTCUSDT @ $112079.7700, Cost: $936.85
+­şôë Exit: $111799.2829, P&L: $-3.09 (-0.25%), Capital: $982.58
+­şôê Spot Entry: 0.008366 BTCUSDT @ $111571.5800, Cost: $933.91
+­şôë Exit: $111518.5576, P&L: $-1.19 (-0.05%), Capital: $981.39
+­şôê Spot Entry: 0.008568 BTCUSDT @ $108809.2500, Cost: $932.78
+­şôë Exit: $109643.4600, P&L: $6.40 (0.77%), Capital: $987.79
+­şôê Spot Entry: 0.008572 BTCUSDT @ $109472.1300, Cost: $938.87
+­şôë Exit: $109469.4435, P&L: $-0.77 (-0.00%), Capital: $987.01
+­şôê Spot Entry: 0.008552 BTCUSDT @ $109639.1300, Cost: $938.13
+­şôë Exit: $109469.4435, P&L: $-2.20 (-0.15%), Capital: $984.81
+­şôê Spot Entry: 0.008539 BTCUSDT @ $109560.0100, Cost: $936.04
+­şôë Exit: $109469.4435, P&L: $-1.52 (-0.08%), Capital: $983.29
+­şôê Spot Entry: 0.008519 BTCUSDT @ $109649.9900, Cost: $934.59
+­şôë Exit: $109469.4435, P&L: $-2.28 (-0.16%), Capital: $981.01
+­şôê Spot Entry: 0.008504 BTCUSDT @ $109590.4200, Cost: $932.42
+­şôë Exit: $109635.8500, P&L: $-0.36 (0.04%), Capital: $980.65
+­şôê Spot Entry: 0.008496 BTCUSDT @ $109649.2900, Cost: $932.08
+­şôë Exit: $109414.6783, P&L: $-2.74 (-0.21%), Capital: $977.91
+­şôê Spot Entry: 0.008474 BTCUSDT @ $109635.9800, Cost: $929.48
+­şôë Exit: $109413.0432, P&L: $-2.63 (-0.20%), Capital: $975.28
+­şôê Spot Entry: 0.008457 BTCUSDT @ $109553.7700, Cost: $926.98
+­şôë Exit: $109635.8500, P&L: $-0.05 (0.07%), Capital: $975.23
+­şôê Spot Entry: 0.008457 BTCUSDT @ $109550.0000, Cost: $926.93
+­şôë Exit: $109635.8500, P&L: $-0.02 (0.08%), Capital: $975.21
+­şôê Spot Entry: 0.008439 BTCUSDT @ $109787.7400, Cost: $926.92
+­şôë Exit: $109458.3768, P&L: $-3.52 (-0.30%), Capital: $971.69
+­şôê Spot Entry: 0.008435 BTCUSDT @ $109437.4200, Cost: $923.57
+­şôë Exit: $111078.9813, P&L: $13.10 (1.50%), Capital: $984.80
+­şôê Spot Entry: 0.008551 BTCUSDT @ $109410.0000, Cost: $936.03
+­şôë Exit: $111051.1500, P&L: $13.28 (1.50%), Capital: $998.08
+­şôê Spot Entry: 0.008662 BTCUSDT @ $109458.2800, Cost: $948.65
+­şôë Exit: $111100.1542, P&L: $13.46 (1.50%), Capital: $1011.54
+­şôê Spot Entry: 0.008565 BTCUSDT @ $112198.8700, Cost: $961.44
+­şôë Exit: $111973.0700, P&L: $-2.70 (-0.20%), Capital: $1008.84
+­şôê Spot Entry: 0.008553 BTCUSDT @ $112056.4800, Cost: $958.87
+­şôë Exit: $113737.3272, P&L: $13.60 (1.50%), Capital: $1022.44
+­şôê Spot Entry: 0.008652 BTCUSDT @ $112260.5700, Cost: $971.80
+­şôë Exit: $111973.0700, P&L: $-3.26 (-0.26%), Capital: $1019.18
+­şôê Spot Entry: 0.008626 BTCUSDT @ $112241.5300, Cost: $968.70
+­şôë Exit: $111973.0700, P&L: $-3.09 (-0.24%), Capital: $1016.09
+­şôê Spot Entry: 0.008630 BTCUSDT @ $111855.3000, Cost: $965.77
+­şôë Exit: $113533.1295, P&L: $13.70 (1.50%), Capital: $1029.79
+­şôê Spot Entry: 0.008553 BTCUSDT @ $114386.0000, Cost: $978.79
+­şôë Exit: $114447.6240, P&L: $-0.26 (0.05%), Capital: $1029.53
+­şôê Spot Entry: 0.008523 BTCUSDT @ $114751.7500, Cost: $978.55
+­şôë Exit: $114447.6240, P&L: $-3.37 (-0.27%), Capital: $1026.16
+­şôê Spot Entry: 0.008504 BTCUSDT @ $114631.2000, Cost: $975.34
+­şôë Exit: $114287.3164, P&L: $-3.70 (-0.30%), Capital: $1022.46
+­şôê Spot Entry: 0.008487 BTCUSDT @ $114448.3100, Cost: $971.82
+­şôë Exit: $114239.4404, P&L: $-2.55 (-0.18%), Capital: $1019.91
+­şôê Spot Entry: 0.008462 BTCUSDT @ $114500.3100, Cost: $969.40
+­şôë Exit: $114239.4404, P&L: $-2.98 (-0.23%), Capital: $1016.93
+­şôê Spot Entry: 0.008457 BTCUSDT @ $114239.5300, Cost: $966.56
+­şôë Exit: $114256.8100, P&L: $-0.63 (0.02%), Capital: $1016.30
+­şôê Spot Entry: 0.008443 BTCUSDT @ $114348.1600, Cost: $965.97
+­şôë Exit: $114256.8100, P&L: $-1.54 (-0.08%), Capital: $1014.76
+­şôê Spot Entry: 0.008429 BTCUSDT @ $114367.7200, Cost: $964.50
+­şôë Exit: $114256.8100, P&L: $-1.71 (-0.10%), Capital: $1013.05
+­şôê Spot Entry: 0.008412 BTCUSDT @ $114413.3600, Cost: $962.88
+­şôë Exit: $114256.8100, P&L: $-2.09 (-0.14%), Capital: $1010.96
+­şôê Spot Entry: 0.008384 BTCUSDT @ $114549.9900, Cost: $960.90
+­şôë Exit: $114256.8100, P&L: $-3.23 (-0.26%), Capital: $1007.74
+­şöı Final Calculations:
+   Initial Capital: $1000.00
+   Final Capital: $1007.74
+   Net P&L: $7.74
+   Total Trades: 52
+   Winning: 14, Losing: 38
+   Total Fees: $39.39
+   Win Rate: 26.92%
+   Total Return: 0.77%
+=== Monte Carlo & Walk-Forward Summary ===
+Spot total_return: 0.1355
+Spot Sharpe: 3.7244
+Spot MC total_return 95% CI: (-5.124398406610963, 15.13066903228143)
+Spot MC mean_return 95% CI: (-0.46585440060099664, 1.3755153665710391)
+Spot MC prob(total>0): 0.7805
+Futures total_return: -13.0867
+Futures Sharpe: -19.0677
+Futures MC total_return 95% CI: (-31.354132153634552, -11.018505003919646)
+Futures MC mean_return 95% CI: (-2.850375650330414, -1.0016822730836041)
+Futures MC prob(total>0): 0.0
+Walk-Forward Spot: best_params: {'ema_fast': 8, 'ema_slow': 30, 'rsi_period': 14}
+Walk-Forward Spot: train_sharpe: 4.8732
+Walk-Forward Spot: test_sharpe: 4.5453
+Walk-Forward Spot: test_total_return: 0.7738

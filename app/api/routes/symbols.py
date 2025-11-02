@@ -1,21 +1,72 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from typing import Optional, cast, List
+import os
+import time
+import logging
+import traceback
+
 from app.dependencies.auth import get_db, get_current_user_optional
 from app.models.user import User
 from app.models.api_key import ApiKey
 from app.core.crypto import decrypt_value
 from app.core.binance_client import BinanceClientWrapper
-from sqlalchemy import select
-from typing import Optional, cast
-import traceback
-import logging
+from app.core.redis_client import (
+    read_json,
+    write_json,
+    incr,
+    SPOT_SYMBOLS_CACHE_KEY,
+    SPOT_SYMBOLS_CACHE_LAST_GOOD_KEY,
+    SPOT_SYMBOLS_CACHE_HIT_KEY,
+    SPOT_SYMBOLS_CACHE_MISS_KEY,
+    SPOT_SYMBOLS_CACHE_LAST_REFRESH_TS_KEY,
+)
+from app.core.redis_client import (
+    FUTURES_SYMBOLS_CACHE_KEY,
+    FUTURES_SYMBOLS_CACHE_LAST_GOOD_KEY,
+    FUTURES_SYMBOLS_CACHE_HIT_KEY,
+    FUTURES_SYMBOLS_CACHE_MISS_KEY,
+    FUTURES_SYMBOLS_CACHE_LAST_REFRESH_TS_KEY,
+)
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/symbols", tags=["symbols"])
 
+
+def _prepare_spot_symbols(symbols: List[dict]) -> List[dict]:
+    usdt_symbols = [s for s in symbols if s.get('quoteAsset') == 'USDT']
+    priority_symbols = ['BTC', 'ETH', 'BNB', 'SOL', 'ADA', 'AVAX', 'DOT', 'MATIC', 'LINK', 'UNI']
+    prioritized_symbols: List[dict] = []
+    other_symbols: List[dict] = []
+    for symbol in usdt_symbols:
+        if symbol.get('baseAsset') in priority_symbols:
+            prioritized_symbols.append(symbol)
+        else:
+            other_symbols.append(symbol)
+    prioritized_symbols.sort(key=lambda x: priority_symbols.index(x['baseAsset']) if x['baseAsset'] in priority_symbols else 999)
+    other_symbols.sort(key=lambda x: x['symbol'])
+    return prioritized_symbols + other_symbols
+
+
 @router.get("/spot")
 async def get_spot_symbols(db: AsyncSession = Depends(get_db), current_user: Optional[User] = Depends(get_current_user_optional)):
     """Spot trading sembolleri listesi - Authentication opsiyonel"""
+
+    ttl_seconds = int(os.getenv("SPOT_SYMBOLS_CACHE_TTL_SECONDS", "300"))
+
+    # Cache read first
+    try:
+        cached: Optional[List[dict]] = await read_json(SPOT_SYMBOLS_CACHE_KEY)
+        if cached:
+            await incr(SPOT_SYMBOLS_CACHE_HIT_KEY)
+            logger.info(f"Spot symbols cache HIT: returning {len(cached)} items")
+            return cached
+        else:
+            await incr(SPOT_SYMBOLS_CACHE_MISS_KEY)
+            logger.info("Spot symbols cache MISS: computing fresh value")
+    except Exception as e:
+        logger.warning(f"Redis cache read failed, proceeding without cache: {e}")
 
     # API key kontrol et (sadece authenticated user için)
     api_key = None
@@ -23,17 +74,14 @@ async def get_spot_symbols(db: AsyncSession = Depends(get_db), current_user: Opt
         result = await db.execute(select(ApiKey).where(ApiKey.user_id == current_user.id))
         api_key = result.scalars().first()
 
-    # Binance'dan dinamik olarak çek
     try:
         symbols = None
 
         if api_key:
-            logger.info(f"API key bulundu, kullanıcı API'si ile spot sembol çekiliyor...")
-            # API key varsa şifreleri çöz ve kendi API ile dene
+            logger.info("API key bulundu, kullanıcı API'si ile spot sembol çekiliyor...")
             api_key_plain = decrypt_value(cast(str, api_key.encrypted_api_key))
             secret_key_plain = decrypt_value(cast(str, api_key.encrypted_secret_key))
 
-            # Önce testnet dene, sonra mainnet
             try:
                 logger.info("Testnet ile spot sembol deneniyor...")
                 client = BinanceClientWrapper(api_key_plain, secret_key_plain, testnet=True)
@@ -54,51 +102,56 @@ async def get_spot_symbols(db: AsyncSession = Depends(get_db), current_user: Opt
                     logger.warning(f"Mainnet spot sembol hatası: {e2}")
                     symbols = None
 
-        # API key yoksa veya başarısız olursa public endpoint kullan
         if not symbols:
             logger.info("Public API ile spot sembol çekiliyor...")
             symbols = BinanceClientWrapper.get_public_symbols()
             logger.info(f"Public API ile {len(symbols) if symbols else 0} spot sembol alındı")
 
         if symbols and len(symbols) > 0:
-            # USDT ile işlem gören sembolleri filtrele
-            usdt_symbols = [s for s in symbols if s['quoteAsset'] == 'USDT']
-            logger.info(f"USDT filtreleme sonrası {len(usdt_symbols)} spot sembol")
-
-            # Popüler coinleri öncelikle sırala
-            priority_symbols = ['BTC', 'ETH', 'BNB', 'SOL', 'ADA', 'AVAX', 'DOT', 'MATIC', 'LINK', 'UNI']
-            prioritized_symbols = []
-            other_symbols = []
-
-            for symbol in usdt_symbols:
-                if symbol['baseAsset'] in priority_symbols:
-                    prioritized_symbols.append(symbol)
-                else:
-                    other_symbols.append(symbol)
-
-            # Popüler coinleri önce, sonra diğerlerini alfabetik sırala
-            prioritized_symbols.sort(key=lambda x: priority_symbols.index(x['baseAsset']) if x['baseAsset'] in priority_symbols else 999)
-            other_symbols.sort(key=lambda x: x['symbol'])
-
-            # Birleştir ve tümünü döndür
-            final_symbols = prioritized_symbols + other_symbols
-            logger.info(f"Final spot sembol listesi: {len(final_symbols)} sembol döndürülüyor")
+            final_symbols = _prepare_spot_symbols(symbols)
+            try:
+                wrote = await write_json(SPOT_SYMBOLS_CACHE_KEY, final_symbols, ttl_seconds=ttl_seconds)
+                if wrote:
+                    await write_json(SPOT_SYMBOLS_CACHE_LAST_GOOD_KEY, final_symbols)
+                    await write_json(SPOT_SYMBOLS_CACHE_LAST_REFRESH_TS_KEY, int(time.time()))
+                    logger.info(f"Spot symbols cache WRITE: {len(final_symbols)} items, TTL={ttl_seconds}s")
+            except Exception as e:
+                logger.error(f"Redis cache write failed: {e}")
             return final_symbols
         else:
             raise Exception("Binance'dan hiç sembol alınamadı")
 
     except Exception as e:
-        # Tüm yöntemler başarısız oldu - Error fırlat
         logger.error(f"KRITIK: Tüm spot sembol yükleme yöntemleri başarısız: {str(e)}")
         logger.error(f"Traceback: {traceback.format_exc()}")
-        raise HTTPException(
-            status_code=500,
-            detail="Sembol listesi şu anda yüklenemiyor. Lütfen daha sonra tekrar deneyin veya sistem yöneticisine bildirin."
-        )
+        try:
+            last_good = await read_json(SPOT_SYMBOLS_CACHE_LAST_GOOD_KEY)
+            if last_good:
+                logger.warning("Returning last_good cached spot symbols due to failure")
+                return last_good
+        except Exception:
+            pass
+        raise HTTPException(status_code=500, detail="Sembol listesi şu anda yüklenemiyor. Lütfen daha sonra tekrar deneyin veya sistem yöneticisine bildirin.")
+
 
 @router.get("/futures")
 async def get_futures_symbols(db: AsyncSession = Depends(get_db), current_user: Optional[User] = Depends(get_current_user_optional)):
     """Futures trading sembolleri listesi - Authentication opsiyonel"""
+
+    ttl_seconds = int(os.getenv("FUTURES_SYMBOLS_CACHE_TTL_SECONDS", "300"))
+
+    # Cache read first
+    try:
+        cached: Optional[List[dict]] = await read_json(FUTURES_SYMBOLS_CACHE_KEY)
+        if cached:
+            await incr(FUTURES_SYMBOLS_CACHE_HIT_KEY)
+            logger.info(f"Futures symbols cache HIT: returning {len(cached)} items")
+            return cached
+        else:
+            await incr(FUTURES_SYMBOLS_CACHE_MISS_KEY)
+            logger.info("Futures symbols cache MISS: computing fresh value")
+    except Exception as e:
+        logger.warning(f"Redis cache read failed for futures, proceeding without cache: {e}")
 
     # API key kontrol et (sadece authenticated user için)
     api_key = None
@@ -166,14 +219,29 @@ async def get_futures_symbols(db: AsyncSession = Depends(get_db), current_user: 
             # Birleştir ve tümünü döndür
             final_symbols = prioritized_symbols + other_symbols
             logger.info(f"Final futures sembol listesi: {len(final_symbols)} sembol döndürülüyor")
+            try:
+                wrote = await write_json(FUTURES_SYMBOLS_CACHE_KEY, final_symbols, ttl_seconds=ttl_seconds)
+                if wrote:
+                    await write_json(FUTURES_SYMBOLS_CACHE_LAST_GOOD_KEY, final_symbols)
+                    await write_json(FUTURES_SYMBOLS_CACHE_LAST_REFRESH_TS_KEY, int(time.time()))
+                    logger.info(f"Futures symbols cache WRITE: {len(final_symbols)} items, TTL={ttl_seconds}s")
+            except Exception as e:
+                logger.error(f"Futures Redis cache write failed: {e}")
             return final_symbols
         else:
             raise Exception("Binance'dan hiç futures sembol alınamadı")
 
     except Exception as e:
-        # Tüm yöntemler başarısız oldu - Error fırlat
+        # Tüm yöntemler başarısız oldu - last_good fallback dene, yoksa error fırlat
         logger.error(f"KRITIK: Tüm futures sembol yükleme yöntemleri başarısız: {str(e)}")
         logger.error(f"Traceback: {traceback.format_exc()}")
+        try:
+            last_good = await read_json(FUTURES_SYMBOLS_CACHE_LAST_GOOD_KEY)
+            if last_good:
+                logger.warning("Returning last_good cached futures symbols due to failure")
+                return last_good
+        except Exception:
+            pass
         raise HTTPException(
             status_code=500,
             detail="Futures sembol listesi şu anda yüklenemiyor. Lütfen daha sonra tekrar deneyin veya sistem yöneticisine bildirin."

@@ -44,6 +44,7 @@ def main() -> None:
 
     pg_pass = gen_password(16)
     pgadmin_pass = gen_password(12)
+    redis_pass = gen_password(24)
     secret_key = gen_secret_key()
     fernet_key = gen_fernet_key()
 
@@ -57,8 +58,15 @@ def main() -> None:
     out = replace_line(out, "POSTGRES_PASSWORD", pg_pass)
     out = replace_line(out, "PGADMIN_DEFAULT_PASSWORD", pgadmin_pass)
     out = replace_line(out, "SECRET_KEY", secret_key)
+    out = replace_line(out, "ALGORITHM", "HS512")
+    out = replace_line(out, "ACCESS_TOKEN_EXPIRE_MINUTES", "10080")
     # env.example'da FERNET_KEY boş; doldur.
     out = replace_line(out, "FERNET_KEY", fernet_key)
+    # Redis şifre ve URL'ler
+    out = replace_line(out, "REDIS_PASSWORD", redis_pass)
+    out = replace_line(out, "REDIS_URL", f"redis://:{redis_pass}@redis:6379/0")
+    out = replace_line(out, "CELERY_BROKER_URL", f"redis://:{redis_pass}@redis:6379/0")
+    out = replace_line(out, "CELERY_RESULT_BACKEND", f"redis://:{redis_pass}@redis:6379/0")
 
     # DATABASE_URL ve SYNC_DATABASE_URL içinde ${POSTGRES_PASSWORD} -> gerçek şifre
     out = out.replace("${POSTGRES_PASSWORD}", pg_pass)
@@ -70,6 +78,7 @@ def main() -> None:
     print("🔒 FERNET_KEY: (44 chars)")
     print("🐘 POSTGRES_PASSWORD:", pg_pass)
     print("🌐 PGADMIN_DEFAULT_PASSWORD:", pgadmin_pass)
+    print("🧠 REDIS_PASSWORD:", redis_pass)
     print()
     print("⚠️ Güvenlik Notları:")
     print(" - .env dosyasını git'e push etmeyin")

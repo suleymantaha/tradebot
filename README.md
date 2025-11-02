@@ -620,6 +620,7 @@ SQLALCHEMY_ECHO=true
 - 🔐 **API Keys**: Asla git'e commit etmeyin
 - 🌐 **CORS**: Production'da proper CORS ayarlayın
 - 🔑 **Passwords**: Güçlü şifreler kullanın (otomatik oluşturulur)
+ - 🛡️ **Sertleştirilmiş Kurulum**: Ayrıntılı rehber için bkz. `SECURE_INSTALL.md`
 - 📱 **2FA**: Binance hesabınızda 2FA aktif edin
 - 💻 **IP Whitelist**: API key'lerde IP kısıtlaması yapın
 

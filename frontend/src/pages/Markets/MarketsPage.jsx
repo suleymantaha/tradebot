@@ -84,21 +84,36 @@ const MarketsPage = () => {
 
     // TradingView Widget
     useEffect(() => {
-        const scriptId = 'tradingview-widget-script'
         const ensureScript = () => new Promise((resolve) => {
-            const existing = document.getElementById(scriptId)
-            if (existing && window.TradingView) return resolve()
+            // If already loaded via index.html or previous init
+            if (window.TradingView) return resolve()
+
+            const existingBySrc = document.querySelector('script[src*="tradingview.com/tv.js"]')
+            if (existingBySrc) {
+                const check = setInterval(() => {
+                    if (window.TradingView) {
+                        clearInterval(check)
+                        resolve()
+                    }
+                }, 50)
+                setTimeout(() => { clearInterval(check); resolve() }, 5000)
+                return
+            }
+
             const script = document.createElement('script')
-            script.id = scriptId
             script.src = 'https://s3.tradingview.com/tv.js'
+            script.async = true
             script.onload = () => resolve()
-            document.body.appendChild(script)
+            script.onerror = () => resolve()
+            document.head.appendChild(script)
         })
 
         const createWidget = async () => {
             await ensureScript()
             if (!window.TradingView) return
-            if (containerRef.current) containerRef.current.innerHTML = ''
+            if (!containerRef.current) return
+            // Clear previous content to avoid duplicate widgets
+            try { containerRef.current.innerHTML = '' } catch { /* noop */ }
             widgetRef.current = new window.TradingView.widget({
                 autosize: true,
                 symbol: tvSymbol,
@@ -123,7 +138,11 @@ const MarketsPage = () => {
         }
 
         createWidget()
-        return () => { chartRef.current = null; widgetRef.current = null }
+        return () => {
+            chartRef.current = null
+            widgetRef.current = null
+            try { if (containerRef.current) containerRef.current.innerHTML = '' } catch { /* noop */ }
+        }
     }, [tvSymbol, interval, preset])
 
     // Binance WebSockets: ticker, partial depth, trades

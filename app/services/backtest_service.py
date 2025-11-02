@@ -2,7 +2,7 @@ import os
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
-from typing import Dict, Any, Optional, List, cast
+from typing import Dict, Any, Optional, List, cast, Iterable, Tuple
 from binance.client import Client as BinanceClient
 from ta.trend import SMAIndicator, EMAIndicator, MACD
 from ta.momentum import RSIIndicator
@@ -32,6 +32,7 @@ class BacktestService:
         # Initialize with no client (will be set up when needed)
         self.client = None
         self.test_mode = True
+        self._daily_calc_context: Optional[Dict[str, Any]] = None
 
         print(f"🔧 BacktestService initialized with cache dir: {cache_dir}")
         print(f"📁 Cache directory exists: {os.path.exists(cache_dir)}")
@@ -616,6 +617,216 @@ class BacktestService:
         slippage_cost = position_size * slip_rate
         return float(commission + slippage_cost)
 
+    def calculate_daily_pnl(
+        self,
+        daily_groups: Iterable[Tuple[Any, pd.DataFrame]],
+        max_daily_trades: int = 5
+    ) -> Dict[str, Any]:
+        """Iterate grouped daily data to apply risk rules and optional trade logging."""
+        context = self._daily_calc_context
+        if context is None:
+            raise RuntimeError("Daily calculation context not initialized")
+
+        try:
+            max_daily_trades = int(max_daily_trades)
+        except (TypeError, ValueError):
+            max_daily_trades = 5
+
+        max_daily_trades = max(1, min(50, max_daily_trades))
+
+        current_capital = float(context.get('current_capital', 0.0))
+        daily_target = float(context.get('daily_target', 3.0))
+        max_daily_loss = float(context.get('max_daily_loss', 1.0))
+        risk_per_trade = float(context.get('risk_per_trade', 2.0))
+        stop_loss = float(context.get('stop_loss', 0.5))
+        take_profit = float(context.get('take_profit', 1.5))
+        trailing_stop = float(context.get('trailing_stop', 0.3))
+        maker_fee = float(context.get('maker_fee', 0.0002))
+        taker_fee = float(context.get('taker_fee', 0.0004))
+        slippage_bps = float(context.get('slippage_bps', 1.0))
+        market_type = str(context.get('market_type', 'spot')).lower()
+        leverage = int(context.get('leverage', 1))
+        collect_trades = bool(context.get('collect_trades', False))
+        symbol = str(context.get('symbol', 'SYMBOL'))
+        parameters = context.get('parameters', {})
+
+        daily_results: List[Dict[str, Any]] = []
+        monthly_results: Dict[str, Dict[str, float]] = {}
+        trade_log: List[Dict[str, Any]] = []
+        total_trades = 0
+        winning_trades = 0
+        losing_trades = 0
+        total_fees = 0.0
+
+        for date, day_data in daily_groups:
+            daily_pnl_pct = 0.0
+            daily_trades = 0
+            day_data = day_data.reset_index(drop=True)
+
+            for i in range(1, len(day_data)):
+                if daily_trades >= max_daily_trades or daily_pnl_pct <= -max_daily_loss:
+                    break
+
+                current = day_data.iloc[i]
+                previous = day_data.iloc[i - 1]
+
+                if not self.check_entry_signal(current, previous,
+                                               parameters.get('rsi_oversold', 35),
+                                               parameters.get('rsi_overbought', 65)):
+                    continue
+
+                max_position_size = current_capital * (risk_per_trade / 100)
+                entry_price = float(current['close'])
+                stop_loss_price = entry_price * (1 - stop_loss / 100)
+                risk_per_unit = entry_price - stop_loss_price
+                position_units = (max_position_size / risk_per_unit) if risk_per_unit > 0 else 0.0
+                position_value = position_units * entry_price
+
+                if market_type == "futures":
+                    margin_required = position_value / max(leverage, 1)
+                else:
+                    margin_required = position_value
+
+                if margin_required > current_capital * 0.95:
+                    margin_required = current_capital * 0.95
+                    if market_type == "futures":
+                        position_value = margin_required * max(leverage, 1)
+                        position_units = position_value / entry_price if entry_price else 0.0
+                    else:
+                        position_value = margin_required
+                        position_units = position_value / entry_price if entry_price else 0.0
+
+                entry_fee = self.calculate_fees(position_value, market_type, is_entry=True,
+                                                maker_fee=maker_fee, taker_fee=taker_fee,
+                                                slippage_bps=slippage_bps)
+                total_entry_cost = margin_required + entry_fee
+
+                if total_entry_cost > current_capital or position_units <= 0:
+                    continue
+
+                current_capital -= total_entry_cost
+                total_fees += entry_fee
+
+                trailing_stop_price = entry_price * (1 - trailing_stop / 100)
+                max_price = entry_price
+                take_profit_price = entry_price * (1 + take_profit / 100)
+                stop_loss_price = entry_price * (1 - stop_loss / 100)
+
+                remaining_data = day_data.iloc[i + 1:]
+                exit_price = entry_price
+                exit_time = str(current['timestamp']) if 'timestamp' in current else str(date)
+                exit_reason = "EOD"
+                exit_found = False
+
+                for _, check_price in remaining_data.iterrows():
+                    if check_price['high'] > max_price:
+                        max_price = check_price['high']
+                        trailing_stop_price = max_price * (1 - trailing_stop / 100)
+
+                    if check_price['high'] >= take_profit_price:
+                        exit_price = float(take_profit_price)
+                        exit_time = str(check_price['timestamp']) if 'timestamp' in check_price else exit_time
+                        exit_reason = "TP"
+                        exit_found = True
+                        break
+
+                    if check_price['low'] <= min(stop_loss_price, trailing_stop_price):
+                        exit_price = float(max(stop_loss_price, trailing_stop_price))
+                        exit_time = str(check_price['timestamp']) if 'timestamp' in check_price else exit_time
+                        exit_reason = "SL"
+                        exit_found = True
+                        break
+
+                if not exit_found and len(remaining_data) > 0:
+                    last_row = day_data.iloc[-1]
+                    exit_price = float(last_row['close'])
+                    exit_time = str(last_row['timestamp']) if 'timestamp' in last_row else exit_time
+
+                actual_units = float(position_value / entry_price) if entry_price else 0.0
+                position_exit_value = actual_units * exit_price
+
+                if market_type == "futures":
+                    print(f"📈 Futures Entry: {actual_units:.6f} {symbol} @ ${entry_price:.4f} ({max(leverage, 1)}x), Margin: ${margin_required:.2f}")
+                else:
+                    print(f"📈 Spot Entry: {actual_units:.6f} {symbol} @ ${entry_price:.4f}, Cost: ${total_entry_cost:.2f}")
+
+                exit_fee = self.calculate_fees(position_exit_value, market_type, is_entry=False,
+                                               maker_fee=maker_fee, taker_fee=taker_fee,
+                                               slippage_bps=slippage_bps)
+
+                if market_type == "futures":
+                    pnl_raw = (exit_price - entry_price) * actual_units
+                    net_proceeds = margin_required + pnl_raw - exit_fee
+                else:
+                    net_proceeds = position_exit_value - exit_fee
+
+                current_capital += net_proceeds
+                total_fees += exit_fee
+
+                trade_pnl_usdt = net_proceeds - total_entry_cost
+                trade_pnl_percentage = ((exit_price - entry_price) / entry_price) * 100 if entry_price else 0.0
+                if market_type == "futures":
+                    trade_pnl_percentage *= max(leverage, 1)
+
+                if trade_pnl_usdt > 0:
+                    winning_trades += 1
+                else:
+                    losing_trades += 1
+
+                daily_pnl_pct += trade_pnl_percentage
+                daily_trades += 1
+                total_trades += 1
+
+                print(f"📉 Exit: ${exit_price:.4f}, P&L: ${trade_pnl_usdt:.2f} ({trade_pnl_percentage:.2f}%), Capital: ${current_capital:.2f}")
+
+                if collect_trades:
+                    trade_log.append({
+                        'date': str(date),
+                        'side': 'LONG',
+                        'entry_time': str(current['timestamp']) if 'timestamp' in current else str(date),
+                        'exit_time': exit_time,
+                        'entry_price': round(float(entry_price), 8),
+                        'exit_price': round(float(exit_price), 8),
+                        'units': round(float(actual_units), 8),
+                        'pnl_usdt': round(float(trade_pnl_usdt), 6),
+                        'pnl_pct': round(float(trade_pnl_percentage), 6),
+                        'fees_entry': round(float(entry_fee), 6),
+                        'fees_exit': round(float(exit_fee), 6),
+                        'capital_after': round(float(current_capital), 6),
+                        'leverage': int(max(leverage, 1)),
+                        'exit_reason': exit_reason
+                    })
+
+                if daily_pnl_pct >= daily_target:
+                    break
+
+            if daily_trades > 0:
+                daily_results.append({
+                    'date': str(date),
+                    'pnl_pct': daily_pnl_pct,
+                    'trades': daily_trades,
+                    'capital': current_capital
+                })
+
+                month = pd.to_datetime(str(date)).strftime('%Y-%m')
+                if month not in monthly_results:
+                    monthly_results[month] = {'pnl_pct': 0.0, 'trades': 0}
+                monthly_results[month]['pnl_pct'] += daily_pnl_pct
+                monthly_results[month]['trades'] += daily_trades
+
+        context['current_capital'] = current_capital
+
+        return {
+            'current_capital': current_capital,
+            'daily_results': daily_results,
+            'monthly_results': monthly_results,
+            'total_trades': total_trades,
+            'winning_trades': winning_trades,
+            'losing_trades': losing_trades,
+            'total_fees': total_fees,
+            'trade_log': trade_log
+        }
+
     async def run_backtest(self, symbol: str, interval: str, start_date: str, end_date: str,
                     parameters: Dict[str, Any], market_type: str = "spot") -> Dict[str, Any]:
         """Run complete backtest with leverage support for futures"""
@@ -626,14 +837,31 @@ class BacktestService:
             if self.test_mode:
                 print("🧪 Running in TEST MODE")
 
-            # Get parameters
-            initial_capital = parameters.get('initial_capital', 1000)
-            daily_target = parameters.get('daily_target', 3.0)
-            max_daily_loss = parameters.get('max_daily_loss', 1.0)
-            stop_loss = parameters.get('stop_loss', 0.5)
-            take_profit = parameters.get('take_profit', 1.5)
-            trailing_stop = parameters.get('trailing_stop', 0.3)
-            leverage = parameters.get('leverage', 1)  # Kaldıraç parametresi
+            parameters = dict(parameters or {})
+
+            # Get parameters with sanitization
+            initial_capital = float(parameters.get('initial_capital', 1000) or 1000)
+            parameters['initial_capital'] = initial_capital
+
+            daily_target = float(parameters.get('daily_target', 3.0) or 3.0)
+            parameters['daily_target'] = daily_target
+
+            max_daily_loss = float(parameters.get('max_daily_loss', 1.0) or 1.0)
+            parameters['max_daily_loss'] = max_daily_loss
+
+            stop_loss = float(parameters.get('stop_loss', 0.5) or 0.5)
+            parameters['stop_loss'] = stop_loss
+
+            take_profit = float(parameters.get('take_profit', 1.5) or 1.5)
+            parameters['take_profit'] = take_profit
+
+            trailing_stop = float(parameters.get('trailing_stop', 0.3) or 0.3)
+            parameters['trailing_stop'] = trailing_stop
+
+            risk_per_trade = float(parameters.get('risk_per_trade', 2.0) or 2.0)
+            parameters['risk_per_trade'] = risk_per_trade
+
+            leverage = int(parameters.get('leverage', 1) or 1)
 
             # Validate leverage for futures
             if market_type.lower() == "futures":
@@ -648,8 +876,14 @@ class BacktestService:
             ema_fast = int(parameters.get('ema_fast', 8))
             ema_slow = int(parameters.get('ema_slow', 21))
             rsi_period = int(parameters.get('rsi_period', 7))
-            rsi_oversold = parameters.get('rsi_oversold', 35)
-            rsi_overbought = parameters.get('rsi_overbought', 65)
+            rsi_oversold = float(parameters.get('rsi_oversold', 35))
+            rsi_overbought = float(parameters.get('rsi_overbought', 65))
+
+            parameters['ema_fast'] = ema_fast
+            parameters['ema_slow'] = ema_slow
+            parameters['rsi_period'] = rsi_period
+            parameters['rsi_oversold'] = rsi_oversold
+            parameters['rsi_overbought'] = rsi_overbought
 
             # Fee & slippage parameters (overrides defaults)
             default_maker = 0.0001 if market_type.lower() == "futures" else 0.0002
@@ -658,16 +892,19 @@ class BacktestService:
             taker_fee = float(parameters.get('taker_fee', default_taker))
             slippage_bps = float(parameters.get('slippage_bps', 1.0))
 
+            parameters['maker_fee'] = maker_fee
+            parameters['taker_fee'] = taker_fee
+            parameters['slippage_bps'] = slippage_bps
+
+            try:
+                max_daily_trades = int(parameters.get('max_daily_trades', 5))
+            except (TypeError, ValueError):
+                max_daily_trades = 5
+            max_daily_trades = max(1, min(50, max_daily_trades))
+            parameters['max_daily_trades'] = max_daily_trades
+
             # Initialize variables
             current_capital = initial_capital
-            total_trades = 0
-            winning_trades = 0
-            losing_trades = 0
-            total_fees = 0.0
-            daily_results = []
-            monthly_results = {}
-            # initialize to satisfy type checker
-            leveraged_position_units: float = 0.0
 
             # Get and prepare data
             df = await self.get_historical_data(symbol, interval, start_date, end_date, market_type)
@@ -679,164 +916,39 @@ class BacktestService:
             # Group by day for daily trading limits
             daily_groups = df.groupby(df['timestamp'].dt.date)
 
-            for date, day_data in daily_groups:
-                daily_pnl = 0
-                daily_trades = 0
-                max_daily_trades = 5
+            self._daily_calc_context = {
+                'current_capital': current_capital,
+                'daily_target': daily_target,
+                'max_daily_loss': max_daily_loss,
+                'risk_per_trade': risk_per_trade,
+                'stop_loss': stop_loss,
+                'take_profit': take_profit,
+                'trailing_stop': trailing_stop,
+                'maker_fee': maker_fee,
+                'taker_fee': taker_fee,
+                'slippage_bps': slippage_bps,
+                'market_type': market_type,
+                'leverage': leverage,
+                'symbol': symbol,
+                'parameters': parameters,
+                'collect_trades': False
+            }
 
-                day_data = day_data.reset_index(drop=True)
+            try:
+                calc_results = self.calculate_daily_pnl(daily_groups, max_daily_trades)
+            finally:
+                self._daily_calc_context = None
 
-                for i in range(1, len(day_data)):
-                    if daily_trades >= max_daily_trades or daily_pnl <= -max_daily_loss:
-                        break
-
-                    current = day_data.iloc[i]
-                    previous = day_data.iloc[i-1]
-
-                    if self.check_entry_signal(current, previous, rsi_oversold, rsi_overbought):
-                        # Risk management: Only risk a percentage of capital per trade
-                        risk_per_trade = parameters.get('risk_per_trade', 2.0)
-                        max_position_size = current_capital * (risk_per_trade / 100)
-
-                        entry_price = current['close']
-
-                        # Calculate position size based on stop loss
-                        stop_loss_price = entry_price * (1 - stop_loss/100)
-                        risk_per_unit = entry_price - stop_loss_price
-                        position_units = max_position_size / risk_per_unit if risk_per_unit > 0 else 0
-
-                        # Leverage handling: notional is independent of leverage; margin reduces with leverage
-                        position_value = position_units * entry_price
-                        if market_type.lower() == "futures":
-                            margin_required = position_value / leverage
-                        else:
-                            margin_required = position_value
-
-                        # Don't exceed available capital
-                        if margin_required > current_capital * 0.95:
-                            margin_required = current_capital * 0.95
-                            if market_type.lower() == "futures":
-                                position_value = margin_required * leverage
-                                position_units = position_value / entry_price
-                            else:
-                                position_value = margin_required
-                                position_units = position_value / entry_price
-
-                        # Calculate entry fees (use parametrized fees)
-                        entry_fee = self.calculate_fees(position_value, market_type, is_entry=True,
-                                                        maker_fee=maker_fee, taker_fee=taker_fee,
-                                                        slippage_bps=slippage_bps)
-                        total_entry_cost = margin_required + entry_fee
-
-                        # Skip if not enough capital
-                        if total_entry_cost > current_capital:
-                            continue
-
-                        # Execute entry: Deduct margin + fees from capital
-                        current_capital -= total_entry_cost
-                        total_fees += entry_fee
-
-                        # Compute executed units from notional
-                        actual_units = float(position_value / entry_price)
-                        if market_type.lower() == "futures":
-                            print(f"📈 Futures Entry: {actual_units:.6f} {symbol} @ ${entry_price:.4f} ({leverage}x), Margin: ${margin_required:.2f}")
-                        else:
-                            print(f"📈 Spot Entry: {actual_units:.6f} {symbol} @ ${entry_price:.4f}, Cost: ${total_entry_cost:.2f}")
-
-                        # Set stops
-                        trailing_stop_price = entry_price * (1 - trailing_stop/100)
-                        max_price = entry_price
-                        take_profit_price = entry_price * (1 + take_profit/100)
-                        stop_loss_price = entry_price * (1 - stop_loss/100)
-
-                        # Check remaining candles for exit
-                        remaining_data = day_data.iloc[i+1:]
-                        exit_price = entry_price
-                        trade_successful = False
-
-                        for _, check_price in remaining_data.iterrows():
-                            # Update trailing stop
-                            if check_price['high'] > max_price:
-                                max_price = check_price['high']
-                                trailing_stop_price = max_price * (1 - trailing_stop/100)
-
-                            # Check take profit
-                            if check_price['high'] >= take_profit_price:
-                                exit_price = take_profit_price
-                                trade_successful = True
-                                break
-
-                            # Check stop loss
-                            elif check_price['low'] <= min(stop_loss_price, trailing_stop_price):
-                                exit_price = max(stop_loss_price, trailing_stop_price)
-                                trade_successful = True
-                                break
-
-                        # If no exit signal found, close at last price
-                        if not trade_successful:
-                            exit_price = day_data.iloc[-1]['close']
-
-                        # Calculate exit proceeds
-                        position_exit_value = actual_units * exit_price
-                        exit_fee = self.calculate_fees(position_exit_value, market_type, is_entry=False,
-                                                       maker_fee=maker_fee, taker_fee=taker_fee,
-                                                       slippage_bps=slippage_bps)
-
-                        # 🆕 Calculate P&L for leverage
-                        if market_type.lower() == "futures":
-                            # In futures, margin is returned plus P&L; P&L scales with units, notional fixed by units
-                            pnl_raw = (exit_price - entry_price) * actual_units
-                            net_proceeds = margin_required + pnl_raw - exit_fee
-                        else:
-                            # Spot trading
-                            net_proceeds = position_exit_value - exit_fee
-
-                        # Execute exit: Add net proceeds to capital
-                        current_capital += net_proceeds
-                        total_fees += exit_fee
-
-                        # Calculate trade P&L
-                        trade_pnl_usdt = net_proceeds - total_entry_cost
-                        trade_pnl_percentage = ((exit_price - entry_price) / entry_price) * 100
-
-                        # 🆕 Apply leverage effect to percentage calculation for futures
-                        if market_type.lower() == "futures":
-                            trade_pnl_percentage *= leverage
-
-                        # Update trade counters
-                        if trade_pnl_usdt > 0:
-                            winning_trades += 1
-                        else:
-                            losing_trades += 1
-
-                        daily_pnl += trade_pnl_percentage
-                        daily_trades += 1
-                        total_trades += 1
-
-                        print(f"📉 Exit: ${exit_price:.4f}, P&L: ${trade_pnl_usdt:.2f} ({trade_pnl_percentage:.2f}%), Capital: ${current_capital:.2f}")
-
-                        # Check daily target
-                        if daily_pnl >= daily_target:
-                            break
-
-                # Record daily results
-                if daily_trades > 0:
-                    daily_results.append({
-                        'date': str(date),
-                        'pnl_pct': daily_pnl,
-                        'trades': daily_trades,
-                        'capital': current_capital
-                    })
-
-                    # Monthly aggregation
-                    month = pd.to_datetime(str(date)).strftime('%Y-%m')
-                    if month not in monthly_results:
-                        monthly_results[month] = {'pnl_pct': 0, 'trades': 0}
-                    monthly_results[month]['pnl_pct'] += daily_pnl
-                    monthly_results[month]['trades'] += daily_trades
+            current_capital = calc_results['current_capital']
+            daily_results = calc_results['daily_results']
+            monthly_results = calc_results['monthly_results']
+            total_trades = calc_results['total_trades']
+            winning_trades = calc_results['winning_trades']
+            losing_trades = calc_results['losing_trades']
+            total_fees = calc_results['total_fees']
 
             # Calculate final results
-            total_return = (current_capital - initial_capital) / initial_capital * 100
+            total_return = (current_capital - initial_capital) / initial_capital * 100 if initial_capital else 0
             win_rate = (winning_trades / total_trades * 100) if total_trades > 0 else 0
             avg_profit = (current_capital - initial_capital) / total_trades if total_trades > 0 else 0
 
@@ -1009,11 +1121,19 @@ class BacktestService:
                 if isinstance(backtest.parameters, dict):
                     params_out = dict(cast(Dict[str, Any], backtest.parameters))
                     params_out['leverage'] = int(leverage_val)
+                    if 'max_daily_trades' not in params_out:
+                        params_out['max_daily_trades'] = 5
                 else:
                     params_out = {}
                     params_out['leverage'] = int(leverage_val)
+                    params_out['max_daily_trades'] = 5
             except Exception:
-                params_out = {"leverage": int(leverage_val)}
+                params_out = {"leverage": int(leverage_val), "max_daily_trades": 5}
+
+            try:
+                params_out['max_daily_trades'] = max(1, min(50, int(params_out.get('max_daily_trades', 5))))
+            except Exception:
+                params_out['max_daily_trades'] = 5
 
             return {
                 "id": backtest.id,
@@ -1096,170 +1216,73 @@ class BacktestService:
         Returns a list of dict rows with keys: date, entry_time, exit_time, entry_price,
         exit_price, units, pnl_usdt, pnl_pct, fees_entry, fees_exit, capital_after.
         """
-        # Parameters
-        initial_capital = parameters.get('initial_capital', 1000)
-        daily_target = parameters.get('daily_target', 3.0)
-        max_daily_loss = parameters.get('max_daily_loss', 1.0)
-        stop_loss = parameters.get('stop_loss', 0.5)
-        take_profit = parameters.get('take_profit', 1.5)
-        trailing_stop = parameters.get('trailing_stop', 0.3)
-        leverage = parameters.get('leverage', 1)
+        parameters = dict(parameters or {})
 
+        initial_capital = float(parameters.get('initial_capital', 1000) or 1000)
+        daily_target = float(parameters.get('daily_target', 3.0) or 3.0)
+        max_daily_loss = float(parameters.get('max_daily_loss', 1.0) or 1.0)
+        stop_loss = float(parameters.get('stop_loss', 0.5) or 0.5)
+        take_profit = float(parameters.get('take_profit', 1.5) or 1.5)
+        trailing_stop = float(parameters.get('trailing_stop', 0.3) or 0.3)
+        risk_per_trade = float(parameters.get('risk_per_trade', 2.0) or 2.0)
+
+        leverage = int(parameters.get('leverage', 1) or 1)
         if market_type.lower() != "futures":
             leverage = 1
 
         ema_fast = int(parameters.get('ema_fast', 8))
         ema_slow = int(parameters.get('ema_slow', 21))
         rsi_period = int(parameters.get('rsi_period', 7))
-        rsi_oversold = parameters.get('rsi_oversold', 35)
-        rsi_overbought = parameters.get('rsi_overbought', 65)
+        rsi_oversold = float(parameters.get('rsi_oversold', 35))
+        rsi_overbought = float(parameters.get('rsi_overbought', 65))
 
-        # Fee & slippage parameters for log consistency
         default_maker = 0.0001 if market_type.lower() == "futures" else 0.0002
         default_taker = 0.0004
         maker_fee = float(parameters.get('maker_fee', default_maker))
         taker_fee = float(parameters.get('taker_fee', default_taker))
         slippage_bps = float(parameters.get('slippage_bps', 1.0))
 
-        current_capital = float(initial_capital)
-        trade_log: List[Dict[str, Any]] = []
+        try:
+            max_daily_trades = int(parameters.get('max_daily_trades', 5))
+        except (TypeError, ValueError):
+            max_daily_trades = 5
+        max_daily_trades = max(1, min(50, max_daily_trades))
+        parameters['max_daily_trades'] = max_daily_trades
 
-        # Prepare data
+        current_capital = float(initial_capital)
+
         df = await self.get_historical_data(symbol, interval, start_date, end_date, market_type)
         df = self.prepare_indicators(df, ema_fast, ema_slow, rsi_period)
-
         daily_groups = df.groupby(df['timestamp'].dt.date)
-        for date, day_data in daily_groups:
-            daily_pnl_pct = 0.0
-            daily_trades = 0
-            max_daily_trades = 5
-            day_data = day_data.reset_index(drop=True)
 
-            for i in range(1, len(day_data)):
-                if daily_trades >= max_daily_trades or daily_pnl_pct <= -max_daily_loss:
-                    break
+        self._daily_calc_context = {
+            'current_capital': current_capital,
+            'daily_target': daily_target,
+            'max_daily_loss': max_daily_loss,
+            'risk_per_trade': risk_per_trade,
+            'stop_loss': stop_loss,
+            'take_profit': take_profit,
+            'trailing_stop': trailing_stop,
+            'maker_fee': maker_fee,
+            'taker_fee': taker_fee,
+            'slippage_bps': slippage_bps,
+            'market_type': market_type,
+            'leverage': leverage,
+            'symbol': symbol,
+            'parameters': {
+                **parameters,
+                'rsi_oversold': rsi_oversold,
+                'rsi_overbought': rsi_overbought
+            },
+            'collect_trades': True
+        }
 
-                current = day_data.iloc[i]
-                previous = day_data.iloc[i-1]
+        try:
+            calc_results = self.calculate_daily_pnl(daily_groups, max_daily_trades)
+        finally:
+            self._daily_calc_context = None
 
-                if not self.check_entry_signal(current, previous, rsi_oversold, rsi_overbought):
-                    continue
-
-                # Risk size
-                risk_per_trade = parameters.get('risk_per_trade', 2.0)
-                max_position_size = current_capital * (risk_per_trade / 100)
-
-                entry_price = float(current['close'])
-                entry_time = str(current['timestamp']) if 'timestamp' in current else str(date)
-
-                stop_loss_price = entry_price * (1 - stop_loss/100)
-                risk_per_unit = entry_price - stop_loss_price
-                position_units = (max_position_size / risk_per_unit) if risk_per_unit > 0 else 0.0
-
-                # Notional is independent of leverage; margin is reduced by leverage in futures
-                position_value = position_units * entry_price
-                if market_type.lower() == "futures":
-                    margin_required = position_value / leverage
-                else:
-                    margin_required = position_value
-
-                # Capital guard
-                if margin_required > current_capital * 0.95:
-                    margin_required = current_capital * 0.95
-                    if market_type.lower() == "futures":
-                        position_value = margin_required * leverage
-                    else:
-                        position_value = margin_required
-
-                # Entry fees and execution
-                entry_fee = self.calculate_fees(position_value, market_type, is_entry=True,
-                                                maker_fee=maker_fee, taker_fee=taker_fee,
-                                                slippage_bps=slippage_bps)
-                total_entry_cost = margin_required + entry_fee
-                if total_entry_cost > current_capital:
-                    continue
-                current_capital -= total_entry_cost
-
-                # Stops
-                trailing_stop_price = entry_price * (1 - trailing_stop/100)
-                max_price = entry_price
-                take_profit_price = entry_price * (1 + take_profit/100)
-                stop_loss_price = entry_price * (1 - stop_loss/100)
-
-                # Exit search
-                remaining_data = day_data.iloc[i+1:]
-                exit_price = entry_price
-                exit_time = entry_time
-                exit_found = False
-                exit_reason = "EOD"
-                for _, check_price in remaining_data.iterrows():
-                    if check_price['high'] > max_price:
-                        max_price = check_price['high']
-                        trailing_stop_price = max_price * (1 - trailing_stop/100)
-
-                    if check_price['high'] >= take_profit_price:
-                        exit_price = float(take_profit_price)
-                        exit_time = str(check_price['timestamp']) if 'timestamp' in check_price else entry_time
-                        exit_found = True
-                        exit_reason = "TP"
-                        break
-                    elif check_price['low'] <= min(stop_loss_price, trailing_stop_price):
-                        exit_price = float(max(stop_loss_price, trailing_stop_price))
-                        exit_time = str(check_price['timestamp']) if 'timestamp' in check_price else entry_time
-                        exit_found = True
-                        exit_reason = "SL"
-                        break
-
-                if not exit_found:
-                    # Close at day's last price/time
-                    last_row = day_data.iloc[-1]
-                    exit_price = float(last_row['close'])
-                    exit_time = str(last_row['timestamp']) if 'timestamp' in last_row else entry_time
-
-                # Executed units from notional
-                actual_units = float(position_value / entry_price)
-                position_exit_value = actual_units * exit_price
-                exit_fee = self.calculate_fees(position_exit_value, market_type, is_entry=False,
-                                               maker_fee=maker_fee, taker_fee=taker_fee,
-                                               slippage_bps=slippage_bps)
-
-                if market_type.lower() == "futures":
-                    pnl_raw = (exit_price - entry_price) * actual_units
-                    net_proceeds = margin_required + pnl_raw - exit_fee
-                else:
-                    net_proceeds = position_exit_value - exit_fee
-
-                current_capital += net_proceeds
-
-                trade_pnl_usdt = float(net_proceeds - total_entry_cost)
-                trade_pnl_pct = ((exit_price - entry_price) / entry_price) * 100
-                if market_type.lower() == "futures":
-                    trade_pnl_pct *= leverage
-
-                daily_pnl_pct += trade_pnl_pct
-                daily_trades += 1
-
-                trade_log.append({
-                    'date': str(date),
-                    'side': 'LONG',
-                    'entry_time': entry_time,
-                    'exit_time': exit_time,
-                    'entry_price': round(float(entry_price), 8),
-                    'exit_price': round(float(exit_price), 8),
-                    'units': round(float(actual_units), 8),
-                    'pnl_usdt': round(trade_pnl_usdt, 6),
-                    'pnl_pct': round(trade_pnl_pct, 6),
-                    'fees_entry': round(float(entry_fee), 6),
-                    'fees_exit': round(float(exit_fee), 6),
-                    'capital_after': round(float(current_capital), 6),
-                    'leverage': int(leverage),
-                    'exit_reason': exit_reason
-                })
-
-                if daily_pnl_pct >= daily_target:
-                    break
-
-        return trade_log
+        return calc_results['trade_log']
 
     async def get_available_symbols(self, market_type: str = "spot") -> List[Dict]:
         """Get available symbols from Binance (async)"""
